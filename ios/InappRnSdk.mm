@@ -1,5 +1,15 @@
 #import "InappRnSdk.h"
 
+/*
+ This condition is needed to support use_frameworks.
+ https://github.com/callstack/react-native-builder-bob/discussions/412#discussioncomment-6352402
+ */
+#if __has_include("InappRnSdk-Swift.h")
+#import "InappRnSdk-Swift.h"
+#else
+#import "InappRnSdk/InappRnSdk-Swift.h"
+#endif
+
 @implementation InappRnSdk
 RCT_EXPORT_MODULE()
 
@@ -9,8 +19,14 @@ RCT_EXPORT_MODULE()
     return std::make_shared<facebook::react::NativeInappRnSdkSpecJSI>(params);
 }
 
-- (void)ping:(nonnull RCTPromiseResolveBlock)resolve reject:(nonnull RCTPromiseRejectBlock)reject { 
-  resolve(@true);
+- (void)ping:(nonnull RCTPromiseResolveBlock)resolve reject:(nonnull RCTPromiseRejectBlock)reject {
+  Api *myApiInstance = [[Api alloc] init];
+  BOOL pingResult = [myApiInstance ping];
+  if (pingResult) {
+    resolve(@true);
+  } else {
+    resolve(@false);
+  }
 }
 
 - (void)reply:(nonnull NSString *)replyId reply:(BOOL)reply { 

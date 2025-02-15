@@ -25,6 +25,7 @@ target 'InappRnSdkExample' do
     :app_path => "#{Pod::Config.instance.installation_root}/.."
   )
 
+  pod 'ReclaimInAppSdk', :git => 'https://github.com/reclaimprotocol/reclaim-inapp-ios-sdk.git', :commit => 'bb2fc23a00769c6df2e8e9b9331fd6c7238c46ef'
 
   pre_install do |installer|
     system("cd ../../ && npx bob build --target codegen")
