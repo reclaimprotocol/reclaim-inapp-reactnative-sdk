@@ -87,3 +87,5 @@ nitrogen/
 
 yarn.lock
 package-lock.json
+
+*.tgz
