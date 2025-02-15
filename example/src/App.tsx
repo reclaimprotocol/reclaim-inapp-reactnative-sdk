@@ -10,6 +10,7 @@ import {
   StatusBar,
 } from 'react-native';
 import { ReclaimVerification } from '@reclaimprotocol/inapp-rn-sdk';
+import { ReclaimVerificationApi } from '@reclaimprotocol/inapp-rn-sdk';
 import Snackbar from 'react-native-snackbar';
 import { REACT_APP_RECLAIM_APP_ID, REACT_APP_RECLAIM_APP_SECRET } from '@env';
 
@@ -48,11 +49,39 @@ export default function App() {
       });
       setResult(verificationResult);
     } catch (error) {
-      console.error(error);
-      Snackbar.show({
-        text: error instanceof Error ? error.message : 'Verification failed',
-        duration: Snackbar.LENGTH_LONG,
-      });
+      if (error instanceof ReclaimVerificationApi.ReclaimVerificationException) {
+        switch (error.type) {
+          case ReclaimVerificationApi.ExceptionType.Cancelled:
+            Snackbar.show({
+              text: 'Verification cancelled',
+              duration: Snackbar.LENGTH_LONG,
+            });
+            break;
+          case ReclaimVerificationApi.ExceptionType.Dismissed:
+            Snackbar.show({
+              text: 'Verification dismissed',
+              duration: Snackbar.LENGTH_LONG,
+            });
+            break;
+          case ReclaimVerificationApi.ExceptionType.SessionExpired:
+            Snackbar.show({
+              text: 'Verification session expired',
+              duration: Snackbar.LENGTH_LONG,
+            });
+            break;
+          case ReclaimVerificationApi.ExceptionType.Failed:
+          default:
+            Snackbar.show({
+              text: 'Verification failed',
+              duration: Snackbar.LENGTH_LONG,
+            });
+        }
+      } else {
+        Snackbar.show({
+          text: error instanceof Error ? error.message : 'An unknown verification error occurred',
+          duration: Snackbar.LENGTH_LONG,
+        });
+      }
     }
   };
 

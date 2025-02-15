@@ -1,12 +1,39 @@
-# @reclaimprotocol/inapp-rn-sdk
+# Reclaim InApp React Native SDK
 
-Reclaim Protocol's InApp React Native SDK for ZK proof generations for requests with an in-app experience of web verification
+## @reclaimprotocol/inapp-rn-sdk
+
+This SDK allows you to integrate Reclaim's in-app verification process into your React Native application.
+
+## Prerequisites
+
+- A [Reclaim account](https://dev.reclaimprotocol.org/explore) where you've created an app and have the app id, app secret.
+- A provider id that you've added to your app in [Reclaim Devtools](https://dev.reclaimprotocol.org/explore).
+
+## Example
+
+- See the [Reclaim Example - React Native](example/README.md) for a complete example of how to use the SDK in a React Native application.
 
 ## Installation
 
 ```sh
 npm install @reclaimprotocol/inapp-rn-sdk
 ```
+
+### Install from git source (alternative)
+
+#### NPM
+
+```sh
+npm install git+https://github.com/reclaimprotocol/inapp-rn-sdk.git
+```
+
+#### Yarn
+
+```sh
+yarn add git+https://github.com/reclaimprotocol/inapp-rn-sdk.git
+```
+
+## Setup
 
 ### Android Setup
 
@@ -60,21 +87,25 @@ Some projects may require you to add the repositories to the root `build.gradle`
 
 ### iOS Setup
 
-iOS support in development.
+👷 iOS support is in development.
 
 ## Usage
 
-### Initialize
+To use Reclaim InApp Sdk in your project, follow these steps:
+
+1. Import the `@reclaimprotocol/inapp-rn-sdk` package in your project file.
 
 ```js
 import { ReclaimVerification } from '@reclaimprotocol/inapp-rn-sdk';
+```
 
-// ...
+2. Initialize the `ReclaimVerification` class to create an instance.
 
+```js
 const reclaimVerification = new ReclaimVerification();
 ```
 
-### Start verification
+3. Start the verification flow by providing the app id, secret and provider id.
 
 ```js
 const verificationResult = await reclaimVerification.startVerification({
@@ -82,6 +113,60 @@ const verificationResult = await reclaimVerification.startVerification({
     secret: config.REACT_APP_RECLAIM_APP_SECRET ?? '',
     providerId: providerId,
 });
+```
+
+The returned result is a [ReclaimVerificationApi.Response] object. This object contains a response that has proofs, exception, and the sessionId if the verification is successful.
+
+### Exception Handling
+
+If the verification ends with an exception, the exception is thrown as a [ReclaimVerificationApi.ReclaimVerificationException] object.
+
+Following is an example of how to handle the exception using [error.type]:
+
+```js
+try {
+  // ... start verification
+} catch (error) {
+  if (error instanceof ReclaimVerificationApi.ReclaimVerificationException) {
+    switch (error.type) {
+      case ReclaimVerificationApi.ExceptionType.Cancelled:
+        Snackbar.show({
+          text: 'Verification cancelled',
+          duration: Snackbar.LENGTH_LONG,
+        });
+        break;
+      case ReclaimVerificationApi.ExceptionType.Dismissed:
+        Snackbar.show({
+          text: 'Verification dismissed',
+          duration: Snackbar.LENGTH_LONG,
+        });
+        break;
+      case ReclaimVerificationApi.ExceptionType.SessionExpired:
+        Snackbar.show({
+          text: 'Verification session expired',
+          duration: Snackbar.LENGTH_LONG,
+        });
+        break;
+      case ReclaimVerificationApi.ExceptionType.Failed:
+      default:
+        Snackbar.show({
+          text: 'Verification failed',
+          duration: Snackbar.LENGTH_LONG,
+        });
+    }
+  } else {
+    Snackbar.show({
+      text: error instanceof Error ? error.message : 'An unknown verification error occurred',
+      duration: Snackbar.LENGTH_LONG,
+    });
+  }
+}
+```
+
+This exception also contains the inner error that can be used to get more details about the occurred exception.
+
+```js
+error.innerError
 ```
 
 ## Advanced Usage
@@ -95,6 +180,7 @@ reclaimVerification.setOverrides({
     appName: "Overriden Example",
     appImageUrl: "https://placehold.co/400x400/png"
   }
+  // .. other overrides
 })
 ```
 

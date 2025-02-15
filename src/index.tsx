@@ -1,5 +1,6 @@
 import { ReclaimVerificationPlatformChannel, type ReclaimVerificationApi } from './ReclaimVerificationPlatformChannel';
-export { ReclaimVerificationPlatformChannel, type ReclaimVerificationApi } from './ReclaimVerificationPlatformChannel';
+export { ReclaimVerificationPlatformChannel, ReclaimVerificationApi } from './ReclaimVerificationPlatformChannel';
+export type { ReclaimVerificationApi as ReclaimVerificationApiType } from './ReclaimVerificationPlatformChannel';
 
 export class ReclaimVerification {
   public channel: ReclaimVerificationPlatformChannel;
@@ -18,12 +19,10 @@ export class ReclaimVerification {
   }
 
   public async startVerification(request: ReclaimVerificationApi.Request): Promise<ReclaimVerificationApi.Response> {
-    console.info('startVerification', request);
     return this.channel.startVerification(request);
   }
 
   public async ping(): Promise<boolean> {
-    console.info('ping');
     return this.channel.ping();
   }
 

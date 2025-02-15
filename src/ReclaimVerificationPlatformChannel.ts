@@ -61,15 +61,56 @@ export namespace ReclaimVerificationApi {
         sessionManagement?: Overrides.SessionManagement,
         appInfo?: Overrides.ReclaimAppInfo
     }
+
+    export enum ExceptionType {
+        Unknown = "Unknown",
+        Cancelled = "Cancelled",
+        Dismissed = "Dismissed",
+        SessionExpired = "SessionExpired",
+        Failed = "Failed",
+    }
+
+    export class ReclaimVerificationException extends Error {
+        readonly innerError: Error
+        readonly type: ExceptionType
+
+        constructor(message: string, innerError: Error, type: ExceptionType) {
+            super(message);
+            this.innerError = innerError;
+            this.type = type;
+        }
+
+        static typeFromName(name: string): ExceptionType {
+            switch (name) {
+                case "org.reclaimprotocol.inapp_sdk.ReclaimVerification.ReclaimVerificationException.Cancelled":
+                    return ExceptionType.Cancelled;
+                case "org.reclaimprotocol.inapp_sdk.ReclaimVerification.ReclaimVerificationException.Dismissed":
+                    return ExceptionType.Dismissed;
+                case "org.reclaimprotocol.inapp_sdk.ReclaimVerification.ReclaimVerificationException.SessionExpired":
+                    return ExceptionType.SessionExpired;
+                case "org.reclaimprotocol.inapp_sdk.ReclaimVerification.ReclaimVerificationException.Failed":
+                    return ExceptionType.Failed;
+            }
+            return ExceptionType.Unknown;
+        }
+    }
 }
 
 export class ReclaimVerificationPlatformChannel {
     async startVerification(request: ReclaimVerificationApi.Request): Promise<ReclaimVerificationApi.Response> {
-        const response = await NativeReclaimInappModule.startVerification(request);
-        if (__DEV__) {
-            console.log({ response });
+        try {
+            return await NativeReclaimInappModule.startVerification(request);
+        } catch (error) {
+            if (error instanceof Error) {
+                const type = ReclaimVerificationApi.ReclaimVerificationException.typeFromName(error.name);
+                throw new ReclaimVerificationApi.ReclaimVerificationException(error.message, error, type);
+            }
+            throw error
         }
-        return response
+    }
+
+    async startVerificationFromUrl(requestUrl: string): Promise<ReclaimVerificationApi.Response> {
+        return await NativeReclaimInappModule.startVerificationFromUrl(requestUrl);
     }
 
     async ping(): Promise<boolean> {
