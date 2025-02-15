@@ -49,6 +49,9 @@ export default function App() {
       });
       setResult(verificationResult);
     } catch (error) {
+      console.info({
+        error,
+      });
       if (error instanceof ReclaimVerificationApi.ReclaimVerificationException) {
         switch (error.type) {
           case ReclaimVerificationApi.ExceptionType.Cancelled:
