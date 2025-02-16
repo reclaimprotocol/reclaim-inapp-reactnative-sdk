@@ -14,14 +14,16 @@
 RCT_EXPORT_MODULE()
 
 - (std::shared_ptr<facebook::react::TurboModule>)getTurboModule:
-    (const facebook::react::ObjCTurboModule::InitParams &)params
+(const facebook::react::ObjCTurboModule::InitParams &)params
 {
-    return std::make_shared<facebook::react::NativeInappRnSdkSpecJSI>(params);
+  return std::make_shared<facebook::react::NativeInappRnSdkSpecJSI>(params);
 }
 
+Api *api = [[Api alloc] init];
+
 - (void)ping:(nonnull RCTPromiseResolveBlock)resolve reject:(nonnull RCTPromiseRejectBlock)reject {
-  Api *myApiInstance = [[Api alloc] init];
-  BOOL pingResult = [myApiInstance ping];
+  
+  BOOL pingResult = [api ping];
   if (pingResult) {
     resolve(@true);
   } else {
@@ -29,19 +31,42 @@ RCT_EXPORT_MODULE()
   }
 }
 
-- (void)reply:(nonnull NSString *)replyId reply:(BOOL)reply { 
-  
+- (void)reply:(nonnull NSString *)replyId reply:(BOOL)reply {
+  [api replyWithReplyId:replyId reply:reply];
 }
 
-- (void)setOverrides:(JS::NativeInappRnSdk::ProviderInformation &)provider featureOptions:(JS::NativeInappRnSdk::FeatureOptions &)featureOptions logConsumer:(JS::NativeInappRnSdk::LogConsumer &)logConsumer sessionManagement:(JS::NativeInappRnSdk::SessionManagement &)sessionManagement appInfo:(JS::NativeInappRnSdk::ReclaimAppInfo &)appInfo resolve:(nonnull RCTPromiseResolveBlock)resolve reject:(nonnull RCTPromiseRejectBlock)reject { 
+- (void)setOverrides:(JS::NativeInappRnSdk::ProviderInformation &)provider featureOptions:(JS::NativeInappRnSdk::FeatureOptions &)featureOptions logConsumer:(JS::NativeInappRnSdk::LogConsumer &)logConsumer sessionManagement:(JS::NativeInappRnSdk::SessionManagement &)sessionManagement appInfo:(JS::NativeInappRnSdk::ReclaimAppInfo &)appInfo resolve:(nonnull RCTPromiseResolveBlock)resolve reject:(nonnull RCTPromiseRejectBlock)reject {
   reject(@"UNIMPLEMENTED", @"Method unimplemented", nil);
 }
 
-- (void)startVerification:(JS::NativeInappRnSdk::Request &)request resolve:(nonnull RCTPromiseResolveBlock)resolve reject:(nonnull RCTPromiseRejectBlock)reject { 
-  reject(@"UNIMPLEMENTED", @"Method unimplemented", nil);
+- (void)startVerification:(JS::NativeInappRnSdk::Request &)request resolve:(nonnull RCTPromiseResolveBlock)resolve reject:(nonnull RCTPromiseRejectBlock)reject {
+  NSLog(@"starting verification");
+  bool hideLanding = true;
+  if (request.hideLanding().has_value()) {
+    hideLanding = request.hideLanding().value();
+  }
+  bool autoSubmit = false;
+  if (request.autoSubmit().has_value()) {
+    autoSubmit = request.autoSubmit().value();
+  }
+  bool acceptAiProviders = false;
+  if (request.acceptAiProviders().has_value()) {
+    acceptAiProviders = request.acceptAiProviders().value();
+  }
+  NSLog(@"starting verification now");
+  [api startVerificationWithAppId:request.appId() secret:request.secret() providerId:request.providerId() sessionTimeestamp:request.session().value().timestamp() sessionSessionId:request.session().value().sessionId() sessionSignature:request.session().value().signature() context:request.contextString() parameters:(NSDictionary<NSString *, NSString *> *)request.parameters() hideLanding:hideLanding autoSubmit:autoSubmit acceptAiProviders:acceptAiProviders webhookUrl:request.webhookUrl() completionHandler:^(NSDictionary<NSString *,id> * _Nullable result, NSError * _Nullable error) {
+    if (error) {
+      NSLog(@"Api Error: %@", error);
+      
+      NSString *message = [NSString stringWithFormat:@"code: %ld, userInfo: %@, domain: %@, name: %@", static_cast<long>(error.code), error.userInfo, error.domain, NSStringFromClass([error class])];
+      reject(@"VERIFICATION", @"Verification Error", error);
+    } else {
+      resolve(result);
+    }
+  }];
 }
 
-- (void)startVerificationFromUrl:(nonnull NSString *)requestUrl resolve:(nonnull RCTPromiseResolveBlock)resolve reject:(nonnull RCTPromiseRejectBlock)reject { 
+- (void)startVerificationFromUrl:(nonnull NSString *)requestUrl resolve:(nonnull RCTPromiseResolveBlock)resolve reject:(nonnull RCTPromiseRejectBlock)reject {
   reject(@"UNIMPLEMENTED", @"Method unimplemented", nil);
 }
 
