@@ -92,7 +92,7 @@ export namespace ReclaimVerificationApi {
             this.reason = reason;
         }
 
-        private static typeFromName(name: string): ExceptionType {
+        private static fromTypeName(name: string): ExceptionType {
             switch (name) {
                 case "cancelled":
                 case "org.reclaimprotocol.inapp_sdk.ReclaimVerification.ReclaimVerificationException.Cancelled":
@@ -111,31 +111,32 @@ export namespace ReclaimVerificationApi {
         }
 
         static fromError(error: Error, sessionIdHint: string): ReclaimVerificationException {
-            if (error.hasOwnProperty('userInfo')) {
-                // iOS-side sends information about error in userInfo
+            if (Object.hasOwn(error, 'userInfo')) {
+                // From native, we send information about error in userInfo
                 let unTypedError = (error as unknown as any);
-                let type = ReclaimVerificationApi.ReclaimVerificationException.typeFromName(unTypedError.userInfo.errorType);
-                let maybeSessionId = unTypedError?.userInfo?.sessionId
-                return new ReclaimVerificationException(
-                    error.message,
-                    error,
-                    type,
-                    (typeof maybeSessionId === 'string' && maybeSessionId)
-                        ? maybeSessionId : sessionIdHint,
-                    unTypedError?.userInfo?.didSubmitManualVerification ?? false,
-                    unTypedError?.userInfo?.reason ?? ""
-                );
-            } else {
-                let type = ReclaimVerificationApi.ReclaimVerificationException.typeFromName(error.name);
-                return new ReclaimVerificationException(
-                    error.message,
-                    error,
-                    type,
-                    "",
-                    false,
-                    ""
-                );
+                let userInfo = unTypedError.userInfo;
+                if (userInfo) {
+                    let type = ReclaimVerificationApi.ReclaimVerificationException.fromTypeName(unTypedError.userInfo.errorType);
+                    let maybeSessionId = unTypedError?.userInfo?.sessionId
+                    return new ReclaimVerificationException(
+                        error.message,
+                        error,
+                        type,
+                        (typeof maybeSessionId === 'string' && maybeSessionId)
+                            ? maybeSessionId : sessionIdHint,
+                        unTypedError?.userInfo?.didSubmitManualVerification ?? false,
+                        unTypedError?.userInfo?.reason ?? ""
+                    );
+                }
             }
+            return new ReclaimVerificationException(
+                error.message,
+                error,
+                ReclaimVerificationApi.ExceptionType.Failed,
+                sessionIdHint,
+                false,
+                ""
+            );
         }
     }
 }

@@ -92,9 +92,6 @@ Api *api = [[Api alloc] init];
   [api startVerificationWithAppId:request.appId() secret:request.secret() providerId:request.providerId() sessionTimestamp:timestamp sessionSessionId:sessionId sessionSignature:signature context:request.contextString() parameters:parameters hideLanding:hideLanding autoSubmit:autoSubmit acceptAiProviders:acceptAiProviders webhookUrl:request.webhookUrl() completionHandler:^(NSDictionary<NSString *,id> * _Nullable result, NSError * _Nullable error) {
     if (error != nil) {
       NSLog(@"[InappRnSdk] Api Error: %@", error);
-      
-      NSString *message = [NSString stringWithFormat:@"code: %ld, userInfo: %@, domain: %@, name: %@", static_cast<long>(error.code), error.userInfo, error.domain, NSStringFromClass([error class])];
-      NSLog(@"[InappRnSdk] %@", message);
       reject(@"VERIFICATION_ERROR", @"Verification Error", error);
     } else {
       resolve(result);
@@ -108,16 +105,8 @@ Api *api = [[Api alloc] init];
   NSLog(@"[InappRnSdk] starting verification now");
   [api startVerificationFromUrlWithUrl:requestUrl completionHandler:^(NSDictionary<NSString *,id> * _Nullable result, NSError * _Nullable error) {
     if (error != nil) {
-      if ([error isKindOfClass:[ApiError class]]) {
-        // The error is an ApiError object.
-        ApiError *apiError = (ApiError *)error;
-        reject(@"VERIFICATION_ERROR", [apiError errorType], error);
-      }
       NSLog(@"[InappRnSdk] Api Error: %@", error);
-      
-      NSString *message = [NSString stringWithFormat:@"code: %ld, userInfo: %@, domain: %@, name: %@", static_cast<long>(error.code), error.userInfo, error.domain, NSStringFromClass([error class])];
-      NSLog(@"[InappRnSdk] %@", message);
-      reject(@"VERIFICATION", @"Verification Error", error);
+      reject(@"VERIFICATION_ERROR", @"Verification Error", error);
     } else {
       resolve(result);
     }

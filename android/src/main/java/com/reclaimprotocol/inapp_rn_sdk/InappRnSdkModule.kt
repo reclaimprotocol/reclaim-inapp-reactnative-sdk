@@ -29,7 +29,18 @@ class InappRnSdkModule(private val reactContext: ReactApplicationContext) :
     ReclaimVerification.ResultHandler {
     override fun onException(exception: ReclaimVerification.ReclaimVerificationException) {
       Log.e(NAME, "reclaim exception", exception)
-      promise?.reject(exception)
+      val userInfoMap = Arguments.createMap()
+      val errorType = when (exception) {
+        is ReclaimVerification.ReclaimVerificationException.Cancelled -> "cancelled"
+        is ReclaimVerification.ReclaimVerificationException.Dismissed -> "dismissed"
+        is ReclaimVerification.ReclaimVerificationException.Failed -> "failed"
+        is ReclaimVerification.ReclaimVerificationException.SessionExpired -> "sessionExpired"
+      }
+      userInfoMap.putString("errorType", errorType)
+      userInfoMap.putString("sessionId", exception.sessionId)
+      userInfoMap.putBoolean("didSubmitManualVerification", exception.didSubmitManualVerification)
+      userInfoMap.putString("reason", if (exception is ReclaimVerification.ReclaimVerificationException.Failed) exception.reason else null)
+      promise?.reject("VERIFICATION_ERROR", "Verification Error", exception, userInfoMap)
     }
 
     override fun onResponse(response: ReclaimVerification.Response) {
