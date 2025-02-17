@@ -33,20 +33,48 @@ export interface SessionInformation {
 export interface Request {
   /**
    * The Reclaim application ID for the verification process.
-   * If not provided, the appId will be fetched from the AndroidManifest.xml metadata along with secret.
+   * If not provided, the appId will be fetched from:
+   * - the `AndroidManifest.xml` metadata along with secret on android:
+   * 
    * ```xml
    * <meta-data android:name="org.reclaimprotocol.inapp_sdk.APP_ID"
-   *            android:value="<YOUR_RECLAIM_APP_ID>" />
+   *            android:value="YOUR_RECLAIM_APP_ID" />
+   * ```
+   * 
+   * - the `ReclaimInAppSDKParam.ReclaimAppId` in Info.plist along with secret on iOS:
+   * 
+   * ```xml
+   * <key>ReclaimInAppSDKParam</key>
+   * <dict>
+   *    <key>ReclaimAppId</key>
+   *    <string>YOUR_RECLAIM_APP_ID</string>
+   *    <key>ReclaimAppSecret</key>
+   *    <string>YOUR_RECLAIM_APP_SECRET</string>
+   * </dict>
    * ```
    */
   appId: string;
 
   /**
    * The Reclaim application secret for the verification process.
-   * If not provided, the secret will be fetched from the AndroidManifest.xml metadata along with appId.
+   * If not provided, the secret will be fetched from:
+   * - the `AndroidManifest.xml` metadata along with appId on android:
+   * 
    * ```xml
    * <meta-data android:name="org.reclaimprotocol.inapp_sdk.APP_SECRET"
-   *            android:value="<YOUR_RECLAIM_APP_SECRET>" />
+   *            android:value="YOUR_RECLAIM_APP_SECRET" />
+   * ```
+   * 
+   * - the `ReclaimInAppSDKParam.ReclaimAppSecret` in Info.plist along with appId on iOS:
+   * 
+   * ```xml
+   * <key>ReclaimInAppSDKParam</key>
+   * <dict>
+   *    <key>ReclaimAppId</key>
+   *    <string>YOUR_RECLAIM_APP_ID</string>
+   *    <key>ReclaimAppSecret</key>
+   *    <string>YOUR_RECLAIM_APP_SECRET</string>
+   * </dict>
    * ```
    */
   secret: string;
@@ -250,11 +278,11 @@ export interface SessionUpdateRequestEvent {
   /**
    * The session ID for the verification attempt
   */
- sessionId: string;
- /**
-  * The status type of this session event
-  */
- status: string;
+  sessionId: string;
+  /**
+   * The status type of this session event
+   */
+  status: string;
   /**
    * internal
    */

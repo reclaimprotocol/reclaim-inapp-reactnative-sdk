@@ -40,7 +40,8 @@ Api *api = [[Api alloc] init];
 }
 
 - (void)startVerification:(JS::NativeInappRnSdk::Request &)request resolve:(nonnull RCTPromiseResolveBlock)resolve reject:(nonnull RCTPromiseRejectBlock)reject {
-  NSLog(@"starting verification");
+  NSLog(@"[InappRnSdk] starting verification");
+  
   bool hideLanding = true;
   if (request.hideLanding().has_value()) {
     hideLanding = request.hideLanding().value();
@@ -53,13 +54,48 @@ Api *api = [[Api alloc] init];
   if (request.acceptAiProviders().has_value()) {
     acceptAiProviders = request.acceptAiProviders().value();
   }
-  NSLog(@"starting verification now");
-  [api startVerificationWithAppId:request.appId() secret:request.secret() providerId:request.providerId() sessionTimeestamp:request.session().value().timestamp() sessionSessionId:request.session().value().sessionId() sessionSignature:request.session().value().signature() context:request.contextString() parameters:(NSDictionary<NSString *, NSString *> *)request.parameters() hideLanding:hideLanding autoSubmit:autoSubmit acceptAiProviders:acceptAiProviders webhookUrl:request.webhookUrl() completionHandler:^(NSDictionary<NSString *,id> * _Nullable result, NSError * _Nullable error) {
-    if (error) {
-      NSLog(@"Api Error: %@", error);
+  
+  NSString *sessionId = nil;
+  NSString *timestamp = nil;
+  NSString *signature = nil;
+  if (request.session().has_value()) {
+    sessionId = request.session().value().sessionId();
+    timestamp = request.session().value().timestamp();
+    signature = request.session().value().signature();
+  }
+  
+  NSDictionary<NSString *, NSString *> *parameters = @{};
+  if (request.parameters() != nil) {
+      id potentialParameters = request.parameters();
+      if ([potentialParameters isKindOfClass:[NSDictionary class]]) {
+         // just verifying because cannot trust JS
+         NSDictionary *tempDictionary = (NSDictionary *)potentialParameters;
+          BOOL allStrings = YES;
+          for (id key in tempDictionary) {
+              if (![key isKindOfClass:[NSString class]] || ![tempDictionary[key] isKindOfClass:[NSString class]]) {
+                  allStrings = NO;
+                  break;
+              }
+          }
+          if (allStrings){
+              // should always be the case
+              parameters = (NSDictionary<NSString *, NSString *> *)potentialParameters;
+          } else {
+              NSLog(@"[InappRnSdk] request.parameters() contains non string key or value");
+          }
+      } else {
+          NSLog(@"[InappRnSdk] request.parameters() is not a dictionary.");
+      }
+  }
+
+  NSLog(@"[InappRnSdk] starting verification now");
+  [api startVerificationWithAppId:request.appId() secret:request.secret() providerId:request.providerId() sessionTimestamp:timestamp sessionSessionId:sessionId sessionSignature:signature context:request.contextString() parameters:parameters hideLanding:hideLanding autoSubmit:autoSubmit acceptAiProviders:acceptAiProviders webhookUrl:request.webhookUrl() completionHandler:^(NSDictionary<NSString *,id> * _Nullable result, NSError * _Nullable error) {
+    if (error != nil) {
+      NSLog(@"[InappRnSdk] Api Error: %@", error);
       
       NSString *message = [NSString stringWithFormat:@"code: %ld, userInfo: %@, domain: %@, name: %@", static_cast<long>(error.code), error.userInfo, error.domain, NSStringFromClass([error class])];
-      reject(@"VERIFICATION", @"Verification Error", error);
+      NSLog(@"[InappRnSdk] %@", message);
+      reject(@"VERIFICATION_ERROR", @"Verification Error", error);
     } else {
       resolve(result);
     }
@@ -67,7 +103,25 @@ Api *api = [[Api alloc] init];
 }
 
 - (void)startVerificationFromUrl:(nonnull NSString *)requestUrl resolve:(nonnull RCTPromiseResolveBlock)resolve reject:(nonnull RCTPromiseRejectBlock)reject {
-  reject(@"UNIMPLEMENTED", @"Method unimplemented", nil);
+  NSLog(@"[InappRnSdk] starting verification");
+  
+  NSLog(@"[InappRnSdk] starting verification now");
+  [api startVerificationFromUrlWithUrl:requestUrl completionHandler:^(NSDictionary<NSString *,id> * _Nullable result, NSError * _Nullable error) {
+    if (error != nil) {
+      if ([error isKindOfClass:[ApiError class]]) {
+        // The error is an ApiError object.
+        ApiError *apiError = (ApiError *)error;
+        reject(@"VERIFICATION_ERROR", [apiError errorType], error);
+      }
+      NSLog(@"[InappRnSdk] Api Error: %@", error);
+      
+      NSString *message = [NSString stringWithFormat:@"code: %ld, userInfo: %@, domain: %@, name: %@", static_cast<long>(error.code), error.userInfo, error.domain, NSStringFromClass([error class])];
+      NSLog(@"[InappRnSdk] %@", message);
+      reject(@"VERIFICATION", @"Verification Error", error);
+    } else {
+      resolve(result);
+    }
+  }];
 }
 
 @end

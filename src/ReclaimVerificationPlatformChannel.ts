@@ -63,7 +63,6 @@ export namespace ReclaimVerificationApi {
     }
 
     export enum ExceptionType {
-        Unknown = "Unknown",
         Cancelled = "Cancelled",
         Dismissed = "Dismissed",
         SessionExpired = "SessionExpired",
@@ -73,25 +72,70 @@ export namespace ReclaimVerificationApi {
     export class ReclaimVerificationException extends Error {
         readonly innerError: Error
         readonly type: ExceptionType
+        readonly sessionId: string
+        readonly "didSubmitManualVerification": boolean
+        readonly "reason": string
 
-        constructor(message: string, innerError: Error, type: ExceptionType) {
+        constructor(
+            message: string,
+            innerError: Error,
+            type: ExceptionType,
+            sessionId: string,
+            didSubmitManualVerification: boolean,
+            reason: string
+        ) {
             super(message);
             this.innerError = innerError;
             this.type = type;
+            this.sessionId = sessionId;
+            this.didSubmitManualVerification = didSubmitManualVerification;
+            this.reason = reason;
         }
 
-        static typeFromName(name: string): ExceptionType {
+        private static typeFromName(name: string): ExceptionType {
             switch (name) {
+                case "cancelled":
                 case "org.reclaimprotocol.inapp_sdk.ReclaimVerification.ReclaimVerificationException.Cancelled":
                     return ExceptionType.Cancelled;
+                case "dismissed":
                 case "org.reclaimprotocol.inapp_sdk.ReclaimVerification.ReclaimVerificationException.Dismissed":
                     return ExceptionType.Dismissed;
+                case "sessionExpired":
                 case "org.reclaimprotocol.inapp_sdk.ReclaimVerification.ReclaimVerificationException.SessionExpired":
                     return ExceptionType.SessionExpired;
+                case "failed":
                 case "org.reclaimprotocol.inapp_sdk.ReclaimVerification.ReclaimVerificationException.Failed":
                     return ExceptionType.Failed;
             }
-            return ExceptionType.Unknown;
+            return ExceptionType.Failed;
+        }
+
+        static fromError(error: Error, sessionIdHint: string): ReclaimVerificationException {
+            if (error.hasOwnProperty('userInfo')) {
+                // iOS-side sends information about error in userInfo
+                let unTypedError = (error as unknown as any);
+                let type = ReclaimVerificationApi.ReclaimVerificationException.typeFromName(unTypedError.userInfo.errorType);
+                let maybeSessionId = unTypedError?.userInfo?.sessionId
+                return new ReclaimVerificationException(
+                    error.message,
+                    error,
+                    type,
+                    (typeof maybeSessionId === 'string' && maybeSessionId)
+                        ? maybeSessionId : sessionIdHint,
+                    unTypedError?.userInfo?.didSubmitManualVerification ?? false,
+                    unTypedError?.userInfo?.reason ?? ""
+                );
+            } else {
+                let type = ReclaimVerificationApi.ReclaimVerificationException.typeFromName(error.name);
+                return new ReclaimVerificationException(
+                    error.message,
+                    error,
+                    type,
+                    "",
+                    false,
+                    ""
+                );
+            }
         }
     }
 }
@@ -101,16 +145,28 @@ export class ReclaimVerificationPlatformChannel {
         try {
             return await NativeReclaimInappModule.startVerification(request);
         } catch (error) {
+            console.info({
+                error
+            })
             if (error instanceof Error) {
-                const type = ReclaimVerificationApi.ReclaimVerificationException.typeFromName(error.name);
-                throw new ReclaimVerificationApi.ReclaimVerificationException(error.message, error, type);
+                throw ReclaimVerificationApi.ReclaimVerificationException.fromError(error, request.session?.sessionId ?? "");
             }
             throw error
         }
     }
 
     async startVerificationFromUrl(requestUrl: string): Promise<ReclaimVerificationApi.Response> {
-        return await NativeReclaimInappModule.startVerificationFromUrl(requestUrl);
+        try {
+            return await NativeReclaimInappModule.startVerificationFromUrl(requestUrl);
+        } catch (error) {
+            console.info({
+                error
+            })
+            if (error instanceof Error) {
+                throw ReclaimVerificationApi.ReclaimVerificationException.fromError(error, "");
+            }
+            throw error
+        }
     }
 
     async ping(): Promise<boolean> {

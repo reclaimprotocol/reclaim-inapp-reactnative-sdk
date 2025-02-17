@@ -50,7 +50,7 @@ export default function App() {
       setResult(verificationResult);
     } catch (error) {
       console.info({
-        error,
+        verificationError: error,
       });
       if (error instanceof ReclaimVerificationApi.ReclaimVerificationException) {
         switch (error.type) {
