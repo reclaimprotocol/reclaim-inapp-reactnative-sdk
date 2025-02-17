@@ -57,12 +57,62 @@ class InappRnSdkModule(private val reactContext: ReactApplicationContext) :
     }
     val handler = ReclaimVerificationResultHandlerImpl(promise)
     reactContext.runOnUiQueueThread {
+      val appId =getString(request,"appId")
+      val secret = getString(request,"secret")
+      val verificationRequest: ReclaimVerification.Request
+      val session = request.getMap("session")
+      val parametersRN = request.getMap("parameters")?.toHashMap()
+      val parameters =  mutableMapOf<String, String>()
+      if (parametersRN != null) {
+        for (key in parametersRN.keys) {
+          val value = parametersRN[key]
+          if (value is String) {
+            parameters[key] = value
+          }
+        }
+      }
+      val hideLanding = getBoolean(request, "hideLanding")
+      val autoSubmit = getBoolean(request, "autoSubmit")
+      val acceptAiProviders = getBoolean(request, "acceptAiProviders")
+      val webhookUrl = getString(request, "webhookUrl")
+      if (appId.isNullOrBlank() && secret.isNullOrBlank()) {
+        verificationRequest = ReclaimVerification.Request.fromManifestMetaData(
+          context = reactContext.applicationContext,
+          providerId = getString(request, "providerId")!!,
+          contextString = getString(request, "contextString") ?: "",
+          session = if (session == null) null else ReclaimVerification.ReclaimSessionInformation(
+            timestamp = getString(session, "timestamp") ?: "",
+            sessionId = getString(session, "sessionId") ?: "",
+            signature = getString(session, "signature") ?: "",
+          ),
+          parameters = parameters,
+          hideLanding = hideLanding ?: true,
+          autoSubmit = autoSubmit ?: false,
+          acceptAiProviders = acceptAiProviders ?: false,
+          webhookUrl = webhookUrl,
+        )
+      } else {
+        verificationRequest = ReclaimVerification.Request(
+          appId = appId!!,
+          secret = secret!!,
+          providerId = getString(request, "providerId")!!,
+          contextString = getString(request, "contextString") ?: "",
+          session = if (session == null) null else ReclaimVerification.ReclaimSessionInformation(
+            timestamp = getString(session, "timestamp") ?: "",
+            sessionId = getString(session, "sessionId") ?: "",
+            signature = getString(session, "signature") ?: "",
+          ),
+          parameters = parameters,
+          hideLanding = hideLanding ?: true,
+          autoSubmit = autoSubmit ?: false,
+          acceptAiProviders = acceptAiProviders ?: false,
+          webhookUrl = webhookUrl,
+        )
+      }
       ReclaimVerification.startVerification(
-        context = reactContext.applicationContext, request = ReclaimVerification.Request(
-          appId = request.getString("appId")!!,
-          secret = request.getString("secret")!!,
-          providerId = request.getString("providerId")!!,
-        ), handler = handler
+        context = reactContext.applicationContext,
+        request = verificationRequest,
+        handler = handler
       )
     }
   }
