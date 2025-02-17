@@ -89,7 +89,61 @@ Some projects may require you to add the repositories to the root `build.gradle`
 
 ### iOS Setup
 
-👷 iOS support is in development.
+1. Make sure to define a global platform for your project in your `Podfile` with version 13.0 or higher.
+
+```
+platform :ios, '13.0'
+```
+2. Add the following to your `Podfile`:
+
+- From a specific tag (recommended):
+
+```ruby
+pod 'ReclaimInAppSdk', :git => 'https://github.com/reclaimprotocol/reclaim-inapp-ios-sdk.git', :tag => '0.1.2'
+```
+
+- or from git HEAD (Alternative):
+
+```ruby
+pod 'ReclaimInAppSdk', :git => 'https://github.com/reclaimprotocol/reclaim-inapp-ios-sdk.git'
+```
+
+- or from a specific commit (Alternative):
+
+```ruby
+pod 'ReclaimInAppSdk', :git => 'https://github.com/reclaimprotocol/reclaim-inapp-ios-sdk.git', :commit => '184d41628026768feb703dc7bb9a3d913c6b271e'
+```
+
+- or from a specific branch (Alternative):
+
+```ruby
+pod 'ReclaimInAppSdk', :git => 'https://github.com/reclaimprotocol/reclaim-inapp-ios-sdk.git', :branch => 'main'
+```
+
+2. After adding the dependency, your podfile may look like this:
+
+```ruby
+platform :ios, '13.0'
+
+# ... some podfile content (removed for brevity)
+
+target 'InappRnSdkExample' do
+  config = use_native_modules!
+
+  use_react_native!(
+    :path => config[:reactNativePath],
+    :app_path => "#{Pod::Config.instance.installation_root}/.."
+  )
+
+  # This is the line you need to add to your podfile.
+  pod 'ReclaimInAppSdk', :git => 'https://github.com/reclaimprotocol/reclaim-inapp-ios-sdk.git', :tag => '0.1.2'
+
+  pre_install do |installer|
+    system("cd ../../ && npx bob build --target codegen")
+  end
+
+  # ... rest of the podfile. (removed for brevity)
+```
 
 ## Usage
 
