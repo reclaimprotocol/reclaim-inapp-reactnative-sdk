@@ -19,18 +19,20 @@ This SDK allows you to integrate Reclaim's in-app verification process into your
 npm install @reclaimprotocol/inapp-rn-sdk
 ```
 
+Note: This package is not published to npm registry. Will be published soon. For now, you can install it from git source.
+
 ### Install from git source (alternative)
 
 #### NPM
 
 ```sh
-npm install git+https://github.com/reclaimprotocol/inapp-rn-sdk.git
+npm install git+https://github.com/reclaimprotocol/reclaim-inapp-reactnative-sdk.git
 ```
 
 #### Yarn
 
 ```sh
-yarn add git+https://github.com/reclaimprotocol/inapp-rn-sdk.git
+yarn add git+https://github.com/reclaimprotocol/reclaim-inapp-reactnative-sdk.git
 ```
 
 ## Setup
