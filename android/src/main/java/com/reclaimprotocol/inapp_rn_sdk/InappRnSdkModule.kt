@@ -144,9 +144,20 @@ class InappRnSdkModule(private val reactContext: ReactApplicationContext) :
     }
   }
 
+  override fun setOverrides(overrides: ReadableMap?, promise: Promise?) {
+    return setOverrides(
+      provider = getMap(overrides, "provider"),
+      featureOptions = getMap(overrides, "featureOptions"),
+      logConsumer = getMap(overrides, "logConsumer"),
+      sessionManagement = getMap(overrides, "sessionManagement"),
+      appInfo = getMap(overrides, "appInfo"),
+      promise,
+    )
+  }
+
   private val replyHandlers: MutableMap<String, (Result<Boolean>) -> Unit> = mutableMapOf()
 
-  override fun setOverrides(
+  private fun setOverrides(
     provider: ReadableMap?,
     featureOptions: ReadableMap?,
     logConsumer: ReadableMap?,
@@ -251,7 +262,7 @@ class InappRnSdkModule(private val reactContext: ReactApplicationContext) :
   override fun reply(replyId: String?, reply: Boolean) {
     if (replyId == null) {
       Log.w(NAME, "Missing arg replyId")
-      return;
+      return
     }
     reactContext.runOnUiQueueThread {
       val callback = replyHandlers[replyId]
@@ -270,6 +281,14 @@ class InappRnSdkModule(private val reactContext: ReactApplicationContext) :
       return ""
     }
     return value
+  }
+
+  private fun getMap(map: ReadableMap?, key: String): ReadableMap? {
+    return if (map == null || !map.hasKey(key) || map.isNull(key)) {
+      null
+    } else {
+      map.getMap(key)
+    }
   }
 
   private fun getLong(map: ReadableMap, key: String): Long? {

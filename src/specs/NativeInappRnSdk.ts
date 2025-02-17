@@ -289,16 +289,18 @@ export interface SessionUpdateRequestEvent {
   readonly replyId: string;
 }
 
+export interface Overrides {
+  provider?: ProviderInformation | null,
+  featureOptions?: FeatureOptions | null,
+  logConsumer?: LogConsumer | null,
+  sessionManagement?: SessionManagement | null,
+  appInfo?: ReclaimAppInfo | null
+}
+
 export interface Spec extends TurboModule {
   startVerification(request: Request): Promise<Response>;
   startVerificationFromUrl(requestUrl: string): Promise<Response>;
-  setOverrides(
-    provider?: ProviderInformation,
-    featureOptions?: FeatureOptions,
-    logConsumer?: LogConsumer,
-    sessionManagement?: SessionManagement,
-    appInfo?: ReclaimAppInfo
-  ): Promise<void>;
+  setOverrides(overrides: Overrides): Promise<void>;
   reply(replyId: string, reply: boolean): void;
   ping(): Promise<boolean>;
 

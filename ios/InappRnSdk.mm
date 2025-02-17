@@ -35,10 +35,6 @@ Api *api = [[Api alloc] init];
   [api replyWithReplyId:replyId reply:reply];
 }
 
-- (void)setOverrides:(JS::NativeInappRnSdk::ProviderInformation &)provider featureOptions:(JS::NativeInappRnSdk::FeatureOptions &)featureOptions logConsumer:(JS::NativeInappRnSdk::LogConsumer &)logConsumer sessionManagement:(JS::NativeInappRnSdk::SessionManagement &)sessionManagement appInfo:(JS::NativeInappRnSdk::ReclaimAppInfo &)appInfo resolve:(nonnull RCTPromiseResolveBlock)resolve reject:(nonnull RCTPromiseRejectBlock)reject {
-  reject(@"UNIMPLEMENTED", @"Method unimplemented", nil);
-}
-
 - (void)startVerification:(JS::NativeInappRnSdk::Request &)request resolve:(nonnull RCTPromiseResolveBlock)resolve reject:(nonnull RCTPromiseRejectBlock)reject {
   NSLog(@"[InappRnSdk] starting verification");
   
@@ -66,28 +62,28 @@ Api *api = [[Api alloc] init];
   
   NSDictionary<NSString *, NSString *> *parameters = @{};
   if (request.parameters() != nil) {
-      id potentialParameters = request.parameters();
-      if ([potentialParameters isKindOfClass:[NSDictionary class]]) {
-         // just verifying because cannot trust JS
-         NSDictionary *tempDictionary = (NSDictionary *)potentialParameters;
-          BOOL allStrings = YES;
-          for (id key in tempDictionary) {
-              if (![key isKindOfClass:[NSString class]] || ![tempDictionary[key] isKindOfClass:[NSString class]]) {
-                  allStrings = NO;
-                  break;
-              }
-          }
-          if (allStrings){
-              // should always be the case
-              parameters = (NSDictionary<NSString *, NSString *> *)potentialParameters;
-          } else {
-              NSLog(@"[InappRnSdk] request.parameters() contains non string key or value");
-          }
-      } else {
-          NSLog(@"[InappRnSdk] request.parameters() is not a dictionary.");
+    id potentialParameters = request.parameters();
+    if ([potentialParameters isKindOfClass:[NSDictionary class]]) {
+      // just verifying because cannot trust JS
+      NSDictionary *tempDictionary = (NSDictionary *)potentialParameters;
+      BOOL allStrings = YES;
+      for (id key in tempDictionary) {
+        if (![key isKindOfClass:[NSString class]] || ![tempDictionary[key] isKindOfClass:[NSString class]]) {
+          allStrings = NO;
+          break;
+        }
       }
+      if (allStrings){
+        // should always be the case
+        parameters = (NSDictionary<NSString *, NSString *> *)potentialParameters;
+      } else {
+        NSLog(@"[InappRnSdk] request.parameters() contains non string key or value");
+      }
+    } else {
+      NSLog(@"[InappRnSdk] request.parameters() is not a dictionary.");
+    }
   }
-
+  
   NSLog(@"[InappRnSdk] starting verification now");
   [api startVerificationWithAppId:request.appId() secret:request.secret() providerId:request.providerId() sessionTimestamp:timestamp sessionSessionId:sessionId sessionSignature:signature context:request.contextString() parameters:parameters hideLanding:hideLanding autoSubmit:autoSubmit acceptAiProviders:acceptAiProviders webhookUrl:request.webhookUrl() completionHandler:^(NSDictionary<NSString *,id> * _Nullable result, NSError * _Nullable error) {
     if (error != nil) {
@@ -109,6 +105,65 @@ Api *api = [[Api alloc] init];
       reject(@"VERIFICATION_ERROR", @"Verification Error", error);
     } else {
       resolve(result);
+    }
+  }];
+}
+
+- (void)setOverrides:(JS::NativeInappRnSdk::Overrides &)overrides resolve:(nonnull RCTPromiseResolveBlock)resolve reject:(nonnull RCTPromiseRejectBlock)reject {
+  
+  OverridenProviderInformation * _Nullable overridenProvider = nil;
+  if (overrides.provider().has_value()) {
+    JS::NativeInappRnSdk::ProviderInformation provider = overrides.provider().value();
+    if (provider.url() != nil && provider.url().length > 0) {
+      overridenProvider = [[OverridenProviderInformation alloc] initWithUrl:provider.url() jsonString:nil];
+    } else if (provider.jsonString() != nil && provider.jsonString().length > 0) {
+      overridenProvider = [[OverridenProviderInformation alloc] initWithUrl:nil jsonString:provider.jsonString()];
+    }
+  }
+  
+  OverridenFeatureOptions * _Nullable overridenFeatureOptions = nil;
+  if (overrides.featureOptions().has_value()) {
+    JS::NativeInappRnSdk::FeatureOptions featureOptions = overrides.featureOptions().value();
+    overridenFeatureOptions = [[OverridenFeatureOptions alloc] initWithCookiePersist:nil singleReclaimRequest:nil idleTimeThresholdForManualVerificationTrigger:nil sessionTimeoutForManualVerificationTrigger:nil attestorBrowserRpcUrl:nil isResponseRedactionRegexEscapingEnabled:nil isAIFlowEnabled:nil];
+    
+    if (featureOptions.cookiePersist().has_value()) {
+      overridenFeatureOptions.cookiePersist = [NSNumber numberWithBool:featureOptions.cookiePersist().value()];
+    }
+    if (featureOptions.singleReclaimRequest().has_value()) {
+      overridenFeatureOptions.singleReclaimRequest = [NSNumber numberWithBool:featureOptions.singleReclaimRequest().value()];
+    }
+    if (featureOptions.idleTimeThresholdForManualVerificationTrigger().has_value()) {
+      overridenFeatureOptions.idleTimeThresholdForManualVerificationTrigger = [NSNumber numberWithDouble:featureOptions.idleTimeThresholdForManualVerificationTrigger().value()];
+    }
+    if (featureOptions.sessionTimeoutForManualVerificationTrigger().has_value()) {
+      overridenFeatureOptions.sessionTimeoutForManualVerificationTrigger = [NSNumber numberWithDouble:featureOptions.sessionTimeoutForManualVerificationTrigger().value()];
+    }
+    if (featureOptions.attestorBrowserRpcUrl() != nil && featureOptions.attestorBrowserRpcUrl().length > 0) {
+      overridenFeatureOptions.attestorBrowserRpcUrl = featureOptions.attestorBrowserRpcUrl();
+    }
+    if (featureOptions.isResponseRedactionRegexEscapingEnabled().has_value()) {
+      overridenFeatureOptions.isResponseRedactionRegexEscapingEnabled = [NSNumber numberWithBool:featureOptions.isResponseRedactionRegexEscapingEnabled().value()];
+    }
+    if (featureOptions.isAIFlowEnabled().has_value()) {
+      overridenFeatureOptions.isAIFlowEnabled = [NSNumber numberWithBool:featureOptions.isAIFlowEnabled().value()];
+    }
+  }
+  
+  OverridenReclaimAppInfo * _Nullable overridenAppInfo = nil;
+  if (overrides.appInfo().has_value()) {
+    JS::NativeInappRnSdk::ReclaimAppInfo appInfo = overrides.appInfo().value();
+    NSNumber  * _Nullable isRecurring = nil;
+    if (appInfo.isRecurring().has_value()) {
+      isRecurring = [NSNumber numberWithBool:appInfo.isRecurring().value()];
+    }
+    overridenAppInfo = [[OverridenReclaimAppInfo alloc] initWithAppName:appInfo.appName() appImageUrl:appInfo.appImageUrl() isRecurring:isRecurring];
+  }
+  
+  [api setOverridesWithProvider:overridenProvider featureOptions:overridenFeatureOptions appInfo:overridenAppInfo completionHandler:^(NSError * _Nullable error) {
+    if (error != nil) {
+      reject(@"OVERRIDE_ERROR", @"Error on override", error);
+    } else {
+      resolve(nil);
     }
   }];
 }

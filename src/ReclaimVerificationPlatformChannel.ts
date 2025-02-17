@@ -234,12 +234,12 @@ export class ReclaimVerificationPlatformChannel {
             this.previousSessionManagementCancelCallback = cancel;
         }
 
-        NativeReclaimInappModule.setOverrides(
+        NativeReclaimInappModule.setOverrides({
             provider,
             featureOptions,
-            logConsumerRequest,
-            sessionManagementRequest,
+            logConsumer: logConsumerRequest,
+            sessionManagement: sessionManagementRequest,
             appInfo
-        );
+        });
     }
 }

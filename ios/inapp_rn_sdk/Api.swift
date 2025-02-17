@@ -1,6 +1,5 @@
 import ReclaimInAppSdk
 
-
 @objc(Api) public class Api: NSObject {
   @objc public func ping() -> Bool {
     return true
@@ -81,6 +80,54 @@ import ReclaimInAppSdk
     return try await startVerificationWithRequest(.url(url))
   }
   
+  @objc public func setOverrides(
+    provider: OverridenProviderInformation?,
+    featureOptions: OverridenFeatureOptions?,
+    appInfo: OverridenReclaimAppInfo?
+  ) async throws {
+    let providerOverrides: ReclaimOverrides.ProviderInformation? = if let url = provider?.url {
+      .url(url: url)
+    } else if let jsonString = provider?.jsonString {
+      .jsonString(jsonString: jsonString)
+    } else {
+      nil
+    }
+    
+    var featureOptionsOverrides: ReclaimOverrides.FeatureOptions? = if let featureOptions {
+      .init(
+        cookiePersist: featureOptions.cookiePersist?.boolValue,
+        singleReclaimRequest: featureOptions.singleReclaimRequest?.boolValue,
+        idleTimeThresholdForManualVerificationTrigger: featureOptions.idleTimeThresholdForManualVerificationTrigger?.int64Value,
+        sessionTimeoutForManualVerificationTrigger: featureOptions.sessionTimeoutForManualVerificationTrigger?.int64Value,
+        attestorBrowserRpcUrl: featureOptions.attestorBrowserRpcUrl,
+        isResponseRedactionRegexEscapingEnabled: featureOptions.isResponseRedactionRegexEscapingEnabled?.boolValue,
+        isAIFlowEnabled: featureOptions.isAIFlowEnabled?.boolValue
+      )
+    } else {
+      nil
+    }
+    
+    let logConsumerOverrides: ReclaimOverrides.LogConsumer? = nil
+    let sessionManagementOverrides: ReclaimOverrides.SessionManagement? = nil
+    let appInfoOverrides: ReclaimOverrides.ReclaimAppInfo? = if let appInfo {
+      .init(
+        appName: appInfo.appName,
+        appImageUrl: appInfo.appImageUrl,
+        isRecurring: appInfo.isRecurring?.boolValue ?? false
+      )
+    } else {
+      nil
+    }
+    
+    return try await ReclaimVerification.setOverrides(
+      provider: providerOverrides,
+      featureOptions: featureOptionsOverrides,
+      logConsumer: logConsumerOverrides,
+      sessionManagement: sessionManagementOverrides,
+      appInfo: appInfoOverrides
+    )
+  }
+  
   func startVerificationWithRequest(_ request: ReclaimVerification.Request) async throws -> [String: Any] {
     NSLog("[Api] starting verification");
     return try await withCheckedThrowingContinuation { continuation in
@@ -139,5 +186,68 @@ import ReclaimInAppSdk
   
   required init?(coder: NSCoder) {
     fatalError("init(coder:) has not been implemented")
+  }
+}
+
+@objc(OverridenProviderInformation) public class OverridenProviderInformation: NSObject {
+  @objc public var url: String?
+  @objc public var jsonString: String?
+  
+  @objc public init(
+    url: String? = nil,
+    jsonString: String? = nil
+  ) {
+    self.url = url
+    self.jsonString = jsonString
+  }
+}
+
+@objc(OverridenFeatureOptions) public class OverridenFeatureOptions: NSObject {
+  // bool
+  @objc public var cookiePersist: NSNumber?
+  // bool
+  @objc   public var singleReclaimRequest: NSNumber?
+  // int64 (long)
+  @objc  public var idleTimeThresholdForManualVerificationTrigger: NSNumber?
+  // int64 (long)
+  @objc  public var sessionTimeoutForManualVerificationTrigger: NSNumber?
+  @objc  public var attestorBrowserRpcUrl: String?
+  // bool
+  @objc  public var isResponseRedactionRegexEscapingEnabled: NSNumber?
+  // bool
+  @objc  public var isAIFlowEnabled: NSNumber?
+  
+  @objc public init(
+    cookiePersist: NSNumber? = nil,
+    singleReclaimRequest: NSNumber? = nil,
+    idleTimeThresholdForManualVerificationTrigger: NSNumber? = nil,
+    sessionTimeoutForManualVerificationTrigger: NSNumber? = nil,
+    attestorBrowserRpcUrl: String? = nil,
+    isResponseRedactionRegexEscapingEnabled: NSNumber? = nil,
+    isAIFlowEnabled: NSNumber? = nil
+  ) {
+    self.cookiePersist = cookiePersist
+    self.singleReclaimRequest = singleReclaimRequest
+    self.idleTimeThresholdForManualVerificationTrigger = idleTimeThresholdForManualVerificationTrigger
+    self.sessionTimeoutForManualVerificationTrigger = sessionTimeoutForManualVerificationTrigger
+    self.attestorBrowserRpcUrl = attestorBrowserRpcUrl
+    self.isResponseRedactionRegexEscapingEnabled = isResponseRedactionRegexEscapingEnabled
+    self.isAIFlowEnabled = isAIFlowEnabled
+  }
+}
+
+@objc(OverridenReclaimAppInfo) public class OverridenReclaimAppInfo: NSObject {
+  @objc public let appName: String
+  @objc public let appImageUrl: String
+  @objc public let isRecurring: NSNumber?
+  
+  @objc public init(
+    appName: String,
+    appImageUrl: String,
+    isRecurring: NSNumber?
+  ) {
+    self.appName = appName
+    self.appImageUrl = appImageUrl
+    self.isRecurring = isRecurring
   }
 }
