@@ -1596,7 +1596,7 @@ DEPENDENCIES:
   - ReactAppDependencyProvider (from `build/generated/ios`)
   - ReactCodegen (from `build/generated/ios`)
   - ReactCommon/turbomodule/core (from `../node_modules/react-native/ReactCommon`)
-  - ReclaimInAppSdk (from `https://github.com/reclaimprotocol/reclaim-inapp-ios-sdk.git`, tag `0.1.2`)
+  - ReclaimInAppSdk (from `https://github.com/reclaimprotocol/reclaim-inapp-ios-sdk.git`, commit `53a19f88c8d90df485a60dc20190f740cd9fd108`)
   - RNSnackbar (from `../node_modules/react-native-snackbar`)
   - Yoga (from `../node_modules/react-native/ReactCommon/yoga`)
 
@@ -1739,8 +1739,8 @@ EXTERNAL SOURCES:
   ReactCommon:
     :path: "../node_modules/react-native/ReactCommon"
   ReclaimInAppSdk:
+    :commit: 53a19f88c8d90df485a60dc20190f740cd9fd108
     :git: https://github.com/reclaimprotocol/reclaim-inapp-ios-sdk.git
-    :tag: 0.1.2
   RNSnackbar:
     :path: "../node_modules/react-native-snackbar"
   Yoga:
@@ -1748,8 +1748,8 @@ EXTERNAL SOURCES:
 
 CHECKOUT OPTIONS:
   ReclaimInAppSdk:
+    :commit: 53a19f88c8d90df485a60dc20190f740cd9fd108
     :git: https://github.com/reclaimprotocol/reclaim-inapp-ios-sdk.git
-    :tag: 0.1.2
 
 SPEC CHECKSUMS:
   boost: 7e761d76ca2ce687f7cc98e698152abd03a18f90
@@ -1823,6 +1823,6 @@ SPEC CHECKSUMS:
   SocketRocket: d4aabe649be1e368d1318fdf28a022d714d65748
   Yoga: 1fd059161b449018342943b095a6d4e69bcaa719
 
-PODFILE CHECKSUM: 49101a0a4314dea884bdc68f3d659767b9af3537
+PODFILE CHECKSUM: a27adfcc47a8d5fe8a440c9bbbc27cd53c93b001
 
 COCOAPODS: 1.15.2

@@ -6,21 +6,31 @@ import ReclaimInAppSdk
   }
   
   @MainActor
-  static private var replyHandlers: [String: (Result<Bool, Error>) -> Void] = [:]
+  static fileprivate var replyHandlers: [String: (Result<Bool, any Error>) -> Void] = [:]
+  
+  static fileprivate func setReplyCallback(
+     _ callback: @escaping (Result<Bool, any Error>) -> Void
+  ) -> String {
+    let replyId = UUID().uuidString
+    Task { @MainActor in
+      Api.replyHandlers[replyId] = callback
+    }
+    return replyId
+  }
   
   @objc public func reply(replyId: String?, reply: Bool) {
-    if (replyId == nil) {
-      NSLog("[Api.reply] Missing arg replyId")
-      return
-    }
-    Task { @MainActor in
-      let callback = Api.replyHandlers[replyId!]
-      if let callback = callback {
-        Api.replyHandlers[replyId!] = nil
-        callback(.success(reply))
-      } else {
-        NSLog("[Api.reply] No callback found for replyId \(replyId!)")
+    if let replyId {
+      Task { @MainActor in
+        let callback = Api.replyHandlers[replyId]
+        if let callback = callback {
+          Api.replyHandlers.removeValue(forKey: replyId)
+          callback(.success(reply))
+        } else {
+          NSLog("[Api.reply] No callback found for replyId \(replyId)")
+        }
       }
+    } else {
+      NSLog("[Api.reply] Missing arg replyId")
     }
   }
   
@@ -83,6 +93,8 @@ import ReclaimInAppSdk
   @objc public func setOverrides(
     provider: OverridenProviderInformation?,
     featureOptions: OverridenFeatureOptions?,
+    logConsumer: OverridenLogConsumer?,
+    sessionManagement: OverridenSessionManagement?,
     appInfo: OverridenReclaimAppInfo?
   ) async throws {
     let providerOverrides: ReclaimOverrides.ProviderInformation? = if let url = provider?.url {
@@ -107,8 +119,22 @@ import ReclaimInAppSdk
       nil
     }
     
-    let logConsumerOverrides: ReclaimOverrides.LogConsumer? = nil
-    let sessionManagementOverrides: ReclaimOverrides.SessionManagement? = nil
+    let logConsumerOverrides: ReclaimOverrides.LogConsumer? = if let logConsumer = logConsumer {
+      .init(
+        logHandler: logConsumer.logHandler,
+        canSdkCollectTelemetry: logConsumer.canSdkCollectTelemetry,
+        canSdkPrintLogs: logConsumer.canSdkPrintLogs?.boolValue
+      )
+    } else {
+      nil
+    }
+    
+    let sessionManagementOverrides: ReclaimOverrides.SessionManagement? = if let sessionManagement = sessionManagement {
+      .init(handler: sessionManagement.handler)
+    } else {
+      nil
+    }
+    
     let appInfoOverrides: ReclaimOverrides.ReclaimAppInfo? = if let appInfo {
       .init(
         appName: appInfo.appName,
@@ -249,5 +275,131 @@ import ReclaimInAppSdk
     self.appName = appName
     self.appImageUrl = appImageUrl
     self.isRecurring = isRecurring
+  }
+}
+
+@objc(OverridenLogConsumer) public class OverridenLogConsumer: NSObject {
+  /**
+   * Handler for consuming logs exported from the SDK.
+   */
+  @objc public let logHandler: OverridenLogHandler?
+  /**
+   * When enabled, logs are sent to reclaim that can be used to help you.
+   * Defaults to true.
+   */
+  @objc public let canSdkCollectTelemetry: Bool
+  /**
+   * Defaults to enabled when not in release mode.
+   * Type: Bool.
+   */
+  @objc public let canSdkPrintLogs: NSNumber?
+  
+  @objc public init(
+    logHandler: OverridenLogHandler? = nil,
+    canSdkCollectTelemetry: Bool = true,
+    canSdkPrintLogs: NSNumber? = nil
+  ) {
+    self.logHandler = logHandler
+    self.canSdkCollectTelemetry = canSdkCollectTelemetry
+    self.canSdkPrintLogs = canSdkPrintLogs
+  }
+}
+
+@objc(OverridenLogHandler) public class OverridenLogHandler: NSObject, ReclaimOverrides.LogConsumer.LogHandler {
+  @objc let _onLogs: (String) -> Void
+  
+  @objc public init(onLogs: @escaping (String) -> Void) {
+    self._onLogs = onLogs
+  }
+  
+  @objc public func onLogs(logJsonString: String) {
+    self._onLogs(logJsonString)
+  }
+}
+
+public typealias OverridenCreateSessionCallback = (
+  _ appId: String,
+  _ providerId: String,
+  _ sessionId: String,
+  _ replyId: String
+) -> Void
+public typealias OverridenUpdateSessionCallback = (
+  _ sessionId: String,
+  /// `ReclaimOverrides.SessionManament.SessionStatus` enum
+  _ status: String,
+  _ replyId: String
+) -> Void
+public typealias OverridenLogSessionCallback = (
+  _ appId: String,
+  _ providerId: String,
+  _ sessionId: String,
+  _ logType: String
+) -> Void
+
+@objc(OverridenSessionManagement) public class OverridenSessionManagement: NSObject {
+  @objc public let handler: OverridenSessionHandler
+  
+  @objc public init(handler: OverridenSessionHandler) {
+    self.handler = handler
+  }
+  
+  @objc(OverridenSessionHandler) public class OverridenSessionHandler: NSObject, ReclaimOverrides.SessionManagement.SessionHandler {
+    
+    @objc let _createSession: OverridenCreateSessionCallback
+    @objc let _updateSession: OverridenUpdateSessionCallback
+    @objc let _logSession: OverridenLogSessionCallback
+    
+    @objc public init(
+      _createSession: @escaping OverridenCreateSessionCallback,
+      _updateSession: @escaping OverridenUpdateSessionCallback,
+      _logSession: @escaping OverridenLogSessionCallback
+    ) {
+      self._createSession = _createSession
+      self._updateSession = _updateSession
+      self._logSession = _logSession
+    }
+    
+    public func createSession(
+      appId: String, providerId: String, sessionId: String, completion: @escaping (Result<Bool, any Error>) -> Void
+    ) {
+      let replyId = Api.setReplyCallback(completion)
+      self._createSession(appId, providerId, sessionId, replyId)
+    }
+    
+    public func updateSession(
+      sessionId: String, status: ReclaimInAppSdk.ReclaimOverrides.SessionManagement.SessionStatus, completion: @escaping (Result<Bool, any Error>) -> Void
+    ) {
+      let statusString = switch (status) {
+      case .USER_STARTED_VERIFICATION:
+        "USER_STARTED_VERIFICATION"
+      case .USER_INIT_VERIFICATION:
+        "USER_INIT_VERIFICATION"
+      case .PROOF_GENERATION_STARTED:
+        "PROOF_GENERATION_STARTED"
+      case .PROOF_GENERATION_RETRY:
+        "PROOF_GENERATION_RETRY"
+      case .PROOF_GENERATION_SUCCESS:
+        "PROOF_GENERATION_SUCCESS"
+      case .PROOF_GENERATION_FAILED:
+        "PROOF_GENERATION_FAILED"
+      case .PROOF_SUBMITTED:
+        "PROOF_SUBMITTED"
+      case .PROOF_SUBMISSION_FAILED:
+        "PROOF_SUBMISSION_FAILED"
+      case .PROOF_MANUAL_VERIFICATION_SUBMITTED:
+        "PROOF_MANUAL_VERIFICATION_SUBMITTED"
+      }
+      let replyId = Api.setReplyCallback(completion)
+      self._updateSession(sessionId, statusString, replyId)
+    }
+    
+    public func logSession(
+      appId: String,
+      providerId: String,
+      sessionId: String,
+      logType: String
+    ) {
+      self._logSession(appId, providerId, sessionId, logType)
+    }
   }
 }

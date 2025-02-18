@@ -149,6 +149,50 @@ Api *api = [[Api alloc] init];
     }
   }
   
+  OverridenLogConsumer * _Nullable overridenLogConsumer = nil;
+  if (overrides.logConsumer().has_value()) {
+    BOOL canSDKCollectTelemetry = true;
+    if (overrides.logConsumer().value().canSdkCollectTelemetry().has_value()) {
+      canSDKCollectTelemetry =overrides.logConsumer().value().canSdkCollectTelemetry().value();
+    }
+    NSNumber  * _Nullable canSdkPrintLogs = nil;
+    if (overrides.logConsumer().value().canSdkPrintLogs().has_value()) {
+      canSdkPrintLogs = [NSNumber numberWithBool:overrides.logConsumer().value().canSdkPrintLogs().value()];
+    }
+    OverridenLogHandler * _Nullable logHandler;
+    if (overrides.logConsumer().value().enableLogHandler()) {
+      logHandler = [[OverridenLogHandler alloc] initOnLogs:^(NSString * _Nonnull logJsonString) {
+        [self emitOnLogs:logJsonString];
+      }];
+    }
+    overridenLogConsumer = [[OverridenLogConsumer alloc] initWithLogHandler: logHandler canSdkCollectTelemetry: canSDKCollectTelemetry canSdkPrintLogs: canSdkPrintLogs];
+  }
+
+  OverridenSessionManagement * _Nullable sessionManagement;
+  if (overrides.sessionManagement().has_value()) {
+    sessionManagement = [[OverridenSessionManagement alloc] initWithHandler:[[OverridenSessionHandler alloc] initWith_createSession:^(NSString * _Nonnull appId, NSString * _Nonnull providerId, NSString * _Nonnull sessionId, NSString * _Nonnull replyId) {
+      [self emitOnSessionCreateRequest:@{
+        @"appId": appId,
+        @"providerId": providerId,
+        @"sessionId": sessionId,
+        @"replyId": replyId
+      }];
+    } _updateSession:^(NSString * _Nonnull sessionId, NSString * _Nonnull status, NSString * _Nonnull replyId) {
+      [self emitOnSessionUpdateRequest:@{
+        @"sessionId": sessionId,
+        @"status": status,
+        @"replyId": replyId
+      }];
+    } _logSession:^(NSString * _Nonnull appId, NSString * _Nonnull providerId, NSString * _Nonnull sessionId, NSString * _Nonnull replyId) {
+      [self emitOnSessionLogs:@{
+        @"appId": appId,
+        @"providerId": providerId,
+        @"sessionId": sessionId,
+        @"replyId": replyId
+      }];
+    }]];
+  }
+  
   OverridenReclaimAppInfo * _Nullable overridenAppInfo = nil;
   if (overrides.appInfo().has_value()) {
     JS::NativeInappRnSdk::ReclaimAppInfo appInfo = overrides.appInfo().value();
@@ -159,7 +203,7 @@ Api *api = [[Api alloc] init];
     overridenAppInfo = [[OverridenReclaimAppInfo alloc] initWithAppName:appInfo.appName() appImageUrl:appInfo.appImageUrl() isRecurring:isRecurring];
   }
   
-  [api setOverridesWithProvider:overridenProvider featureOptions:overridenFeatureOptions appInfo:overridenAppInfo completionHandler:^(NSError * _Nullable error) {
+  [api setOverridesWithProvider:overridenProvider featureOptions:overridenFeatureOptions logConsumer:overridenLogConsumer sessionManagement: sessionManagement appInfo:overridenAppInfo completionHandler:^(NSError * _Nullable error) {
     if (error != nil) {
       reject(@"OVERRIDE_ERROR", @"Error on override", error);
     } else {

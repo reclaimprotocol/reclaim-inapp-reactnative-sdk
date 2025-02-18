@@ -3,7 +3,7 @@
 
 NS_ASSUME_NONNULL_BEGIN
 
-@interface InappRnSdk : NSObject <NativeInappRnSdkSpec>
+@interface InappRnSdk : NativeInappRnSdkSpecBase <NativeInappRnSdkSpec>
 
 NS_ASSUME_NONNULL_END
 
