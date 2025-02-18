@@ -56,7 +56,7 @@
     "type": "git",
     "url": "git+https://github.com/reclaimprotocol/reclaim-inapp-reactnative-sdk.git.git"
   },
-  "author": "Reclaim Protocol <mushaheed@creatoros.co> (https://reclaimprotocol.org)",
+  "author": "Reclaim Protocol  (https://reclaimprotocol.org)",
   "license": "MIT",
   "bugs": {
     "url": "https://github.com/reclaimprotocol/reclaim-inapp-reactnative-sdk.git/issues"
@@ -193,7 +193,7 @@
       "android": "android/generated"
     },
     "android": {
-      "javaPackageName": "com.reclaimprotocol.inapp_rn_sdk"
+      "javaPackageName": "org.reclaimprotocol.inapp_rn_sdk"
     },
     "includesGeneratedCode": true
   },
