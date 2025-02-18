@@ -1,6 +1,6 @@
 {
   "name": "@reclaimprotocol/inapp-rn-sdk",
-  "version": "0.1.2",
+  "version": "0.1.3",
   "description": "Reclaim Protocol's InApp React Native SDK for ZK proof generations for requests with an in-app experience of web verification",
   "source": "./src/index.tsx",
   "main": "./lib/commonjs/index.js",
