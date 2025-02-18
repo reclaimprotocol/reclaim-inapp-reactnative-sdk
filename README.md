@@ -145,6 +145,45 @@ target 'InappRnSdkExample' do
   # ... rest of the podfile. (removed for brevity)
 ```
 
+#### Fixing performance issues on IOS physical devices
+
+Your app performance will be severely impacted when you run debug executable on a physical device. Fixing this requires a simple change in your Xcode project xcscheme.
+
+#### Method 1: Update Environment Variables for XCScheme (Recommended) 
+1. Open your iOS project (*.xcworkspace) in Xcode.
+2. Click on the project target.
+3. Click on the **Scheme** dropdown.
+
+<img src="https://github.com/reclaimprotocol/reclaim-inapp-ios-sdk/blob/83f23570a47828d011b713679852053acdba89c1/Screenshots/Install/10.png?raw=true" alt="Edit current xcscheme in Xcode" width="500">
+
+4. Click on the **Edit Scheme** button.
+5. Click on the **Run** tab.
+6. Click on the **Arguments** tab and check the **Environment Variables** section.
+
+<img src="https://github.com/reclaimprotocol/reclaim-inapp-ios-sdk/blob/83f23570a47828d011b713679852053acdba89c1/Screenshots/Install/12.png?raw=true" alt="Enable Debug executable in Xcode" width="500">
+
+7. Add the following environment variable:
+    - Key: `GODEBUG`
+    - Value: `asyncpreemptoff=1`
+8. Click on the **Close** button in the dialog and build the project.
+9. Run the app on a physical device.
+
+#### Method 2: Disable "Debug executable"
+
+This method is **not recommended** but could be useful if you don't want to add environment variables to the xcscheme.
+
+1. Open your iOS project (*.xcworkspace) in Xcode.
+2. Click on the project target.
+3. Click on the **Scheme** dropdown.
+
+<img src="https://github.com/reclaimprotocol/reclaim-inapp-ios-sdk/blob/83f23570a47828d011b713679852053acdba89c1/Screenshots/Install/10.png?raw=true" alt="Edit current xcscheme in Xcode" width="500">
+
+4. Click on the **Edit Scheme** button.
+5. Click on the **Run** tab.
+6. Uncheck the **Debug executable** checkbox.
+
+<img src="https://github.com/reclaimprotocol/reclaim-inapp-ios-sdk/blob/83f23570a47828d011b713679852053acdba89c1/Screenshots/Install/11.png?raw=true" alt="Enable Debug executable in Xcode" width="500">
+
 ## Usage
 
 To use Reclaim InApp Sdk in your project, follow these steps:
