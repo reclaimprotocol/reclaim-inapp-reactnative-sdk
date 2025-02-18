@@ -193,7 +193,7 @@
       "android": "android/generated"
     },
     "android": {
-      "javaPackageName": "org.reclaimprotocol.inapp_rn_sdk"
+      "javaPackageName": "com.reclaimprotocol.inapp_rn_sdk"
     },
     "includesGeneratedCode": true
   },
