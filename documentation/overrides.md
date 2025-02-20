@@ -85,17 +85,19 @@ featureOptions: {
   // Enable/disable single reclaim request mode
   singleReclaimRequest: false,
   
-  // Idle time threshold (in seconds) for manual verification trigger
+  // Idle time threshold (in seconds) for manual verification trigger  (Default from reclaimprotocol.org: `2`)
   idleTimeThresholdForManualVerificationTrigger: 2,
   
-  // Session timeout (in seconds) for manual verification trigger
+  // Session timeout (in seconds) for manual verification trigger (Default from reclaimprotocol.org: `180`)
   sessionTimeoutForManualVerificationTrigger: 180,
   
-  // Custom attestor browser RPC URL
+  // Custom attestor browser RPC URL (Default from reclaimprotocol.org: `https://attestor.reclaimprotocol.org/browser-rpc`)
   attestorBrowserRpcUrl: 'https://attestor.reclaimprotocol.org/browser-rpc',
   
-  // Enable/disable response redaction regex escaping
-  isResponseRedactionRegexEscapingEnabled: false
+  // Enable/disable response redaction regex escaping by the app (Default from reclaimprotocol.org: `false`)
+  isResponseRedactionRegexEscapingEnabled: false,
+  // Whether AI Flow can be enabled by the SDK. (Default from reclaimprotocol.org: `false`)
+  isAIFlowEnabled: false,
 }
 ```
 
