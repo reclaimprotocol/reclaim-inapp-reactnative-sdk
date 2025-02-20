@@ -99,7 +99,7 @@ platform :ios, '13.0'
 - From a specific tag (recommended):
 
 ```ruby
-pod 'ReclaimInAppSdk', :git => 'https://github.com/reclaimprotocol/reclaim-inapp-ios-sdk.git', :tag => '0.1.2'
+pod 'ReclaimInAppSdk', :git => 'https://github.com/reclaimprotocol/reclaim-inapp-ios-sdk.git', :tag => '0.1.4'
 ```
 
 - or from git HEAD (Alternative):

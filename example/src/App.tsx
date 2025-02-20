@@ -20,14 +20,6 @@ const config = {
 }
 const reclaimVerification = new ReclaimVerification();
 
-// Advanced Usage: Use ReclaimVerification.setOverrides for overriding sdk
-reclaimVerification.setOverrides({
-  appInfo: {
-    appName: "Overriden Example",
-    appImageUrl: "https://placehold.co/400x400/png"
-  }
-})
-
 export default function App() {
   const [providerId, setProviderId] = useState('6d3f6753-7ee6-49ee-a545-62f1b1822ae5');
   const [result, setResult] = useState<any>(null);
@@ -42,6 +34,50 @@ export default function App() {
     console.assert(config.REACT_APP_RECLAIM_APP_ID, 'RECLAIM_APP_ID is not set');
     console.assert(config.REACT_APP_RECLAIM_APP_SECRET, 'RECLAIM_APP_SECRET is not set');
     try {
+      // Advanced Usage: Use ReclaimVerification.setOverrides for overriding sdk
+      reclaimVerification.setOverrides({
+        provider: {
+          jsonString:  await (async () => {
+            const response = await fetch(`https://api.reclaimprotocol.org/api/providers/${providerId}`);
+            const responseJson =  await response.json();
+            return responseJson.providers;
+          })()
+        },
+        logConsumer: {
+          canSdkCollectTelemetry: false,
+          canSdkPrintLogs: false,
+          onLogs: (logJsonString, _) => {
+            console.log({ "reclaim.logs": logJsonString });
+          },
+        },
+        appInfo: {
+          appName: "Overriden Example",
+          appImageUrl: "https://placehold.co/400x400/png"
+        },
+        featureOptions: {
+          cookiePersist: null,
+          singleReclaimRequest: false,
+          idleTimeThresholdForManualVerificationTrigger: 2,
+          sessionTimeoutForManualVerificationTrigger: 180,
+          attestorBrowserRpcUrl: 'https://attestor.reclaimprotocol.org/browser-rpc',
+          isResponseRedactionRegexEscapingEnabled: false,
+          isAIFlowEnabled: false,
+        },
+        sessionManagement: {
+          onLog: (event) => {
+            console.log({ "reclaim.session.log": event });
+          },
+          onSessionCreateRequest: async (event) => {
+            console.log({ "reclaim.session.createRequest": event });
+            return true;
+          },
+          onSessionUpdateRequest: async (event) => {
+            console.log({ "reclaim.session.updateRequest": event });
+            return true;
+          },
+        },
+      });
+
       const verificationResult = await reclaimVerification.startVerification({
         appId: config.REACT_APP_RECLAIM_APP_ID ?? '',
         secret: config.REACT_APP_RECLAIM_APP_SECRET ?? '',
