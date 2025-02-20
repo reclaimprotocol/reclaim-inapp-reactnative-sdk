@@ -182,6 +182,8 @@ export interface FeatureOptions {
   /**
    * Whether AI flow is enabled.
    * Optional, defaults to null.
+   * 
+   * @deprecated Removed.
    */
   isAIFlowEnabled?: boolean | null;
 }
