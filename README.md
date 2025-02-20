@@ -94,7 +94,8 @@ Some projects may require you to add the repositories to the root `build.gradle`
 ```
 platform :ios, '13.0'
 ```
-2. Add the following to your `Podfile`:
+
+2. Add the following to your `Podfile` to override how cocoapods resolves the dependency:
 
 - From a specific tag (recommended):
 
