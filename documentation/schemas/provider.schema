@@ -1,5 +1,5 @@
 model HttpProvider {
-  id                      String                              @id @default(auto()) @map("_id") @db.ObjectId
+  id                      String                              @id
   httpProviderId          String                              @unique
   name                    String
   logoUrl                 String
