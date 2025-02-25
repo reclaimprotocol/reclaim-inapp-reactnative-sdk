@@ -2,6 +2,8 @@
 
 ## @reclaimprotocol/inapp-rn-sdk
 
+![NPM Version](https://img.shields.io/npm/v/%40reclaimprotocol%2Finapp-rn-sdk)
+
 This SDK allows you to integrate Reclaim's in-app verification process into your React Native application.
 
 [Refer Reclaim Protocol's official documentation for React Native SDK](https://docs.reclaimprotocol.org/inapp-sdks/react-native)
