@@ -102,32 +102,32 @@ Ignore if you already have this declaration in your `Podfile`.
 - You can override the version of dependency when you wish to use a specific version of the SDK.
 - You can add a declaration in your `Podfile` to install the SDK from cocoapods, or from a specific git tag, head, commit, or branch.
 
-#### From cocoapods (recommended)
+##### From cocoapods (recommended)
 
 ```ruby
 # Cocoapods is the recommended way to install the SDK.
 pod 'ReclaimInAppSdk', '~> 0.1.4'
 ```
 
-#### From a specific tag
+##### From a specific tag
 
 ```ruby
 pod 'ReclaimInAppSdk', :git => 'https://github.com/reclaimprotocol/reclaim-inapp-ios-sdk.git', :tag => '0.1.4'
 ```
 
-#### From git HEAD
+##### From git HEAD
 
 ```ruby
 pod 'ReclaimInAppSdk', :git => 'https://github.com/reclaimprotocol/reclaim-inapp-ios-sdk.git'
 ```
 
-#### From a specific commit
+##### From a specific commit
 
 ```ruby
 pod 'ReclaimInAppSdk', :git => 'https://github.com/reclaimprotocol/reclaim-inapp-ios-sdk.git', :commit => '184d41628026768feb703dc7bb9a3d913c6b271e'
 ```
 
-#### From a specific branch
+##### From a specific branch
 
 ```ruby
 pod 'ReclaimInAppSdk', :git => 'https://github.com/reclaimprotocol/reclaim-inapp-ios-sdk.git', :branch => 'main'
