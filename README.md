@@ -4,6 +4,8 @@
 
 This SDK allows you to integrate Reclaim's in-app verification process into your React Native application.
 
+[Refer Reclaim Protocol's official documentation for React Native SDK](https://docs.reclaimprotocol.org/inapp-sdks/react-native)
+
 ## Prerequisites
 
 - A [Reclaim account](https://dev.reclaimprotocol.org/explore) where you've created an app and have the app id, app secret.
@@ -19,9 +21,7 @@ This SDK allows you to integrate Reclaim's in-app verification process into your
 npm install @reclaimprotocol/inapp-rn-sdk
 ```
 
-Note: This package is not published to npm registry. Will be published soon. For now, you can install it from git source.
-
-### Install from git source (alternative)
+### Alternative: Install from git source
 
 #### NPM
 
@@ -92,36 +92,48 @@ Some projects may require you to add the repositories to the root `build.gradle`
 1. Make sure to define a global platform for your project in your `Podfile` with version 13.0 or higher.
 
 ```
-platform :ios, '13.0'
+platform :ios, '13.0' # or platform :ios, min_ios_version_supported
 ```
 
-2. Add the following to your `Podfile` to override how cocoapods resolves the dependency:
+Ignore if you already have this declaration in your `Podfile`.
 
-- From a specific tag (recommended):
+2. Add the following to your `Podfile` to override SDK dependency:
+
+- You can override the version of dependency when you wish to use a specific version of the SDK.
+- You can add a declaration in your `Podfile` to install the SDK from cocoapods, or from a specific git tag, head, commit, or branch.
+
+#### From cocoapods (recommended)
+
+```ruby
+# Cocoapods is the recommended way to install the SDK.
+pod 'ReclaimInAppSdk', '~> 0.1.4'
+```
+
+#### From a specific tag
 
 ```ruby
 pod 'ReclaimInAppSdk', :git => 'https://github.com/reclaimprotocol/reclaim-inapp-ios-sdk.git', :tag => '0.1.4'
 ```
 
-- or from git HEAD (Alternative):
+#### From git HEAD
 
 ```ruby
 pod 'ReclaimInAppSdk', :git => 'https://github.com/reclaimprotocol/reclaim-inapp-ios-sdk.git'
 ```
 
-- or from a specific commit (Alternative):
+#### From a specific commit
 
 ```ruby
 pod 'ReclaimInAppSdk', :git => 'https://github.com/reclaimprotocol/reclaim-inapp-ios-sdk.git', :commit => '184d41628026768feb703dc7bb9a3d913c6b271e'
 ```
 
-- or from a specific branch (Alternative):
+#### From a specific branch
 
 ```ruby
 pod 'ReclaimInAppSdk', :git => 'https://github.com/reclaimprotocol/reclaim-inapp-ios-sdk.git', :branch => 'main'
 ```
 
-2. After adding the dependency, your podfile may look like this:
+- After adding the dependency, your podfile may look like this:
 
 ```ruby
 platform :ios, '13.0'
@@ -136,14 +148,21 @@ target 'InappRnSdkExample' do
     :app_path => "#{Pod::Config.instance.installation_root}/.."
   )
 
-  # This is the line you need to add to your podfile.
-  pod 'ReclaimInAppSdk', :git => 'https://github.com/reclaimprotocol/reclaim-inapp-ios-sdk.git', :tag => '0.1.4'
+  # This is the line that you may need to add in your podfile.
+  pod 'ReclaimInAppSdk', '~> 0.1.4'
 
   pre_install do |installer|
     system("cd ../../ && npx bob build --target codegen")
   end
 
   # ... rest of the podfile. (removed for brevity)
+```
+
+3. Run `pod install` inside the `ios/` directory of your project.
+
+```sh
+cd ios/
+pod install
 ```
 
 #### Fixing performance issues on IOS physical devices
