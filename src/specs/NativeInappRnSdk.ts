@@ -131,7 +131,6 @@ export interface Response {
    * The list of proofs generated during the verification attempt
    */
   proofs: { [key: string]: any }[]; // Array of dictionaries
-  // proofs: string[]; // Array of dictionaries
 }
 
 export interface ProviderInformation {

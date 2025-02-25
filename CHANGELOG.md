@@ -1,3 +1,8 @@
+## 0.1.5
+
+- Updated types to include `ReclaimVerificationResponse` as the type for `ReclaimVerificationApi.Response`.
+- Add `types` declaration in package.json.
+
 ## 0.1.4
 
 - Example updates.

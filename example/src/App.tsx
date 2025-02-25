@@ -8,9 +8,9 @@ import {
   ScrollView,
   SafeAreaView,
   StatusBar,
+  Clipboard,
 } from 'react-native';
-import { ReclaimVerification } from '@reclaimprotocol/inapp-rn-sdk';
-import { ReclaimVerificationApi } from '@reclaimprotocol/inapp-rn-sdk';
+import { ReclaimVerification, ReclaimVerificationApi } from '@reclaimprotocol/inapp-rn-sdk';
 import Snackbar from 'react-native-snackbar';
 import { REACT_APP_RECLAIM_APP_ID, REACT_APP_RECLAIM_APP_SECRET } from '@env';
 
@@ -22,7 +22,7 @@ const reclaimVerification = new ReclaimVerification();
 
 export default function App() {
   const [providerId, setProviderId] = useState('6d3f6753-7ee6-49ee-a545-62f1b1822ae5');
-  const [result, setResult] = useState<any>(null);
+  const [result, setResult] = useState<ReclaimVerificationApi.Response | null>(null);
   const handleStartVerification = async () => {
     if (!providerId) {
       Snackbar.show({
@@ -80,6 +80,28 @@ export default function App() {
     }
   };
 
+  const copyProof = async () => {
+    if (!result) {
+      Snackbar.show({
+        text: 'No proof to copy',
+        duration: Snackbar.LENGTH_LONG,
+      });
+      return;
+    }
+    try {
+      Clipboard.setString(JSON.stringify(result));
+      Snackbar.show({
+        text: 'Proof copied to clipboard',
+        duration: Snackbar.LENGTH_LONG,
+      });
+    } catch (error) {
+      Snackbar.show({
+        text: error instanceof Error ? error.message : 'Failed to copy proof',
+        duration: Snackbar.LENGTH_LONG,
+      });
+    }
+  }
+
   const onPing = async () => {
     try {
       const result = await reclaimVerification.ping();
@@ -131,7 +153,7 @@ export default function App() {
         {/* Result Display */}
         <ScrollView style={styles.resultContainer}>
           {result && (
-            <Text style={styles.resultText}>
+            <Text style={styles.resultText} onPress={copyProof} >
               {JSON.stringify(result, null, 2)}
             </Text>
           )}

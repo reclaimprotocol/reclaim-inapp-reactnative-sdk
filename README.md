@@ -137,7 +137,7 @@ target 'InappRnSdkExample' do
   )
 
   # This is the line you need to add to your podfile.
-  pod 'ReclaimInAppSdk', :git => 'https://github.com/reclaimprotocol/reclaim-inapp-ios-sdk.git', :tag => '0.1.2'
+  pod 'ReclaimInAppSdk', :git => 'https://github.com/reclaimprotocol/reclaim-inapp-ios-sdk.git', :tag => '0.1.4'
 
   pre_install do |installer|
     system("cd ../../ && npx bob build --target codegen")

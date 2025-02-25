@@ -1,6 +1,6 @@
 import { ReclaimVerificationPlatformChannel, type ReclaimVerificationApi } from './ReclaimVerificationPlatformChannel';
 export { ReclaimVerificationPlatformChannel, ReclaimVerificationApi } from './ReclaimVerificationPlatformChannel';
-export type { ReclaimVerificationApi as ReclaimVerificationApiType } from './ReclaimVerificationPlatformChannel';
+export type { ReclaimVerificationApi as ReclaimVerificationApiType, ReclaimResult } from './ReclaimVerificationPlatformChannel';
 
 export class ReclaimVerification {
   public channel: ReclaimVerificationPlatformChannel;

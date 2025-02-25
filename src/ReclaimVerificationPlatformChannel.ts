@@ -1,6 +1,8 @@
 import type { EventSubscription } from "react-native";
 import NativeReclaimInappModule from "./specs/NativeInappRnSdk";
 import * as NativeReclaimInappModuleTypes from "./specs/NativeInappRnSdk";
+import { ReclaimResult, type ReclaimVerificationResponse } from "./types/proof";
+export type { ReclaimVerificationResponse, ReclaimResult } from "./types/proof";
 
 /**
  * This namespace provides types involved in initiating and managing the verification process
@@ -23,7 +25,7 @@ export namespace ReclaimVerificationApi {
     /**
      * Contains the proof and response data after verification
      */
-    export type Response = NativeReclaimInappModuleTypes.Response;
+    export type Response = ReclaimVerificationResponse;
 
     export namespace Overrides {
         export type ProviderInformation = NativeReclaimInappModuleTypes.ProviderInformation;
@@ -144,7 +146,11 @@ export namespace ReclaimVerificationApi {
 export class ReclaimVerificationPlatformChannel {
     async startVerification(request: ReclaimVerificationApi.Request): Promise<ReclaimVerificationApi.Response> {
         try {
-            return await NativeReclaimInappModule.startVerification(request);
+            const response = await NativeReclaimInappModule.startVerification(request);
+            return {
+                ...response,
+                proofs: ReclaimResult.asProofs(response.proofs),
+            }
         } catch (error) {
             console.info({
                 error
@@ -158,7 +164,11 @@ export class ReclaimVerificationPlatformChannel {
 
     async startVerificationFromUrl(requestUrl: string): Promise<ReclaimVerificationApi.Response> {
         try {
-            return await NativeReclaimInappModule.startVerificationFromUrl(requestUrl);
+            const response = await NativeReclaimInappModule.startVerificationFromUrl(requestUrl);
+            return {
+                ...response,
+                proofs: ReclaimResult.asProofs(response.proofs),
+            }
         } catch (error) {
             console.info({
                 error
