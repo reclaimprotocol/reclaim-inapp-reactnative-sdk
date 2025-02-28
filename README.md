@@ -288,6 +288,10 @@ error.reason
 error.innerError
 ```
 
+## Migration
+
+- Migration steps for [0.2.1](https://github.com/reclaimprotocol/reclaim-inapp-reactnative-sdk/blob/main/documentation/migration.md#021)
+
 ## Advanced Usage
 
 ### Overriding SDK Config
