@@ -92,10 +92,6 @@ export interface Request {
         [key: string]: string;
     };
     /**
-     * Whether to hide the landing page of the verification process. When false, shows an introductory page with claims to be proven.
-     */
-    hideLanding?: boolean;
-    /**
      * Whether to automatically submit the proof after generation.
      */
     autoSubmit?: boolean;
@@ -124,6 +120,7 @@ export interface Response {
 export interface ProviderInformation {
     url?: string;
     jsonString?: string;
+    canFetchProviderInformationFromHost: boolean;
 }
 /**
 * Interface representing Feature Options.
@@ -228,6 +225,11 @@ export interface SessionLogEvent {
      */
     logType: string;
 }
+export interface ReclaimSessionIdentityUpdate {
+    appId: string;
+    providerId: string;
+    sessionId: string;
+}
 export interface SessionCreateRequestEvent {
     /**
      * The app ID for the verification attempt
@@ -266,17 +268,33 @@ export interface Overrides {
     logConsumer?: LogConsumer | null;
     sessionManagement?: SessionManagement | null;
     appInfo?: ReclaimAppInfo | null;
+    capabilityAccessToken?: string | null;
+}
+export interface ProviderInformationRequest {
+    appId: string;
+    providerId: string;
+    sessionId: string;
+    signature: string;
+    timestamp: string;
+    /**
+     * internal
+     */
+    readonly replyId: string;
 }
 export interface Spec extends TurboModule {
     startVerification(request: Request): Promise<Response>;
     startVerificationFromUrl(requestUrl: string): Promise<Response>;
     setOverrides(overrides: Overrides): Promise<void>;
+    clearAllOverrides(): Promise<void>;
     reply(replyId: string, reply: boolean): void;
+    replyWithProviderInformation(replyId: string, providerInformation: string): void;
     ping(): Promise<boolean>;
     readonly onLogs: EventEmitter<string>;
     readonly onSessionLogs: EventEmitter<SessionLogEvent>;
     readonly onSessionCreateRequest: EventEmitter<SessionCreateRequestEvent>;
     readonly onSessionUpdateRequest: EventEmitter<SessionUpdateRequestEvent>;
+    readonly onSessionIdentityUpdate: EventEmitter<ReclaimSessionIdentityUpdate>;
+    readonly onProviderInformationRequest: EventEmitter<ProviderInformationRequest>;
 }
 declare const _default: Spec;
 export default _default;

@@ -22,7 +22,11 @@ export declare namespace ReclaimVerificationApi {
      */
     type Response = ReclaimVerificationResponse;
     namespace Overrides {
-        type ProviderInformation = NativeReclaimInappModuleTypes.ProviderInformation;
+        interface ProviderInformation {
+            url?: string;
+            jsonString?: string;
+            callback?: (request: NativeReclaimInappModuleTypes.ProviderInformationRequest) => Promise<string>;
+        }
         type FeatureOptions = NativeReclaimInappModuleTypes.FeatureOptions;
         interface LogConsumer {
             /**
@@ -53,12 +57,20 @@ export declare namespace ReclaimVerificationApi {
         logConsumer?: Overrides.LogConsumer;
         sessionManagement?: Overrides.SessionManagement;
         appInfo?: Overrides.ReclaimAppInfo;
+        capabilityAccessToken?: string;
     };
     enum ExceptionType {
         Cancelled = "Cancelled",
         Dismissed = "Dismissed",
         SessionExpired = "SessionExpired",
         Failed = "Failed"
+    }
+    class ReclaimPlatformException extends Error {
+        readonly innerError: Error;
+        readonly reason?: string;
+        readonly details?: any;
+        constructor(message: string, innerError: Error);
+        static isReclaimPlatformException(error: Error): error is ReclaimPlatformException;
     }
     class ReclaimVerificationException extends Error {
         readonly innerError: Error;
@@ -69,14 +81,27 @@ export declare namespace ReclaimVerificationApi {
         constructor(message: string, innerError: Error, type: ExceptionType, sessionId: string, didSubmitManualVerification: boolean, reason: string);
         private static fromTypeName;
         static fromError(error: Error, sessionIdHint: string): ReclaimVerificationException;
+        static isReclaimVerificationException(error: Error): error is ReclaimVerificationException;
     }
 }
-export declare class ReclaimVerificationPlatformChannel {
+export declare abstract class ReclaimVerificationPlatformChannel {
+    abstract startVerification(request: ReclaimVerificationApi.Request): Promise<ReclaimVerificationApi.Response>;
+    abstract startVerificationFromUrl(requestUrl: string): Promise<ReclaimVerificationApi.Response>;
+    abstract ping(): Promise<boolean>;
+    abstract setOverrides(config: ReclaimVerificationApi.OverrideConfig): Promise<void>;
+    abstract clearAllOverrides(): Promise<void>;
+}
+export declare class ReclaimVerificationPlatformChannelImpl extends ReclaimVerificationPlatformChannel {
     startVerification(request: ReclaimVerificationApi.Request): Promise<ReclaimVerificationApi.Response>;
     startVerificationFromUrl(requestUrl: string): Promise<ReclaimVerificationApi.Response>;
     ping(): Promise<boolean>;
-    private previousLogSubscription;
     private previousSessionManagementCancelCallback;
-    setOverrides({ provider, featureOptions, logConsumer, sessionManagement, appInfo }: ReclaimVerificationApi.OverrideConfig): void;
+    disposeSessionManagement(): void;
+    private previousLogSubscription;
+    disposeLogListener(): void;
+    private previousProviderRequestCancelCallback;
+    private disposeProviderRequestListener;
+    setOverrides({ provider, featureOptions, logConsumer, sessionManagement, appInfo, capabilityAccessToken }: ReclaimVerificationApi.OverrideConfig): Promise<void>;
+    clearAllOverrides(): Promise<void>;
 }
 //# sourceMappingURL=ReclaimVerificationPlatformChannel.d.ts.map
