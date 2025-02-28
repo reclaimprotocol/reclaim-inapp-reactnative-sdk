@@ -38,7 +38,7 @@ provider: {
 ```
 
 - The JSON string or url must point to a valid provider configuration that follows the [provider schema](schemas/provider.schema).
-- Examples of provider configurations can be found in the `https://api.reclaimprotocol.org/api/providers/${provider_id}` http api. For example, [Github Username Provider](https://api.reclaimprotocol.org/api/providers/6d3f6753-7ee6-49ee-a545-62f1b1822ae5).
+- Examples of provider configurations can be found in the `https://api.reclaimprotocol.org/api/providers/${provider_id}` http api. For example, [Devtool's Http Api for Github Username Provider](https://api.reclaimprotocol.org/api/providers/6d3f6753-7ee6-49ee-a545-62f1b1822ae5). Please note: These examples are structured differently. The provider configuration is nested under a 'providers' key, rather than being a root object. Therefore, they cannot be used as direct parameters for provider overrides in this SDK.
 
 ### Logging Configuration
 
