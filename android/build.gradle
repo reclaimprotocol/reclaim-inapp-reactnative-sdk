@@ -3,7 +3,7 @@ buildscript {
     return rootProject.ext.has(name) ? rootProject.ext.get(name) : project.properties['InappRnSdk_' + name]
   }
   String flutterStorageUrl = System.env.FLUTTER_STORAGE_BASE_URL ?: "https://storage.googleapis.com"
-  String reclaimStorageUrl = System.env.RECLAIM_STORAGE_BASE_URL ?: "https://reclaim-inapp-sdk.s3.ap-south-1.amazonaws.com/android/0.1.2/repo"
+  String reclaimStorageUrl = System.env.RECLAIM_STORAGE_BASE_URL ?: "https://reclaim-inapp-sdk.s3.ap-south-1.amazonaws.com/android/0.2.1/repo"
   repositories {
     google()
     mavenCentral()
@@ -98,7 +98,7 @@ android {
 }
 
 String flutterStorageUrl = System.env.FLUTTER_STORAGE_BASE_URL ?: "https://storage.googleapis.com"
-String reclaimStorageUrl = System.env.RECLAIM_STORAGE_BASE_URL ?: "https://reclaim-inapp-sdk.s3.ap-south-1.amazonaws.com/android/0.1.2/repo"
+String reclaimStorageUrl = System.env.RECLAIM_STORAGE_BASE_URL ?: "https://reclaim-inapp-sdk.s3.ap-south-1.amazonaws.com/android/0.2.1/repo"
 
 repositories {
   mavenCentral()
@@ -118,7 +118,7 @@ dependencies {
   implementation "org.jetbrains.kotlin:kotlin-stdlib:$kotlin_version"
 
   //noinspection UseTomlInstead
-  implementation "org.reclaimprotocol:inapp_sdk:0.1.2"
+  implementation "org.reclaimprotocol:inapp_sdk:0.2.1"
 }
 
 if (isNewArchitectureEnabled()) {

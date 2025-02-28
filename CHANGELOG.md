@@ -1,3 +1,9 @@
+## 0.2.1
+
+- Updated breaking changes in the use of the v0.2.1 of module apis
+- Add use of capability access token
+- Add callback parameter to fetch provider information from the host app
+
 ## 0.1.7
 
 - Replace getDouble with getNumber for better type safety for numbers in android library

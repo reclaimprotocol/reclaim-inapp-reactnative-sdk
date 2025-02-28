@@ -59,7 +59,7 @@ add the following to the end of settings.gradle:
 dependencyResolutionManagement {
     repositoriesMode.set(RepositoriesMode.PREFER_SETTINGS)
     String flutterStorageUrl = System.env.FLUTTER_STORAGE_BASE_URL ?: "https://storage.googleapis.com"
-    String reclaimStorageUrl = System.env.RECLAIM_STORAGE_BASE_URL ?: "https://reclaim-inapp-sdk.s3.ap-south-1.amazonaws.com/android/0.1.2/repo"
+    String reclaimStorageUrl = System.env.RECLAIM_STORAGE_BASE_URL ?: "https://reclaim-inapp-sdk.s3.ap-south-1.amazonaws.com/android/0.2.1/repo"
     repositories {
         google()
         mavenCentral()
@@ -78,7 +78,7 @@ or alternatively add the following repositories to the relevant repositories blo
 
 ```groovy
 String flutterStorageUrl = System.env.FLUTTER_STORAGE_BASE_URL ?: "https://storage.googleapis.com"
-String reclaimStorageUrl = System.env.RECLAIM_STORAGE_BASE_URL ?: "https://reclaim-inapp-sdk.s3.ap-south-1.amazonaws.com/android/0.1.2/repo"
+String reclaimStorageUrl = System.env.RECLAIM_STORAGE_BASE_URL ?: "https://reclaim-inapp-sdk.s3.ap-south-1.amazonaws.com/android/0.2.1/repo"
 maven {
     url "$reclaimStorageUrl"
 }
@@ -108,13 +108,13 @@ Ignore if you already have this declaration in your `Podfile`.
 
 ```ruby
 # Cocoapods is the recommended way to install the SDK.
-pod 'ReclaimInAppSdk', '~> 0.1.4'
+pod 'ReclaimInAppSdk', '~> 0.2.1'
 ```
 
 ##### From a specific tag
 
 ```ruby
-pod 'ReclaimInAppSdk', :git => 'https://github.com/reclaimprotocol/reclaim-inapp-ios-sdk.git', :tag => '0.1.4'
+pod 'ReclaimInAppSdk', :git => 'https://github.com/reclaimprotocol/reclaim-inapp-ios-sdk.git', :tag => '0.2.1'
 ```
 
 ##### From git HEAD
@@ -126,7 +126,7 @@ pod 'ReclaimInAppSdk', :git => 'https://github.com/reclaimprotocol/reclaim-inapp
 ##### From a specific commit
 
 ```ruby
-pod 'ReclaimInAppSdk', :git => 'https://github.com/reclaimprotocol/reclaim-inapp-ios-sdk.git', :commit => '184d41628026768feb703dc7bb9a3d913c6b271e'
+pod 'ReclaimInAppSdk', :git => 'https://github.com/reclaimprotocol/reclaim-inapp-ios-sdk.git', :commit => 'eeb5a5484a5927217065e5c988fab8201cb2db2e'
 ```
 
 ##### From a specific branch
@@ -151,7 +151,7 @@ target 'InappRnSdkExample' do
   )
 
   # This is the line that you may need to add in your podfile.
-  pod 'ReclaimInAppSdk', '~> 0.1.4'
+  pod 'ReclaimInAppSdk', '~> 0.2.1'
 
   pre_install do |installer|
     system("cd ../../ && npx bob build --target codegen")

@@ -35,13 +35,13 @@ Api *api = [[Api alloc] init];
   [api replyWithReplyId:replyId reply:reply];
 }
 
+- (void)replyWithProviderInformation:(nonnull NSString *)replyId providerInformation:(nonnull NSString *)providerInformation {
+  [api replyWithProviderInformationWithReplyId:replyId providerInformation:providerInformation];
+}
+
 - (void)startVerification:(JS::NativeInappRnSdk::Request &)request resolve:(nonnull RCTPromiseResolveBlock)resolve reject:(nonnull RCTPromiseRejectBlock)reject {
   NSLog(@"[InappRnSdk] starting verification");
   
-  bool hideLanding = true;
-  if (request.hideLanding().has_value()) {
-    hideLanding = request.hideLanding().value();
-  }
   bool autoSubmit = false;
   if (request.autoSubmit().has_value()) {
     autoSubmit = request.autoSubmit().value();
@@ -85,7 +85,7 @@ Api *api = [[Api alloc] init];
   }
   
   NSLog(@"[InappRnSdk] starting verification now");
-  [api startVerificationWithAppId:request.appId() secret:request.secret() providerId:request.providerId() sessionTimestamp:timestamp sessionSessionId:sessionId sessionSignature:signature context:request.contextString() parameters:parameters hideLanding:hideLanding autoSubmit:autoSubmit acceptAiProviders:acceptAiProviders webhookUrl:request.webhookUrl() completionHandler:^(NSDictionary<NSString *,id> * _Nullable result, NSError * _Nullable error) {
+  [api startVerificationWithAppId:request.appId() secret:request.secret() providerId:request.providerId() sessionTimestamp:timestamp sessionSessionId:sessionId sessionSignature:signature context:request.contextString() parameters:parameters autoSubmit:autoSubmit acceptAiProviders:acceptAiProviders webhookUrl:request.webhookUrl() completionHandler:^(NSDictionary<NSString *,id> * _Nullable result, NSError * _Nullable error) {
     if (error != nil) {
       NSLog(@"[InappRnSdk] Api Error: %@", error);
       reject(@"VERIFICATION_ERROR", @"Verification Error", error);
@@ -115,9 +115,21 @@ Api *api = [[Api alloc] init];
   if (overrides.provider().has_value()) {
     JS::NativeInappRnSdk::ProviderInformation provider = overrides.provider().value();
     if (provider.url() != nil && provider.url().length > 0) {
-      overridenProvider = [[OverridenProviderInformation alloc] initWithUrl:provider.url() jsonString:nil];
+      overridenProvider = [[OverridenProviderInformation alloc] initWithUrl:provider.url() jsonString:nil callback:nil];
     } else if (provider.jsonString() != nil && provider.jsonString().length > 0) {
-      overridenProvider = [[OverridenProviderInformation alloc] initWithUrl:nil jsonString:provider.jsonString()];
+      overridenProvider = [[OverridenProviderInformation alloc] initWithUrl:nil jsonString:provider.jsonString() callback:nil];
+    } else if (provider.canFetchProviderInformationFromHost()) {
+      OverridenProviderCallbackHandler * callback = [[OverridenProviderCallbackHandler alloc] initWith_fetchProviderInformation:^(NSString * _Nonnull appId, NSString * _Nonnull providerId, NSString * _Nonnull sessionId, NSString * _Nonnull signature, NSString * _Nonnull timestamp, NSString * _Nonnull replyId) {
+        [self emitOnProviderInformationRequest:@{
+          @"appId": appId,
+          @"providerId": providerId,
+          @"sessionId": sessionId,
+          @"signature": signature,
+          @"timestamp": timestamp,
+          @"replyId": replyId
+        }];
+      }];
+      overridenProvider = [[OverridenProviderInformation alloc] initWithUrl:nil jsonString:nil callback:callback];
     }
   }
   
@@ -203,9 +215,24 @@ Api *api = [[Api alloc] init];
     overridenAppInfo = [[OverridenReclaimAppInfo alloc] initWithAppName:appInfo.appName() appImageUrl:appInfo.appImageUrl() isRecurring:isRecurring];
   }
   
-  [api setOverridesWithProvider:overridenProvider featureOptions:overridenFeatureOptions logConsumer:overridenLogConsumer sessionManagement: sessionManagement appInfo:overridenAppInfo completionHandler:^(NSError * _Nullable error) {
+  NSString * _Nullable capabilityAccessToken = nil;
+  if (overrides.capabilityAccessToken() != nil) {
+    capabilityAccessToken = overrides.capabilityAccessToken();
+  }
+  
+  [api setOverridesWithProvider:overridenProvider featureOptions:overridenFeatureOptions logConsumer:overridenLogConsumer sessionManagement: sessionManagement appInfo:overridenAppInfo capabilityAccessToken: capabilityAccessToken completionHandler:^(NSError * _Nullable error) {
     if (error != nil) {
       reject(@"OVERRIDE_ERROR", @"Error on override", error);
+    } else {
+      resolve(nil);
+    }
+  }];
+}
+
+- (void)clearAllOverrides:(nonnull RCTPromiseResolveBlock)resolve reject:(nonnull RCTPromiseRejectBlock)reject { 
+  [api clearAllOverridesWithCompletionHandler:^(NSError * _Nullable error) {
+    if (error != nil) {
+      reject(@"OVERRIDE_ERROR", @"Error on clearing overrides", error);
     } else {
       resolve(nil);
     }

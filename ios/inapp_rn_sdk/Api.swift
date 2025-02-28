@@ -34,6 +34,35 @@ import ReclaimInAppSdk
     }
   }
   
+  @MainActor
+  static fileprivate var replyWithProviderInformationHandlers: [String: (Result<String, any Error>) -> Void] = [:]
+  
+  static fileprivate func setReplyWithProviderInformationCallback(
+     _ callback: @escaping (Result<String, any Error>) -> Void
+  ) -> String {
+    let replyId = UUID().uuidString
+    Task { @MainActor in
+      Api.replyWithProviderInformationHandlers[replyId] = callback
+    }
+    return replyId
+  }
+  
+  @objc public func replyWithProviderInformation(replyId: String?, providerInformation: String?) {
+    if let replyId {
+      Task { @MainActor in
+        let callback = Api.replyWithProviderInformationHandlers[replyId]
+        if let callback = callback {
+          Api.replyWithProviderInformationHandlers.removeValue(forKey: replyId)
+          callback(.success(providerInformation ?? ""))
+        } else {
+          NSLog("[Api.replyWithProviderInformation] No callback found for replyId \(replyId)")
+        }
+      }
+    } else {
+      NSLog("[Api.replyWithProviderInformation] Missing arg replyId")
+    }
+  }
+  
   @objc public func startVerification(
     appId: String?,
     secret: String?,
@@ -43,7 +72,6 @@ import ReclaimInAppSdk
     sessionSignature: String?,
     context: String?,
     parameters: [String: String]?,
-    hideLanding: Bool,
     autoSubmit: Bool,
     acceptAiProviders: Bool,
     webhookUrl: String
@@ -64,7 +92,6 @@ import ReclaimInAppSdk
         session: session,
         context: context ?? "",
         parameters: parameters ?? [String:String](),
-        hideLanding: hideLanding,
         autoSubmit: autoSubmit,
         acceptAiProviders: acceptAiProviders,
         webhookUrl: webhookUrl
@@ -75,7 +102,6 @@ import ReclaimInAppSdk
         session: session,
         context: context ?? "",
         parameters: parameters ?? [String:String](),
-        hideLanding: hideLanding,
         autoSubmit: autoSubmit,
         acceptAiProviders: acceptAiProviders,
         webhookUrl: webhookUrl
@@ -95,12 +121,15 @@ import ReclaimInAppSdk
     featureOptions: OverridenFeatureOptions?,
     logConsumer: OverridenLogConsumer?,
     sessionManagement: OverridenSessionManagement?,
-    appInfo: OverridenReclaimAppInfo?
+    appInfo: OverridenReclaimAppInfo?,
+    capabilityAccessToken: String?
   ) async throws {
     let providerOverrides: ReclaimOverrides.ProviderInformation? = if let url = provider?.url {
       .url(url: url)
     } else if let jsonString = provider?.jsonString {
       .jsonString(jsonString: jsonString)
+    } else if let callback = provider?.callback {
+      .callback(callbackHandler: callback)
     } else {
       nil
     }
@@ -150,10 +179,15 @@ import ReclaimInAppSdk
       featureOptions: featureOptionsOverrides,
       logConsumer: logConsumerOverrides,
       sessionManagement: sessionManagementOverrides,
-      appInfo: appInfoOverrides
+      appInfo: appInfoOverrides,
+      capabilityAccessToken: capabilityAccessToken
     )
   }
-  
+
+  @objc public func clearAllOverrides() async throws {
+    return try await ReclaimVerification.clearAllOverrides()
+  }
+
   func startVerificationWithRequest(_ request: ReclaimVerification.Request) async throws -> [String: Any] {
     NSLog("[Api] starting verification");
     return try await withCheckedThrowingContinuation { continuation in
@@ -215,16 +249,48 @@ import ReclaimInAppSdk
   }
 }
 
+public typealias OverridenProviderCallback = (
+  _ appId: String,
+  _ providerId: String,
+  _ sessionId: String,
+  _ signature: String,
+  _ timestamp: String,
+  _ replyId: String
+) -> Void
+
+@objc(OverridenProviderCallbackHandler) public class OverridenProviderCallbackHandler: NSObject, ReclaimOverrides.ProviderInformation.CallbackHandler {
+  @objc let _fetchProviderInformation: OverridenProviderCallback
+  
+  @objc public init(_fetchProviderInformation: @escaping OverridenProviderCallback) {
+    self._fetchProviderInformation = _fetchProviderInformation
+  }
+  
+  public func fetchProviderInformation(
+        appId: String,
+        providerId: String,
+        sessionId: String,
+        signature: String,
+        timestamp: String,
+        completion: @escaping (Result<String, any Error>) -> Void
+  ) {
+    let replyId = Api.setReplyWithProviderInformationCallback(completion)
+    self._fetchProviderInformation(appId, providerId, sessionId, signature, timestamp, replyId)
+  }
+}
+
 @objc(OverridenProviderInformation) public class OverridenProviderInformation: NSObject {
   @objc public var url: String?
   @objc public var jsonString: String?
+  @objc public var callback: OverridenProviderCallbackHandler?
   
   @objc public init(
     url: String? = nil,
-    jsonString: String? = nil
+    jsonString: String? = nil,
+    callback: OverridenProviderCallbackHandler? = nil
   ) {
     self.url = url
     self.jsonString = jsonString
+    self.callback = callback
   }
 }
 

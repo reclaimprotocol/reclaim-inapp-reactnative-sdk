@@ -1,5 +1,5 @@
-import { ReclaimVerificationPlatformChannel, type ReclaimVerificationApi } from './ReclaimVerificationPlatformChannel';
-export { ReclaimVerificationPlatformChannel, ReclaimVerificationApi } from './ReclaimVerificationPlatformChannel';
+import { type ReclaimVerificationApi, ReclaimVerificationPlatformChannel, ReclaimVerificationPlatformChannelImpl } from './ReclaimVerificationPlatformChannel';
+export { ReclaimVerificationPlatformChannel, ReclaimVerificationApi, ReclaimVerificationPlatformChannelImpl } from './ReclaimVerificationPlatformChannel';
 export type { ReclaimVerificationApi as ReclaimVerificationApiType, ReclaimResult } from './ReclaimVerificationPlatformChannel';
 
 export class ReclaimVerification {
@@ -12,7 +12,7 @@ export class ReclaimVerification {
       this.channel = channel;
     } else {
       if (ReclaimVerification.defaultChannel == null) {
-        ReclaimVerification.defaultChannel = new ReclaimVerificationPlatformChannel();
+        ReclaimVerification.defaultChannel = new ReclaimVerificationPlatformChannelImpl();
       }
       this.channel = ReclaimVerification.defaultChannel;
     }
@@ -27,6 +27,10 @@ export class ReclaimVerification {
   }
 
   public setOverrides(overrides: ReclaimVerificationApi.OverrideConfig) {
-    this.channel.setOverrides(overrides);
+    return this.channel.setOverrides(overrides);
+  }
+
+  public clearAllOverrides() {
+    return this.channel.clearAllOverrides();
   }
 }

@@ -26,7 +26,7 @@ export default function App() {
   const setOverrides = async () => {
     try {
       // Advanced Usage: Use ReclaimVerification.setOverrides for overriding sdk
-      reclaimVerification.setOverrides({
+      await reclaimVerification.setOverrides({
         provider: {
           jsonString: await (async () => {
             // With a response from an HTTP call
@@ -155,8 +155,20 @@ export default function App() {
             return true;
           },
         },
+        capabilityAccessToken: "<REQUIRED_FOR_SOME_OVERRIDES>"
       });
       console.info('Overrides set');
+    } catch (error: any) {
+      console.error({
+        reason: 'reason' in error ? error.reason : 'no details',
+        error,
+      });
+    }
+  }
+  const clearAllOverrides = async () => {
+    try {
+      await reclaimVerification.clearAllOverrides();
+      console.info('All overrides cleared');
     } catch (error) {
       console.error(error);
     }
@@ -259,6 +271,11 @@ export default function App() {
         <Button
           title="Set Overrides"
           onPress={setOverrides}
+        />
+
+        <Button
+          title="Clear All Overrides"
+          onPress={clearAllOverrides}
         />
 
         <Button

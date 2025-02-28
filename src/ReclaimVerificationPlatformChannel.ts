@@ -28,7 +28,11 @@ export namespace ReclaimVerificationApi {
     export type Response = ReclaimVerificationResponse;
 
     export namespace Overrides {
-        export type ProviderInformation = NativeReclaimInappModuleTypes.ProviderInformation;
+        export interface ProviderInformation {
+            url?: string;
+            jsonString?: string;
+            callback?: (request: NativeReclaimInappModuleTypes.ProviderInformationRequest) => Promise<string>;
+        }
         export type FeatureOptions = NativeReclaimInappModuleTypes.FeatureOptions;
         export interface LogConsumer {
             /**
@@ -61,7 +65,8 @@ export namespace ReclaimVerificationApi {
         featureOptions?: Overrides.FeatureOptions,
         logConsumer?: Overrides.LogConsumer,
         sessionManagement?: Overrides.SessionManagement,
-        appInfo?: Overrides.ReclaimAppInfo
+        appInfo?: Overrides.ReclaimAppInfo,
+        capabilityAccessToken?: string
     }
 
     export enum ExceptionType {
@@ -69,6 +74,29 @@ export namespace ReclaimVerificationApi {
         Dismissed = "Dismissed",
         SessionExpired = "SessionExpired",
         Failed = "Failed",
+    }
+
+    export class ReclaimPlatformException extends Error {
+        readonly innerError: Error
+        readonly reason?: string
+        readonly details?: any
+
+        constructor(message: string, innerError: Error) {
+            super(message);
+            this.innerError = innerError;
+            this.reason = innerError.message;
+            if ('userInfo' in innerError) {
+                const details: any = innerError.userInfo
+                this.details = details
+                if ('message' in details) {
+                    this.reason = details.message || this.reason
+                }
+            }
+        }
+
+        static isReclaimPlatformException(error: Error): error is ReclaimPlatformException {
+            return error instanceof ReclaimPlatformException
+        }
     }
 
     export class ReclaimVerificationException extends Error {
@@ -113,21 +141,20 @@ export namespace ReclaimVerificationApi {
         }
 
         static fromError(error: Error, sessionIdHint: string): ReclaimVerificationException {
-            if (Object.hasOwn(error, 'userInfo')) {
+            if ('userInfo' in error) {
                 // From native, we send information about error in userInfo
-                let unTypedError = (error as unknown as any);
-                let userInfo = unTypedError.userInfo;
+                let userInfo = error.userInfo as any;
                 if (userInfo) {
-                    let type = ReclaimVerificationApi.ReclaimVerificationException.fromTypeName(unTypedError.userInfo.errorType);
-                    let maybeSessionId = unTypedError?.userInfo?.sessionId
+                    let type = ReclaimVerificationApi.ReclaimVerificationException.fromTypeName(userInfo.errorType);
+                    let maybeSessionId = userInfo?.sessionId
                     return new ReclaimVerificationException(
                         error.message,
                         error,
                         type,
                         (typeof maybeSessionId === 'string' && maybeSessionId)
                             ? maybeSessionId : sessionIdHint,
-                        unTypedError?.userInfo?.didSubmitManualVerification ?? false,
-                        unTypedError?.userInfo?.reason ?? ""
+                        userInfo?.didSubmitManualVerification ?? false,
+                        userInfo?.reason ?? ""
                     );
                 }
             }
@@ -140,11 +167,27 @@ export namespace ReclaimVerificationApi {
                 ""
             );
         }
+
+        static isReclaimVerificationException(error: Error): error is ReclaimVerificationException {
+            return error instanceof ReclaimVerificationException
+        }
     }
 }
 
-export class ReclaimVerificationPlatformChannel {
-    async startVerification(request: ReclaimVerificationApi.Request): Promise<ReclaimVerificationApi.Response> {
+export abstract class ReclaimVerificationPlatformChannel {
+    abstract startVerification(request: ReclaimVerificationApi.Request): Promise<ReclaimVerificationApi.Response>
+
+    abstract startVerificationFromUrl(requestUrl: string): Promise<ReclaimVerificationApi.Response>
+
+    abstract ping(): Promise<boolean>
+
+    abstract setOverrides(config: ReclaimVerificationApi.OverrideConfig): Promise<void>
+
+    abstract clearAllOverrides(): Promise<void>
+}
+
+export class ReclaimVerificationPlatformChannelImpl extends ReclaimVerificationPlatformChannel {
+    override async startVerification(request: ReclaimVerificationApi.Request): Promise<ReclaimVerificationApi.Response> {
         try {
             const response = await NativeReclaimInappModule.startVerification(request);
             return {
@@ -162,7 +205,7 @@ export class ReclaimVerificationPlatformChannel {
         }
     }
 
-    async startVerificationFromUrl(requestUrl: string): Promise<ReclaimVerificationApi.Response> {
+    override async startVerificationFromUrl(requestUrl: string): Promise<ReclaimVerificationApi.Response> {
         try {
             const response = await NativeReclaimInappModule.startVerificationFromUrl(requestUrl);
             return {
@@ -180,35 +223,73 @@ export class ReclaimVerificationPlatformChannel {
         }
     }
 
-    async ping(): Promise<boolean> {
+    override async ping(): Promise<boolean> {
         return await NativeReclaimInappModule.ping();
     }
 
-    private previousLogSubscription: EventSubscription | null = null;
     private previousSessionManagementCancelCallback: null | (() => void) = null;
+    disposeSessionManagement() {
+        let callback = this.previousSessionManagementCancelCallback;
+        if (callback != null && callback != undefined) {
+            callback();
+        }
+        this.previousSessionManagementCancelCallback = null;
+    }
 
-    setOverrides({
+    private previousLogSubscription: EventSubscription | null = null;
+    disposeLogListener() {
+        this.previousLogSubscription?.remove()
+        this.previousLogSubscription = null;
+    }
+
+    private previousProviderRequestCancelCallback: null | (() => void) = null;
+    private disposeProviderRequestListener() {
+        let callback = this.previousProviderRequestCancelCallback;
+        if (callback != null && callback != undefined) {
+            callback();
+        }
+        this.previousProviderRequestCancelCallback = null;
+    }
+
+    override async setOverrides({
         provider,
         featureOptions,
         logConsumer,
         sessionManagement,
-        appInfo
+        appInfo,
+        capabilityAccessToken
     }: ReclaimVerificationApi.OverrideConfig) {
-        this.previousLogSubscription?.remove()
-        this.previousLogSubscription = null;
-        let callback = this.previousSessionManagementCancelCallback;
-        if (callback != null) {
-            callback();
+        let providerCallback = provider?.callback;
+        let providerOverride = !provider ? null : {
+            url: provider?.url,
+            jsonString: provider?.jsonString,
+            canFetchProviderInformationFromHost: !!providerCallback,
         }
-        this.previousSessionManagementCancelCallback = null;
+        if (providerCallback) {
+            this.disposeProviderRequestListener();
+            let providerRequestSubscription = NativeReclaimInappModule.onProviderInformationRequest(async (event) => {
+                try {
+                    let result = await providerCallback(event);
+                    NativeReclaimInappModule.replyWithProviderInformation(event.replyId, result);
+                } catch (error) {
+                    console.error(error);
+                    NativeReclaimInappModule.replyWithProviderInformation(event.replyId, "");
+                }
+            });
+            const cancel = () => {
+                providerRequestSubscription.remove();
+            }
+            this.previousProviderRequestCancelCallback = cancel;
+        }
 
-        let logConsumerRequest = logConsumer == null ? undefined : {
-            enableLogHandler: logConsumer?.onLogs != null,
+        const onLogsListener = logConsumer?.onLogs;
+        let logConsumerRequest = !logConsumer ? undefined : {
+            enableLogHandler: !!onLogsListener,
             canSdkCollectTelemetry: logConsumer?.canSdkCollectTelemetry,
             canSdkPrintLogs: logConsumer?.canSdkPrintLogs
         }
-        const onLogsListener = logConsumer?.onLogs;
-        if (onLogsListener != null) {
+        if (onLogsListener) {
+            this.disposeLogListener();
             const cancel = () => {
                 this.previousLogSubscription?.remove();
                 this.previousLogSubscription = null;
@@ -218,23 +299,38 @@ export class ReclaimVerificationPlatformChannel {
             })
         }
 
-        let sessionManagementRequest = sessionManagement == null ? undefined : {
+        let sessionManagementRequest = !sessionManagement ? undefined : {
             // A handler is provided, so we don't let SDK manage sessions
             enableSdkSessionManagement: false
         }
-        if (sessionManagement != null) {
+        if (sessionManagement) {
+            this.disposeSessionManagement();
             let sessionCreateSubscription = NativeReclaimInappModule.onSessionCreateRequest(async (event) => {
                 const replyId = event.replyId;
-                let result = await sessionManagement.onSessionCreateRequest(event);
-                NativeReclaimInappModule.reply(replyId, result);
+                try {
+                    let result = await sessionManagement.onSessionCreateRequest(event);
+                    NativeReclaimInappModule.reply(replyId, result);
+                } catch (error) {
+                    console.error(error);
+                    NativeReclaimInappModule.reply(replyId, false);
+                }
             });
             let sessionUpdateSubscription = NativeReclaimInappModule.onSessionUpdateRequest(async (event) => {
                 const replyId = event.replyId;
-                let result = await sessionManagement.onSessionUpdateRequest(event);
-                NativeReclaimInappModule.reply(replyId, result);
+                try {
+                    let result = await sessionManagement.onSessionUpdateRequest(event);
+                    NativeReclaimInappModule.reply(replyId, result);
+                } catch (error) {
+                    console.error(error);
+                    NativeReclaimInappModule.reply(replyId, false);
+                }
             });
             let sessionLogsSubscription = NativeReclaimInappModule.onSessionLogs((event) => {
-                sessionManagement.onLog(event);
+                try {
+                    sessionManagement.onLog(event);
+                } catch (error) {
+                    console.error(error);
+                }
             });
             const cancel = () => {
                 sessionCreateSubscription.remove()
@@ -244,12 +340,24 @@ export class ReclaimVerificationPlatformChannel {
             this.previousSessionManagementCancelCallback = cancel;
         }
 
-        NativeReclaimInappModule.setOverrides({
-            provider,
-            featureOptions,
-            logConsumer: logConsumerRequest,
-            sessionManagement: sessionManagementRequest,
-            appInfo
-        });
+        try {
+            return await NativeReclaimInappModule.setOverrides({
+                provider: providerOverride,
+                featureOptions,
+                logConsumer: logConsumerRequest,
+                sessionManagement: sessionManagementRequest,
+                appInfo,
+                capabilityAccessToken
+            });
+        } catch (error) {
+            throw new ReclaimVerificationApi.ReclaimPlatformException("Failed to set overrides", error as Error);
+        }
+    }
+
+    override async clearAllOverrides() {
+        this.disposeProviderRequestListener();
+        this.disposeLogListener();
+        this.disposeSessionManagement();
+        return NativeReclaimInappModule.clearAllOverrides();
     }
 }

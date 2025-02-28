@@ -100,11 +100,6 @@ export interface Request {
   parameters?: { [key: string]: string }; // Use index signature for Map
 
   /**
-   * Whether to hide the landing page of the verification process. When false, shows an introductory page with claims to be proven.
-   */
-  hideLanding?: boolean; // Optional
-
-  /**
    * Whether to automatically submit the proof after generation.
    */
   autoSubmit?: boolean; // Optional
@@ -136,6 +131,7 @@ export interface Response {
 export interface ProviderInformation {
   url?: string;
   jsonString?: string;
+  canFetchProviderInformationFromHost: boolean;
 }
 
 /**
@@ -256,6 +252,18 @@ export interface SessionLogEvent {
   logType: string;
 }
 
+/// Identification information of a session.
+export interface ReclaimSessionIdentityUpdate {
+  /// The application id.
+  appId: string;
+
+  /// The provider id.
+  providerId: string;
+
+  /// The session id.
+  sessionId: string;
+}
+
 export interface SessionCreateRequestEvent {
   /**
    * The app ID for the verification attempt
@@ -295,20 +303,38 @@ export interface Overrides {
   featureOptions?: FeatureOptions | null,
   logConsumer?: LogConsumer | null,
   sessionManagement?: SessionManagement | null,
-  appInfo?: ReclaimAppInfo | null
+  appInfo?: ReclaimAppInfo | null,
+  capabilityAccessToken?: string | null;
+}
+
+export interface ProviderInformationRequest {
+  appId: string;
+  providerId: string;
+  sessionId: string;
+  signature: string;
+  timestamp: string;
+  /**
+   * internal
+   */
+  readonly replyId: string;
 }
 
 export interface Spec extends TurboModule {
   startVerification(request: Request): Promise<Response>;
   startVerificationFromUrl(requestUrl: string): Promise<Response>;
   setOverrides(overrides: Overrides): Promise<void>;
+  clearAllOverrides(): Promise<void>;
   reply(replyId: string, reply: boolean): void;
+  replyWithProviderInformation(replyId: string, providerInformation: string): void;
   ping(): Promise<boolean>;
 
   readonly onLogs: EventEmitter<string>
   readonly onSessionLogs: EventEmitter<SessionLogEvent>
   readonly onSessionCreateRequest: EventEmitter<SessionCreateRequestEvent>
   readonly onSessionUpdateRequest: EventEmitter<SessionUpdateRequestEvent>
+  // unimplemented
+  readonly onSessionIdentityUpdate: EventEmitter<ReclaimSessionIdentityUpdate>
+  readonly onProviderInformationRequest: EventEmitter<ProviderInformationRequest>
 }
 
 export default TurboModuleRegistry.getEnforcing<Spec>('InappRnSdk');
