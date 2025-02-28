@@ -1,3 +1,7 @@
+## 0.1.7
+
+- Replace getDouble with getNumber for better type safety for numbers in android library
+
 ## 0.1.6
 
 - Fix null check exception and Double-Long conversion in android plugin code

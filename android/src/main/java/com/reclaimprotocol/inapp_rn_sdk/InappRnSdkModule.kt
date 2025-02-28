@@ -185,10 +185,10 @@ class InappRnSdkModule(private val reactContext: ReactApplicationContext) :
         featureOptions = if (featureOptions == null) null else ReclaimOverrides.FeatureOptions(
           cookiePersist = getBoolean(featureOptions, "cookiePersist"),
           singleReclaimRequest = getBoolean(featureOptions, "singleReclaimRequest"),
-          idleTimeThresholdForManualVerificationTrigger = getDouble(
+          idleTimeThresholdForManualVerificationTrigger = getNumber(
             featureOptions, "idleTimeThresholdForManualVerificationTrigger"
           )?.toLong(),
-          sessionTimeoutForManualVerificationTrigger = getDouble(
+          sessionTimeoutForManualVerificationTrigger = getNumber(
             featureOptions, "sessionTimeoutForManualVerificationTrigger"
           )?.toLong(),
           attestorBrowserRpcUrl = getString(featureOptions, "attestorBrowserRpcUrl"),
@@ -304,12 +304,15 @@ class InappRnSdkModule(private val reactContext: ReactApplicationContext) :
     }
   }
 
-  private fun getDouble(map: ReadableMap, key: String): Double? {
-    return if (!map.hasKey(key) || map.isNull(key)) {
-      null
-    } else {
-      map.getDouble(key)
+  private fun getNumber(map: ReadableMap, key: String): Number? {
+    if (!map.hasKey(key) || map.isNull(key)) {
+      return null
     }
+    val value = map.toHashMap()[key]
+    if (value is Number) {
+      return value
+    }
+    throw TypeCastException("Value for key $key is not a Number")
   }
 
   private fun getString(map: ReadableMap, key: String): String? {
