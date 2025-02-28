@@ -168,21 +168,29 @@ class InappRnSdkModule(private val reactContext: ReactApplicationContext) :
     reactContext.runOnUiQueueThread {
       ReclaimVerification.setOverrides(
         context = reactContext.applicationContext,
-        provider = if (provider == null) null else (if (provider.isNull("url")) ReclaimOverrides.ProviderInformation.FromJsonString(
-          requireString(
-            provider, "jsonString"
-          )
-        )
-        else ReclaimOverrides.ProviderInformation.FromUrl(requireString(provider, "url"))),
+        provider = if (provider == null) null else (
+          if (!hasValue(provider, "url"))
+            ReclaimOverrides.ProviderInformation.FromJsonString(
+              requireString(
+                provider, "jsonString"
+              )
+            )
+          else
+            ReclaimOverrides.ProviderInformation.FromUrl(
+              requireString(
+                provider, "url"
+              )
+            )
+        ),
         featureOptions = if (featureOptions == null) null else ReclaimOverrides.FeatureOptions(
           cookiePersist = getBoolean(featureOptions, "cookiePersist"),
           singleReclaimRequest = getBoolean(featureOptions, "singleReclaimRequest"),
-          idleTimeThresholdForManualVerificationTrigger = getLong(
+          idleTimeThresholdForManualVerificationTrigger = getDouble(
             featureOptions, "idleTimeThresholdForManualVerificationTrigger"
-          ),
-          sessionTimeoutForManualVerificationTrigger = getLong(
+          )?.toLong(),
+          sessionTimeoutForManualVerificationTrigger = getDouble(
             featureOptions, "sessionTimeoutForManualVerificationTrigger"
-          ),
+          )?.toLong(),
           attestorBrowserRpcUrl = getString(featureOptions, "attestorBrowserRpcUrl"),
           isResponseRedactionRegexEscapingEnabled = getBoolean(
             featureOptions, "isResponseRedactionRegexEscapingEnabled"
@@ -274,6 +282,11 @@ class InappRnSdkModule(private val reactContext: ReactApplicationContext) :
     }
   }
 
+  @Suppress("SameParameterValue")
+  private fun hasValue(map: ReadableMap, key: String): Boolean {
+    return map.hasKey(key) && !map.isNull(key)
+  }
+
   private fun requireString(map: ReadableMap, key: String): String {
     val value = getString(map, key)
     if (value == null) {
@@ -291,11 +304,11 @@ class InappRnSdkModule(private val reactContext: ReactApplicationContext) :
     }
   }
 
-  private fun getLong(map: ReadableMap, key: String): Long? {
+  private fun getDouble(map: ReadableMap, key: String): Double? {
     return if (!map.hasKey(key) || map.isNull(key)) {
       null
     } else {
-      map.getLong(key)
+      map.getDouble(key)
     }
   }
 

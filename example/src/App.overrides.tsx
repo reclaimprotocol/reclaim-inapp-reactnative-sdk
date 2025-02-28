@@ -23,24 +23,103 @@ const reclaimVerification = new ReclaimVerification();
 export default function App() {
   const [providerId, setProviderId] = useState('6d3f6753-7ee6-49ee-a545-62f1b1822ae5');
   const [result, setResult] = useState<any>(null);
-  const handleStartVerification = async () => {
-    if (!providerId) {
-      Snackbar.show({
-        text: 'Provider ID is required',
-        duration: Snackbar.LENGTH_LONG,
-      });
-      return;
-    }
-    console.assert(config.REACT_APP_RECLAIM_APP_ID, 'RECLAIM_APP_ID is not set');
-    console.assert(config.REACT_APP_RECLAIM_APP_SECRET, 'RECLAIM_APP_SECRET is not set');
+  const setOverrides = async () => {
     try {
       // Advanced Usage: Use ReclaimVerification.setOverrides for overriding sdk
       reclaimVerification.setOverrides({
         provider: {
-          jsonString:  await (async () => {
-            const response = await fetch(`https://api.reclaimprotocol.org/api/providers/${providerId}`);
-            const responseJson =  await response.json();
-            return responseJson.providers;
+          jsonString: await (async () => {
+            // With a response from an HTTP call
+            // const response = await fetch(`https://api.reclaimprotocol.org/api/providers/${providerId}`);
+            // const responseJson =  await response.json();
+            // return JSON.stringify(responseJson.providers);
+            // Or with a constant json string
+            return JSON.stringify({
+              "id": "669eca16d7e0758c94dfc03f",
+              // originally from "6d3f6753-7ee6-49ee-a545-62f1b1822ae5",
+              "httpProviderId": providerId,
+              "name": "GitHub UserName",
+              "description": "Prove your GitHub User Name",
+              "logoUrl": "https://devtool-images.s3.ap-south-1.amazonaws.com/http-provider-brand-logos/github.com-11eb32e1-9f3f-4c00-9404-3ed088aa096b.png",
+              "url": "https://github.com/settings/profile",
+              "urlType": "TEMPLATE",
+              "method": "GET",
+              "providerType": "PUBLIC",
+              "body": null,
+              "loginUrl": "https://github.com/settings/profile",
+              "isActive": true,
+              "responseSelections": [
+                {
+                  "jsonPath": "",
+                  "xPath": "",
+                  "responseMatch": "\u003Cspan class=\"color-fg-muted\"\u003E({{username}})\u003C/span\u003E",
+                  "matchType": "greedy",
+                  "invert": false,
+                  "description": "",
+                  "hash": ""
+                }
+              ],
+              "creatorUid": "WzFfhAtvUBfgJ372Bvw788nX04y1",
+              "applicationId": [],
+              "sessionId": [],
+              "customInjection": "",
+              "bodySniff": {
+                "enabled": false,
+                "template": ""
+              },
+              "userAgent": {
+                "ios": "",
+                "android": "Mozilla/5.0 (Linux; Android 15) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/129.0.6668.69 Mobile Safari/537.36"
+              },
+              "isApproved": true,
+              "geoLocation": "",
+              "proofCardText": "Owns data: {{username}}",
+              "proofCardTitle": "github.com",
+              "matchType": "greedy",
+              "sampleIntegration": false,
+              "isVerified": true,
+              "injectionType": "MSWJS",
+              "disableRequestReplay": false,
+              "providerHash": "0x7549f801c37c46eb1ca2f5b95214527868a59505a9ed558572508b497a6a69a7",
+              "additionalClientOptions": null,
+              "verificationType": "WITNESS",
+              "expectedPageUrl": "https://github.com",
+              "pageTitle": null,
+              "stepsToFollow": null,
+              "usedInCount": 381,
+              "overseerUid": null,
+              "overseerNote": null,
+              "requestData": [
+                {
+                  "url": "https://github.com/settings/profile",
+                  "expectedPageUrl": null,
+                  "urlType": "TEMPLATE",
+                  "method": "GET",
+                  "responseMatches": [
+                    {
+                      "value": "\u003Cspan class=\"color-fg-muted\"\u003E({{username}})\u003C/span\u003E",
+                      "type": "contains",
+                      "invert": false,
+                      "description": null
+                    }
+                  ],
+                  "responseRedactions": [
+                    {
+                      "xPath": "",
+                      "jsonPath": "",
+                      "regex": "\u003Cspan class=\"color-fg-muted\"\u003E\\((.*)\\)\u003C/span\u003E",
+                      "hash": ""
+                    }
+                  ],
+                  "bodySniff": {
+                    "enabled": false,
+                    "template": ""
+                  },
+                  "requestHash": "0x7549f801c37c46eb1ca2f5b95214527868a59505a9ed558572508b497a6a69a7"
+                }
+              ],
+              "useIncognitoWebview": false
+            });
           })()
         },
         logConsumer: {
@@ -77,7 +156,22 @@ export default function App() {
           },
         },
       });
-
+      console.info('Overrides set');
+    } catch (error) {
+      console.error(error);
+    }
+  }
+  const handleStartVerification = async () => {
+    if (!providerId) {
+      Snackbar.show({
+        text: 'Provider ID is required',
+        duration: Snackbar.LENGTH_LONG,
+      });
+      return;
+    }
+    console.assert(config.REACT_APP_RECLAIM_APP_ID, 'RECLAIM_APP_ID is not set');
+    console.assert(config.REACT_APP_RECLAIM_APP_SECRET, 'RECLAIM_APP_SECRET is not set');
+    try {
       const verificationResult = await reclaimVerification.startVerification({
         appId: config.REACT_APP_RECLAIM_APP_ID ?? '',
         secret: config.REACT_APP_RECLAIM_APP_SECRET ?? '',
@@ -160,6 +254,11 @@ export default function App() {
           onChangeText={setProviderId}
           placeholder="Enter Provider ID"
           placeholderTextColor="#666"
+        />
+
+        <Button
+          title="Set Overrides"
+          onPress={setOverrides}
         />
 
         <Button

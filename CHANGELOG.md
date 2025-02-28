@@ -1,3 +1,7 @@
+## 0.1.6
+
+- Fix null check exception and Double-Long conversion in android plugin code
+
 ## 0.1.5
 
 - Updated types to include `ReclaimVerificationResponse` as the type for `ReclaimVerificationApi.Response`.
