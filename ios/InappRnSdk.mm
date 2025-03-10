@@ -195,12 +195,12 @@ Api *api = [[Api alloc] init];
         @"status": status,
         @"replyId": replyId
       }];
-    } _logSession:^(NSString * _Nonnull appId, NSString * _Nonnull providerId, NSString * _Nonnull sessionId, NSString * _Nonnull replyId) {
+    } _logSession:^(NSString * _Nonnull appId, NSString * _Nonnull providerId, NSString * _Nonnull sessionId, NSString * _Nonnull logType) {
       [self emitOnSessionLogs:@{
         @"appId": appId,
         @"providerId": providerId,
         @"sessionId": sessionId,
-        @"replyId": replyId
+        @"logType": logType
       }];
     }]];
   }
