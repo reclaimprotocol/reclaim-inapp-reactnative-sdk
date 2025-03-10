@@ -1,3 +1,7 @@
+## 0.3.0
+
+- Add setter for ReclaimVerificationOptions which can be used in ReclaimVerification.
+
 ## 0.2.1
 
 - Updated breaking changes in the use of the v0.2.1 of module apis

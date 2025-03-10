@@ -33,4 +33,8 @@ export class ReclaimVerification {
   public clearAllOverrides() {
     return this.channel.clearAllOverrides();
   }
+
+  public setVerificationOptions(options?: ReclaimVerificationApi.VerificationOptions | null) {
+    return this.channel.setVerificationOptions(options);
+  }
 }

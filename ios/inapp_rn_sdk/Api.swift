@@ -9,7 +9,7 @@ import ReclaimInAppSdk
   static fileprivate var replyHandlers: [String: (Result<Bool, any Error>) -> Void] = [:]
   
   static fileprivate func setReplyCallback(
-     _ callback: @escaping (Result<Bool, any Error>) -> Void
+    _ callback: @escaping (Result<Bool, any Error>) -> Void
   ) -> String {
     let replyId = UUID().uuidString
     Task { @MainActor in
@@ -35,31 +35,31 @@ import ReclaimInAppSdk
   }
   
   @MainActor
-  static fileprivate var replyWithProviderInformationHandlers: [String: (Result<String, any Error>) -> Void] = [:]
+  static fileprivate var replyWithStringHandler: [String: (Result<String, any Error>) -> Void] = [:]
   
-  static fileprivate func setReplyWithProviderInformationCallback(
-     _ callback: @escaping (Result<String, any Error>) -> Void
+  static fileprivate func setReplyWithStringCallback(
+    _ callback: @escaping (Result<String, any Error>) -> Void
   ) -> String {
     let replyId = UUID().uuidString
     Task { @MainActor in
-      Api.replyWithProviderInformationHandlers[replyId] = callback
+      Api.replyWithStringHandler[replyId] = callback
     }
     return replyId
   }
   
-  @objc public func replyWithProviderInformation(replyId: String?, providerInformation: String?) {
+  @objc public func replyWithString(replyId: String?, value: String?) {
     if let replyId {
       Task { @MainActor in
-        let callback = Api.replyWithProviderInformationHandlers[replyId]
+        let callback = Api.replyWithStringHandler[replyId]
         if let callback = callback {
-          Api.replyWithProviderInformationHandlers.removeValue(forKey: replyId)
-          callback(.success(providerInformation ?? ""))
+          Api.replyWithStringHandler.removeValue(forKey: replyId)
+          callback(.success(value ?? ""))
         } else {
-          NSLog("[Api.replyWithProviderInformation] No callback found for replyId \(replyId)")
+          NSLog("[Api.replyWithString] No callback found for replyId \(replyId)")
         }
       }
     } else {
-      NSLog("[Api.replyWithProviderInformation] Missing arg replyId")
+      NSLog("[Api.replyWithString] Missing arg replyId")
     }
   }
   
@@ -183,11 +183,17 @@ import ReclaimInAppSdk
       capabilityAccessToken: capabilityAccessToken
     )
   }
-
+  
   @objc public func clearAllOverrides() async throws {
     return try await ReclaimVerification.clearAllOverrides()
   }
-
+  
+  @objc public func setVerificationOptions(
+    options: ReclaimApiVerificationOptions?
+  ) async throws {
+    return try await ReclaimVerification.setVerificationOptions(options: options?.toSdkOptions())
+  }
+  
   func startVerificationWithRequest(_ request: ReclaimVerification.Request) async throws -> [String: Any] {
     NSLog("[Api] starting verification");
     return try await withCheckedThrowingContinuation { continuation in
@@ -266,14 +272,14 @@ public typealias OverridenProviderCallback = (
   }
   
   public func fetchProviderInformation(
-        appId: String,
-        providerId: String,
-        sessionId: String,
-        signature: String,
-        timestamp: String,
-        completion: @escaping (Result<String, any Error>) -> Void
+    appId: String,
+    providerId: String,
+    sessionId: String,
+    signature: String,
+    timestamp: String,
+    completion: @escaping (Result<String, any Error>) -> Void
   ) {
-    let replyId = Api.setReplyWithProviderInformationCallback(completion)
+    let replyId = Api.setReplyWithStringCallback(completion)
     self._fetchProviderInformation(appId, providerId, sessionId, signature, timestamp, replyId)
   }
 }
@@ -466,6 +472,51 @@ public typealias OverridenLogSessionCallback = (
       logType: String
     ) {
       self._logSession(appId, providerId, sessionId, logType)
+    }
+  }
+}
+
+public typealias ReclaimVerificationOptionFetchAttestorAuthRequestHandler = (
+  _ reclaimHttpProviderJsonString: String,
+  _ replyId: String
+) -> Void
+
+@objc(ReclaimApiVerificationOptions) public class ReclaimApiVerificationOptions: NSObject {
+  public let canDeleteCookiesBeforeVerificationStarts: Bool
+  public let attestorAuthRequestProvider: ReclaimVerification.VerificationOptions.AttestorAuthRequestProvider?
+  
+  @objc public init(
+    canDeleteCookiesBeforeVerificationStarts: Bool,
+    fetchAttestorAuthenticationRequest: ReclaimVerificationOptionFetchAttestorAuthRequestHandler?
+  ) {
+    self.canDeleteCookiesBeforeVerificationStarts = canDeleteCookiesBeforeVerificationStarts
+    if let fetchAttestorAuthenticationRequest {
+      self.attestorAuthRequestProvider = _AttestorAuthRequestProvider(
+        fetchAttestorAuthenticationRequest: fetchAttestorAuthenticationRequest
+      )
+    } else {
+      self.attestorAuthRequestProvider = nil
+    }
+  }
+  
+  func toSdkOptions() -> ReclaimVerification.VerificationOptions {
+    return .init(
+      canDeleteCookiesBeforeVerificationStarts: canDeleteCookiesBeforeVerificationStarts,
+      attestorAuthRequestProvider: attestorAuthRequestProvider
+    )
+  }
+  
+  class _AttestorAuthRequestProvider: ReclaimVerification.VerificationOptions.AttestorAuthRequestProvider {
+    let fetchAttestorAuthenticationRequest: ReclaimVerificationOptionFetchAttestorAuthRequestHandler
+    
+    init(fetchAttestorAuthenticationRequest: @escaping ReclaimVerificationOptionFetchAttestorAuthRequestHandler) {
+      self.fetchAttestorAuthenticationRequest = fetchAttestorAuthenticationRequest
+    }
+    
+    func fetchAttestorAuthenticationRequest(reclaimHttpProvider: [AnyHashable? : (any Sendable)?], completion: @escaping (Result<String, any Error>) -> Void) {
+      let replyId = Api.setReplyWithStringCallback(completion)
+      let reclaimHttpProviderJsonString = JSONUtility.toString(reclaimHttpProvider)
+      fetchAttestorAuthenticationRequest(reclaimHttpProviderJsonString, replyId)
     }
   }
 }

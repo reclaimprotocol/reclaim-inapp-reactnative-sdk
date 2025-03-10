@@ -21,6 +21,10 @@ export declare namespace ReclaimVerificationApi {
      * Contains the proof and response data after verification
      */
     type Response = ReclaimVerificationResponse;
+    interface VerificationOptions {
+        canDeleteCookiesBeforeVerificationStarts: boolean;
+        fetchAttestorAuthenticationRequest: (reclaimHttpProviderJsonString: string) => Promise<string>;
+    }
     namespace Overrides {
         interface ProviderInformation {
             url?: string;
@@ -57,7 +61,7 @@ export declare namespace ReclaimVerificationApi {
         logConsumer?: Overrides.LogConsumer;
         sessionManagement?: Overrides.SessionManagement;
         appInfo?: Overrides.ReclaimAppInfo;
-        capabilityAccessToken?: string;
+        capabilityAccessToken?: string | null;
     };
     enum ExceptionType {
         Cancelled = "Cancelled",
@@ -90,6 +94,7 @@ export declare abstract class ReclaimVerificationPlatformChannel {
     abstract ping(): Promise<boolean>;
     abstract setOverrides(config: ReclaimVerificationApi.OverrideConfig): Promise<void>;
     abstract clearAllOverrides(): Promise<void>;
+    abstract setVerificationOptions(options?: ReclaimVerificationApi.VerificationOptions | null): Promise<void>;
 }
 export declare class ReclaimVerificationPlatformChannelImpl extends ReclaimVerificationPlatformChannel {
     startVerification(request: ReclaimVerificationApi.Request): Promise<ReclaimVerificationApi.Response>;
@@ -103,5 +108,8 @@ export declare class ReclaimVerificationPlatformChannelImpl extends ReclaimVerif
     private disposeProviderRequestListener;
     setOverrides({ provider, featureOptions, logConsumer, sessionManagement, appInfo, capabilityAccessToken }: ReclaimVerificationApi.OverrideConfig): Promise<void>;
     clearAllOverrides(): Promise<void>;
+    private previousAttestorAuthRequestCancelCallback;
+    disposeAttestorAuthRequestListener(): void;
+    setVerificationOptions(options?: ReclaimVerificationApi.VerificationOptions | null): Promise<void>;
 }
 //# sourceMappingURL=ReclaimVerificationPlatformChannel.d.ts.map

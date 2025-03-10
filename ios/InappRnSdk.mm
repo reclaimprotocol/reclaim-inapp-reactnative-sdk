@@ -35,8 +35,8 @@ Api *api = [[Api alloc] init];
   [api replyWithReplyId:replyId reply:reply];
 }
 
-- (void)replyWithProviderInformation:(nonnull NSString *)replyId providerInformation:(nonnull NSString *)providerInformation {
-  [api replyWithProviderInformationWithReplyId:replyId providerInformation:providerInformation];
+- (void)replyWithString:(nonnull NSString *)replyId value:(nonnull NSString *)value {
+  [api replyWithStringWithReplyId:replyId value:value];
 }
 
 - (void)startVerification:(JS::NativeInappRnSdk::Request &)request resolve:(nonnull RCTPromiseResolveBlock)resolve reject:(nonnull RCTPromiseRejectBlock)reject {
@@ -179,7 +179,7 @@ Api *api = [[Api alloc] init];
     }
     overridenLogConsumer = [[OverridenLogConsumer alloc] initWithLogHandler: logHandler canSdkCollectTelemetry: canSDKCollectTelemetry canSdkPrintLogs: canSdkPrintLogs];
   }
-
+  
   OverridenSessionManagement * _Nullable sessionManagement;
   if (overrides.sessionManagement().has_value()) {
     sessionManagement = [[OverridenSessionManagement alloc] initWithHandler:[[OverridenSessionHandler alloc] initWith_createSession:^(NSString * _Nonnull appId, NSString * _Nonnull providerId, NSString * _Nonnull sessionId, NSString * _Nonnull replyId) {
@@ -229,7 +229,7 @@ Api *api = [[Api alloc] init];
   }];
 }
 
-- (void)clearAllOverrides:(nonnull RCTPromiseResolveBlock)resolve reject:(nonnull RCTPromiseRejectBlock)reject { 
+- (void)clearAllOverrides:(nonnull RCTPromiseResolveBlock)resolve reject:(nonnull RCTPromiseRejectBlock)reject {
   [api clearAllOverridesWithCompletionHandler:^(NSError * _Nullable error) {
     if (error != nil) {
       reject(@"OVERRIDE_ERROR", @"Error on clearing overrides", error);
@@ -238,5 +238,32 @@ Api *api = [[Api alloc] init];
     }
   }];
 }
+
+- (void)setVerificationOptions:(JS::NativeInappRnSdk::VerificationOptionsOptional &)args resolve:(nonnull RCTPromiseResolveBlock)resolve reject:(nonnull RCTPromiseRejectBlock)reject {
+  ReclaimApiVerificationOptions * _Nullable options = nil;
+  if (args.options().has_value()) {
+    JS::NativeInappRnSdk::VerificationOptions inputOptions = args.options().value();
+    if (inputOptions.canUseAttestorAuthenticationRequest()) {
+      options = [[ReclaimApiVerificationOptions alloc] initWithCanDeleteCookiesBeforeVerificationStarts:inputOptions.canDeleteCookiesBeforeVerificationStarts() fetchAttestorAuthenticationRequest:^(NSString * _Nonnull reclaimHttpProviderJsonString, NSString * _Nonnull replyId) {
+        [self emitOnReclaimAttestorAuthRequest:@{
+          @"reclaimHttpProviderJsonString": reclaimHttpProviderJsonString,
+          @"replyId": replyId
+        }];
+      }
+      ];
+    } else {
+      options = [[ReclaimApiVerificationOptions alloc] initWithCanDeleteCookiesBeforeVerificationStarts:inputOptions.canDeleteCookiesBeforeVerificationStarts() fetchAttestorAuthenticationRequest:nil];
+    }
+    
+  }
+  [api setVerificationOptionsWithOptions:options completionHandler:^(NSError * _Nullable error) {
+    if (error != nil) {
+      reject(@"VERIFICATION_OPTIONS_ERROR", @"Error on setting verification options", error);
+    } else {
+      resolve(nil);
+    }
+  }];
+}
+
 
 @end

@@ -281,20 +281,36 @@ export interface ProviderInformationRequest {
      */
     readonly replyId: string;
 }
+export interface VerificationOptions {
+    canDeleteCookiesBeforeVerificationStarts: boolean;
+    canUseAttestorAuthenticationRequest: boolean;
+}
+export interface VerificationOptionsOptional {
+    options?: VerificationOptions | null;
+}
+export interface ReclaimAttestorAuthRequest {
+    reclaimHttpProviderJsonString: string;
+    /**
+     * internal
+     */
+    readonly replyId: string;
+}
 export interface Spec extends TurboModule {
     startVerification(request: Request): Promise<Response>;
     startVerificationFromUrl(requestUrl: string): Promise<Response>;
     setOverrides(overrides: Overrides): Promise<void>;
     clearAllOverrides(): Promise<void>;
+    setVerificationOptions(args: VerificationOptionsOptional): Promise<void>;
     reply(replyId: string, reply: boolean): void;
-    replyWithProviderInformation(replyId: string, providerInformation: string): void;
+    replyWithString(replyId: string, value: string): void;
     ping(): Promise<boolean>;
     readonly onLogs: EventEmitter<string>;
     readonly onSessionLogs: EventEmitter<SessionLogEvent>;
     readonly onSessionCreateRequest: EventEmitter<SessionCreateRequestEvent>;
     readonly onSessionUpdateRequest: EventEmitter<SessionUpdateRequestEvent>;
-    readonly onSessionIdentityUpdate: EventEmitter<ReclaimSessionIdentityUpdate>;
     readonly onProviderInformationRequest: EventEmitter<ProviderInformationRequest>;
+    readonly onReclaimAttestorAuthRequest: EventEmitter<ReclaimAttestorAuthRequest>;
+    readonly onSessionIdentityUpdate: EventEmitter<ReclaimSessionIdentityUpdate>;
 }
 declare const _default: Spec;
 export default _default;

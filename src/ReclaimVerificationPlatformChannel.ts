@@ -27,6 +27,11 @@ export namespace ReclaimVerificationApi {
      */
     export type Response = ReclaimVerificationResponse;
 
+    export interface VerificationOptions {
+        canDeleteCookiesBeforeVerificationStarts: boolean;
+        fetchAttestorAuthenticationRequest: (reclaimHttpProviderJsonString: string) => Promise<string>;
+    }
+
     export namespace Overrides {
         export interface ProviderInformation {
             url?: string;
@@ -66,7 +71,7 @@ export namespace ReclaimVerificationApi {
         logConsumer?: Overrides.LogConsumer,
         sessionManagement?: Overrides.SessionManagement,
         appInfo?: Overrides.ReclaimAppInfo,
-        capabilityAccessToken?: string
+        capabilityAccessToken?: string | null,
     }
 
     export enum ExceptionType {
@@ -184,6 +189,8 @@ export abstract class ReclaimVerificationPlatformChannel {
     abstract setOverrides(config: ReclaimVerificationApi.OverrideConfig): Promise<void>
 
     abstract clearAllOverrides(): Promise<void>
+
+    abstract setVerificationOptions(options?: ReclaimVerificationApi.VerificationOptions | null): Promise<void>
 }
 
 export class ReclaimVerificationPlatformChannelImpl extends ReclaimVerificationPlatformChannel {
@@ -270,10 +277,10 @@ export class ReclaimVerificationPlatformChannelImpl extends ReclaimVerificationP
             let providerRequestSubscription = NativeReclaimInappModule.onProviderInformationRequest(async (event) => {
                 try {
                     let result = await providerCallback(event);
-                    NativeReclaimInappModule.replyWithProviderInformation(event.replyId, result);
+                    NativeReclaimInappModule.replyWithString(event.replyId, result);
                 } catch (error) {
                     console.error(error);
-                    NativeReclaimInappModule.replyWithProviderInformation(event.replyId, "");
+                    NativeReclaimInappModule.replyWithString(event.replyId, "");
                 }
             });
             const cancel = () => {
@@ -359,5 +366,43 @@ export class ReclaimVerificationPlatformChannelImpl extends ReclaimVerificationP
         this.disposeLogListener();
         this.disposeSessionManagement();
         return NativeReclaimInappModule.clearAllOverrides();
+    }
+
+    private previousAttestorAuthRequestCancelCallback: null | (() => void) = null;
+    disposeAttestorAuthRequestListener() {
+        let callback = this.previousAttestorAuthRequestCancelCallback;
+        if (callback != null && callback != undefined) {
+            callback();
+        }
+        this.previousAttestorAuthRequestCancelCallback = null;
+    }
+
+    override async setVerificationOptions(options?: ReclaimVerificationApi.VerificationOptions | null): Promise<void> {
+        let args: NativeReclaimInappModuleTypes.VerificationOptions | null = null
+        if (options) {
+            let canUseAttestorAuthenticationRequest = options.fetchAttestorAuthenticationRequest != null
+            args = {
+                canDeleteCookiesBeforeVerificationStarts: options.canDeleteCookiesBeforeVerificationStarts,
+                canUseAttestorAuthenticationRequest: canUseAttestorAuthenticationRequest,
+            }
+            if (canUseAttestorAuthenticationRequest) {
+                this.disposeAttestorAuthRequestListener();
+                let attestorAuthRequestSubscription = NativeReclaimInappModule.onReclaimAttestorAuthRequest(async (event) => {
+                    let result = await options.fetchAttestorAuthenticationRequest(event.reclaimHttpProviderJsonString);
+                    NativeReclaimInappModule.replyWithString(event.replyId, result);
+                });
+                const cancel = () => {
+                    attestorAuthRequestSubscription.remove();
+                }
+                this.previousAttestorAuthRequestCancelCallback = cancel;
+            }
+        }
+        try {
+            return await NativeReclaimInappModule.setVerificationOptions({
+                options: args
+            });
+        } catch (error) {
+            throw new ReclaimVerificationApi.ReclaimPlatformException("Failed to set verification options", error as Error);
+        }
     }
 }

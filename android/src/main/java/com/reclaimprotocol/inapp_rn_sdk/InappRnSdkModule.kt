@@ -8,6 +8,7 @@ import com.facebook.react.bridge.ReadableMap
 import com.facebook.react.bridge.WritableArray
 import com.facebook.react.bridge.WritableMap
 import com.facebook.react.module.annotations.ReactModule
+import org.json.JSONObject
 import org.reclaimprotocol.inapp_sdk.ReclaimOverrides
 import org.reclaimprotocol.inapp_sdk.ReclaimSessionStatus
 import org.reclaimprotocol.inapp_sdk.ReclaimVerification
@@ -168,6 +169,46 @@ class InappRnSdkModule(private val reactContext: ReactApplicationContext) :
     }
   }
 
+  override fun setVerificationOptions(args: ReadableMap?, promise: Promise?) {
+    val inputOptions = getMap(args, "options")
+    var options:  ReclaimVerification.VerificationOptions? = null
+    if (inputOptions != null) {
+      val canUseAttestorAuthRequestProvider = getBoolean(inputOptions, "canUseAttestorAuthenticationRequest") == true;
+      options = ReclaimVerification.VerificationOptions(
+        canDeleteCookiesBeforeVerificationStarts = getBoolean(inputOptions, "canDeleteCookiesBeforeVerificationStarts") ?: true,
+        attestorAuthRequestProvider = if (canUseAttestorAuthRequestProvider) {
+          object : ReclaimVerification.VerificationOptions.AttestorAuthRequestProvider {
+            override fun fetchAttestorAuthenticationRequest(
+              reclaimHttpProvider: Map<Any?, Any?>,
+              callback: (Result<String>) -> Unit
+            ) {
+              val args = Arguments.createMap()
+              args.putString("reclaimHttpProviderJsonString", JSONObject(reclaimHttpProvider).toString())
+              val replyId = UUID.randomUUID().toString()
+              args.putString("replyId", replyId)
+              replyWithString[replyId] = callback
+              emitOnReclaimAttestorAuthRequest(args)
+            }
+          }
+        } else {
+          null
+        }
+      )
+    }
+    reactContext.runOnUiQueueThread {
+      ReclaimVerification.setVerificationOptions(
+        context = reactContext.applicationContext,
+        options = options
+      ) { result ->
+        result.onSuccess {
+          promise?.resolve(null)
+        }.onFailure { error ->
+          onPlatformException(promise, error)
+        }
+      }
+    }
+  }
+
   private fun setOverrides(
     provider: ReadableMap?,
     featureOptions: ReadableMap?,
@@ -194,7 +235,7 @@ class InappRnSdkModule(private val reactContext: ReactApplicationContext) :
               )
             )
           else if (getBoolean(provider, "canFetchProviderInformationFromHost") == true)
-            ReclaimOverrides.ProviderInformation.FromCallback(object : ReclaimOverrides.ProviderInformation.FromCallbackHandler {
+            ReclaimOverrides.ProviderInformation.FromCallback(object : ReclaimOverrides.ProviderInformation.FromCallback.Handler {
               override fun fetchProviderInformation(
                 appId: String,
                 providerId: String,
@@ -211,7 +252,7 @@ class InappRnSdkModule(private val reactContext: ReactApplicationContext) :
                 args.putString("timestamp", timestamp)
                 val replyId = UUID.randomUUID().toString()
                 args.putString("replyId", replyId)
-                replyWithProviderInformationHandlers[replyId] = callback
+                replyWithString[replyId] = callback
                 emitOnProviderInformationRequest(args)
               }
             })
@@ -331,20 +372,20 @@ class InappRnSdkModule(private val reactContext: ReactApplicationContext) :
     }
   }
 
-  private val replyWithProviderInformationHandlers: MutableMap<String, (Result<String>) -> Unit> =
+  private val replyWithString: MutableMap<String, (Result<String>) -> Unit> =
     mutableMapOf()
 
-  override fun replyWithProviderInformation(replyId: String?, providerInformation: String?) {
+  override fun replyWithString(replyId: String?, value: String?) {
     if (replyId == null) {
-      Log.w(NAME, "(replyWithProviderInformation) Missing arg replyId")
+      Log.w(NAME, "(replyWithString) Missing arg replyId")
       return
     }
     reactContext.runOnUiQueueThread {
-      val callback = replyWithProviderInformationHandlers[replyId]
+      val callback = replyWithString[replyId]
       if (callback != null) {
-        callback(Result.success(providerInformation ?: ""))
+        callback(Result.success(value ?: ""))
       } else {
-        Log.w(NAME, "(replyWithProviderInformation) Missing reply handler for id: $replyId")
+        Log.w(NAME, "(replyWithString) Missing reply handler for id: $replyId")
       }
     }
   }

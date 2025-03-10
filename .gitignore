@@ -90,3 +90,6 @@ yarn.lock
 package-lock.json
 
 *.tgz
+
+# Temporary
+samples/example_old_arch/

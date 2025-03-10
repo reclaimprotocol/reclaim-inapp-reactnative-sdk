@@ -9,5 +9,6 @@ export declare class ReclaimVerification {
     ping(): Promise<boolean>;
     setOverrides(overrides: ReclaimVerificationApi.OverrideConfig): Promise<void>;
     clearAllOverrides(): Promise<void>;
+    setVerificationOptions(options?: ReclaimVerificationApi.VerificationOptions | null): Promise<void>;
 }
 //# sourceMappingURL=index.d.ts.map
