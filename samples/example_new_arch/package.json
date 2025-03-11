@@ -10,7 +10,7 @@
     "test": "jest"
   },
   "dependencies": {
-    "@reclaimprotocol/inapp-rn-sdk": "^0.3.0",
+    "@reclaimprotocol/inapp-rn-sdk": "^0.3.1",
     "react": "19.0.0",
     "react-native": "0.78.0",
     "react-native-snackbar": "^2.8.0"

@@ -1,3 +1,7 @@
+## 0.3.1
+
+- Remove exports `ReclaimVerificationApi` & `ReclaimVerificationApiType`. Any usage of `ReclaimVerificationApi`, or `ReclaimVerificationApiType` should be renamed to `ReclaimVerification`.
+
 ## 0.3.0
 
 - Add setter for ReclaimVerificationOptions which can be used in ReclaimVerification.

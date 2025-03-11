@@ -1,5 +1,10 @@
 # Migration
 
+## 0.3.1
+
+- [BREAKING] Exports `ReclaimVerificationApi` & `ReclaimVerificationApiType` have been removed. You can rename any usage of `ReclaimVerificationApi`, or `ReclaimVerificationApiType` to just `ReclaimVerification`.
+- This version uses `0.3.0` version of Reclaim's InApp Android, and iOS SDKs. No changes required in native `android/` or `ios/` directory.
+
 ## 0.3.0
 
 ### Android

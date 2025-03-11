@@ -10,7 +10,6 @@ import {
   StatusBar,
 } from 'react-native';
 import { ReclaimVerification } from '@reclaimprotocol/inapp-rn-sdk';
-import { ReclaimVerificationApi } from '@reclaimprotocol/inapp-rn-sdk';
 import Snackbar from 'react-native-snackbar';
 import { REACT_APP_RECLAIM_APP_ID, REACT_APP_RECLAIM_APP_SECRET } from '@env';
 
@@ -194,27 +193,27 @@ export default function App() {
       console.info({
         verificationError: error,
       });
-      if (error instanceof ReclaimVerificationApi.ReclaimVerificationException) {
+      if (error instanceof ReclaimVerification.ReclaimVerificationException) {
         switch (error.type) {
-          case ReclaimVerificationApi.ExceptionType.Cancelled:
+          case ReclaimVerification.ExceptionType.Cancelled:
             Snackbar.show({
               text: 'Verification cancelled',
               duration: Snackbar.LENGTH_LONG,
             });
             break;
-          case ReclaimVerificationApi.ExceptionType.Dismissed:
+          case ReclaimVerification.ExceptionType.Dismissed:
             Snackbar.show({
               text: 'Verification dismissed',
               duration: Snackbar.LENGTH_LONG,
             });
             break;
-          case ReclaimVerificationApi.ExceptionType.SessionExpired:
+          case ReclaimVerification.ExceptionType.SessionExpired:
             Snackbar.show({
               text: 'Verification session expired',
               duration: Snackbar.LENGTH_LONG,
             });
             break;
-          case ReclaimVerificationApi.ExceptionType.Failed:
+          case ReclaimVerification.ExceptionType.Failed:
           default:
             Snackbar.show({
               text: 'Verification failed',
