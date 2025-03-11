@@ -232,11 +232,11 @@ const verificationResult = await reclaimVerification.startVerification({
 });
 ```
 
-The returned result is a [ReclaimVerificationApi.Response] object. This object contains a response that has proofs, exception, and the sessionId if the verification is successful.
+The returned result is a [ReclaimVerification.Response] object. This object contains a response that has proofs, exception, and the sessionId if the verification is successful.
 
 ### Exception Handling
 
-If the verification ends with an exception, the exception is thrown as a [ReclaimVerificationApi.ReclaimVerificationException] object.
+If the verification ends with an exception, the exception is thrown as a [ReclaimVerification.ReclaimVerificationException] object.
 
 Following is an example of how to handle the exception using [error.type]:
 
@@ -244,27 +244,27 @@ Following is an example of how to handle the exception using [error.type]:
 try {
   // ... start verification
 } catch (error) {
-  if (error instanceof ReclaimVerificationApi.ReclaimVerificationException) {
+  if (error instanceof ReclaimVerification.ReclaimVerificationException) {
     switch (error.type) {
-      case ReclaimVerificationApi.ExceptionType.Cancelled:
+      case ReclaimVerification.ExceptionType.Cancelled:
         Snackbar.show({
           text: 'Verification cancelled',
           duration: Snackbar.LENGTH_LONG,
         });
         break;
-      case ReclaimVerificationApi.ExceptionType.Dismissed:
+      case ReclaimVerification.ExceptionType.Dismissed:
         Snackbar.show({
           text: 'Verification dismissed',
           duration: Snackbar.LENGTH_LONG,
         });
         break;
-      case ReclaimVerificationApi.ExceptionType.SessionExpired:
+      case ReclaimVerification.ExceptionType.SessionExpired:
         Snackbar.show({
           text: 'Verification session expired',
           duration: Snackbar.LENGTH_LONG,
         });
         break;
-      case ReclaimVerificationApi.ExceptionType.Failed:
+      case ReclaimVerification.ExceptionType.Failed:
       default:
         Snackbar.show({
           text: 'Verification failed',
