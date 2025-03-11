@@ -33,11 +33,20 @@ export default function App() {
     }
     console.assert(config.REACT_APP_RECLAIM_APP_ID, 'RECLAIM_APP_ID is not set');
     console.assert(config.REACT_APP_RECLAIM_APP_SECRET, 'RECLAIM_APP_SECRET is not set');
-    try {
+      try {
+        console.info({
+          appId: config.REACT_APP_RECLAIM_APP_ID ?? '',
+          secret: config.REACT_APP_RECLAIM_APP_SECRET ?? '',
+          providerId: providerId,
+          reason: 'startVerification',
+        });
       const verificationResult = await reclaimVerification.startVerification({
         appId: config.REACT_APP_RECLAIM_APP_ID ?? '',
         secret: config.REACT_APP_RECLAIM_APP_SECRET ?? '',
         providerId: providerId,
+      });
+      console.info({
+        verificationResult: verificationResult,
       });
       setResult(verificationResult);
     } catch (error) {

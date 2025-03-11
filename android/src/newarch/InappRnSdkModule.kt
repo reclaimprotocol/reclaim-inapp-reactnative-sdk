@@ -17,7 +17,7 @@ import java.util.UUID
 @ReactModule(name = InappRnSdkModule.NAME)
 class InappRnSdkModule(private val reactContext: ReactApplicationContext) :
   NativeInappRnSdkSpec(reactContext) {
-  private var delegate = InappRnSdkModuleDelegate(context)
+  private var delegate = InappRnSdkModuleDelegate(reactContext)
 
   override fun getName(): String {
     return NAME
@@ -44,7 +44,7 @@ class InappRnSdkModule(private val reactContext: ReactApplicationContext) :
   }
 
   override fun setVerificationOptions(args: ReadableMap?, promise: Promise?) {
-    return delegate.setVerificationOptions(promise)
+    return delegate.setVerificationOptions(args, promise)
   }
 
   override fun reply(replyId: String?, reply: Boolean) {
