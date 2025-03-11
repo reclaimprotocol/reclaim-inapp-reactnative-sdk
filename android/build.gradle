@@ -28,7 +28,10 @@ def isNewArchitectureEnabled() {
 }
 
 def isNewBaseModuleApiEnabled() {
-  return rootProject.hasProperty("newBaseModuleApiEnabled") && rootProject.getProperty("newBaseModuleApiEnabled") == "true"
+  if (rootProject.hasProperty("newBaseModuleApiEnabled")) {
+    return rootProject.getProperty("newBaseModuleApiEnabled") == "true"
+  }
+  return isNewArchitectureEnabled()
 }
 
 apply plugin: "com.android.library"
@@ -118,7 +121,7 @@ android {
           "src/basemodule/oldarch"
         ]
       }
-      
+
     }
   }
 }
