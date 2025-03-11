@@ -96,11 +96,11 @@ android {
             "src/newarch",
             // This is needed to build Kotlin project with NewArch enabled
             "${project.buildDir}/generated/source/codegen/java",
-            "generated/java",
             "generated/jni"
           ]
           if (isNewBaseModuleApiEnabled()) {
             java.srcDirs += [
+              "generated/java",
               "src/basemodule/newapi"
             ]
           } else {
