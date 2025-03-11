@@ -27,6 +27,10 @@ def isNewArchitectureEnabled() {
   return rootProject.hasProperty("newArchEnabled") && rootProject.getProperty("newArchEnabled") == "true"
 }
 
+def isNewBaseModuleApiEnabled() {
+  return rootProject.hasProperty("newBaseModuleApiEnabled") && rootProject.getProperty("newBaseModuleApiEnabled") == "true"
+}
+
 apply plugin: "com.android.library"
 apply plugin: "kotlin-android"
 
@@ -95,15 +99,26 @@ android {
             "generated/java",
             "generated/jni"
           ]
+          if (isNewBaseModuleApiEnabled()) {
+            java.srcDirs += [
+              "src/basemodule/newapi"
+            ]
+          } else {
+            java.srcDirs += [
+              "src/basemodule/oldapi"
+            ]
+          }
       } else {
         java.srcDirs += [
           "src/oldarch",
           // This is needed to build Kotlin project with NewArch enabled
           "${project.buildDir}/generated/source/codegen/java",
           // "generated/java",
-          "generated/jni"
+          "generated/jni",
+          "src/basemodule/oldarch"
         ]
       }
+      
     }
   }
 }
