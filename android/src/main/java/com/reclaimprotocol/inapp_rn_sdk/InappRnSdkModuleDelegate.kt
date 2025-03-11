@@ -7,17 +7,13 @@ import com.facebook.react.bridge.ReactApplicationContext
 import com.facebook.react.bridge.ReadableMap
 import com.facebook.react.bridge.WritableArray
 import com.facebook.react.bridge.WritableMap
-import com.facebook.react.module.annotations.ReactModule
 import org.json.JSONObject
 import org.reclaimprotocol.inapp_sdk.ReclaimOverrides
 import org.reclaimprotocol.inapp_sdk.ReclaimSessionStatus
 import org.reclaimprotocol.inapp_sdk.ReclaimVerification
 import java.util.UUID
 
-@ReactModule(name = InappRnSdkModule.NAME)
-class InappRnSdkModule(private val reactContext: ReactApplicationContext) :
-  NativeInappRnSdkSpec(reactContext) {
-
+class InappRnSdkModuleDelegate(private val reactContext: ReactApplicationContext): EventEmittingModule(reactContext) {
   override fun getName(): String {
     return NAME
   }
@@ -62,7 +58,7 @@ class InappRnSdkModule(private val reactContext: ReactApplicationContext) :
     }
   }
 
-  override fun startVerification(request: ReadableMap?, promise: Promise?) {
+  fun startVerification(request: ReadableMap?, promise: Promise?) {
     Log.d(NAME, "startVerification")
     if (request == null) {
       Log.d(NAME, "no request. rejecting.")
@@ -127,7 +123,7 @@ class InappRnSdkModule(private val reactContext: ReactApplicationContext) :
     }
   }
 
-  override fun startVerificationFromUrl(requestUrl: String?, promise: Promise?) {
+  fun startVerificationFromUrl(requestUrl: String?, promise: Promise?) {
     Log.d(NAME, "startVerificationFromUrl")
     if (requestUrl == null) {
       Log.d(NAME, "no request url. rejecting.")
@@ -143,7 +139,7 @@ class InappRnSdkModule(private val reactContext: ReactApplicationContext) :
     }
   }
 
-  override fun setOverrides(overrides: ReadableMap?, promise: Promise?) {
+  fun setOverrides(overrides: ReadableMap?, promise: Promise?) {
     return setOverrides(
       provider = getMap(overrides, "provider"),
       featureOptions = getMap(overrides, "featureOptions"),
@@ -155,7 +151,7 @@ class InappRnSdkModule(private val reactContext: ReactApplicationContext) :
     )
   }
 
-  override fun clearAllOverrides(promise: Promise?) {
+  fun clearAllOverrides(promise: Promise?) {
     reactContext.runOnUiQueueThread {
       ReclaimVerification.clearAllOverrides(
         context = reactContext.applicationContext,
@@ -169,7 +165,7 @@ class InappRnSdkModule(private val reactContext: ReactApplicationContext) :
     }
   }
 
-  override fun setVerificationOptions(args: ReadableMap?, promise: Promise?) {
+  fun setVerificationOptions(args: ReadableMap?, promise: Promise?) {
     val inputOptions = getMap(args, "options")
     var options:  ReclaimVerification.VerificationOptions? = null
     if (inputOptions != null) {
@@ -357,7 +353,7 @@ class InappRnSdkModule(private val reactContext: ReactApplicationContext) :
   }
 
   private val replyHandlers: MutableMap<String, (Result<Boolean>) -> Unit> = mutableMapOf()
-  override fun reply(replyId: String?, reply: Boolean) {
+  fun reply(replyId: String?, reply: Boolean) {
     if (replyId == null) {
       Log.w(NAME, "(reply) Missing arg replyId")
       return
@@ -375,7 +371,7 @@ class InappRnSdkModule(private val reactContext: ReactApplicationContext) :
   private val replyWithString: MutableMap<String, (Result<String>) -> Unit> =
     mutableMapOf()
 
-  override fun replyWithString(replyId: String?, value: String?) {
+  fun replyWithString(replyId: String?, value: String?) {
     if (replyId == null) {
       Log.w(NAME, "(replyWithString) Missing arg replyId")
       return
@@ -451,7 +447,7 @@ class InappRnSdkModule(private val reactContext: ReactApplicationContext) :
     }
   }
 
-  override fun ping(promise: Promise?) {
+  fun ping(promise: Promise?) {
     Log.d(NAME, "startVerification")
     fun submitPing() {
       promise?.resolve(true)

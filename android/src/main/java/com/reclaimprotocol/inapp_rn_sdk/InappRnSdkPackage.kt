@@ -9,7 +9,7 @@ import java.util.HashMap
 
 class InappRnSdkPackage : BaseReactPackage() {
   override fun getModule(name: String, reactContext: ReactApplicationContext): NativeModule? {
-    return if (name == InappRnSdkModule.NAME) {
+    return if (name == InappRnSdkModuleDelegate.NAME) {
       InappRnSdkModule(reactContext)
     } else {
       null
@@ -19,9 +19,9 @@ class InappRnSdkPackage : BaseReactPackage() {
   override fun getReactModuleInfoProvider(): ReactModuleInfoProvider {
     return ReactModuleInfoProvider {
       val moduleInfos: MutableMap<String, ReactModuleInfo> = HashMap()
-      moduleInfos[InappRnSdkModule.NAME] = ReactModuleInfo(
-        InappRnSdkModule.NAME,
-        InappRnSdkModule.NAME,
+      moduleInfos[InappRnSdkModuleDelegate.NAME] = ReactModuleInfo(
+        InappRnSdkModuleDelegate.NAME,
+        InappRnSdkModuleDelegate.NAME,
         false,  // canOverrideExistingModule
         false,  // needsEagerInit
         false,  // isCxxModule
