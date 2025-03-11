@@ -10,16 +10,64 @@
 #import "InappRnSdk/InappRnSdk-Swift.h"
 #endif
 
+static Api *api = [Api new];
+
+///////////////////////////////////////////////////////////////////////////////////////
+///         EVENT EMITTER SETUP
+///https://github.com/react-native-community/RNNewArchitectureLibraries/tree/feat/swift-event-emitter
+@interface InappRnSdk() <InappRnSdkEventEmitterDelegate>
+@end
+///
+//////////////////////////////////////////////////////////////////////////////////////////
+
 @implementation InappRnSdk
 RCT_EXPORT_MODULE()
 
+// Don't compile this code when we build for the old architecture.
+#ifdef RCT_NEW_ARCH_ENABLED
 - (std::shared_ptr<facebook::react::TurboModule>)getTurboModule:
 (const facebook::react::ObjCTurboModule::InitParams &)params
 {
   return std::make_shared<facebook::react::NativeInappRnSdkSpecJSI>(params);
 }
+#endif
 
-Api *api = [[Api alloc] init];
+- (instancetype)init
+{
+    self = [super init];
+    if (self) {
+        ///////////////////////////////////////////////////////////////////////////////////////
+        ///         EVENT EMITTER SETUP
+        [api setEventEmitterDelegateWithDelegate:self];
+        ///
+        //////////////////////////////////////////////////////////////////////////////////////////
+    }
+    return self;
+}
+
+///////////////////////////////////////////////////////////////////////////////////////
+///         EVENT EMITTER SETUP
+///
+-(void)startObserving {
+    self.isJsListening = YES;
+}
+
+-(void)stopObserving {
+    self.isJsListening = NO;
+}
+
+- (NSArray<NSString *> *)supportedEvents {
+    return [_InappRnSdkEventEmitterDelegate supportedEvents];
+}
+
+- (void)sendEventWithName:(NSString * _Nonnull)name params:(NSDictionary *)params {
+    [self sendEventWithName:name body:params];
+}
+
++ (BOOL)requiresMainQueueSetup
+{
+    return YES;
+}
 
 - (void)ping:(nonnull RCTPromiseResolveBlock)resolve reject:(nonnull RCTPromiseRejectBlock)reject {
   

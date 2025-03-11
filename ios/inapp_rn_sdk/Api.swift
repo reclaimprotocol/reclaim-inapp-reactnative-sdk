@@ -1,6 +1,12 @@
 import ReclaimInAppSdk
 
 @objc(Api) public class Api: NSObject {
+  private var eventEmitterDelegate: InappRnSdkEventEmitterDelegate? = nil
+
+  @objc public func setEventEmitterDelegate(delegate: InappRnSdkEventEmitterDelegate) {
+    self.eventEmitterDelegate = delegate
+  }
+
   @objc public func ping() -> Bool {
     return true
   }
@@ -519,4 +525,14 @@ public typealias ReclaimVerificationOptionFetchAttestorAuthRequestHandler = (
       fetchAttestorAuthenticationRequest(reclaimHttpProviderJsonString, replyId)
     }
   }
+}
+
+@objc public protocol InappRnSdkEventEmitterDelegate {
+    var isJsListening: Bool { get set }
+
+    func sendEvent(name: String, params: NSDictionary)
+}
+
+@objc public class _InappRnSdkEventEmitterDelegate: NSObject {
+  @objc public static let supportedEvents: [String] = []
 }
