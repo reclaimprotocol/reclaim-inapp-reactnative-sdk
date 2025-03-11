@@ -7,9 +7,9 @@ import com.facebook.react.bridge.ReactContextBaseJavaModule;
 import com.facebook.proguard.annotations.DoNotStrip;
 import com.facebook.react.bridge.Promise;
 import com.facebook.react.bridge.ReactMethod;
-import com.facebook.react.turbomodule.core.interfaces.TurboModule;
 
-abstract class BaseNativeEventEmittingModule(private val reactContext: ReactApplicationContext) : ReactContextBaseJavaModule(reactContext), EventEmittingDelegate, TurboModule {
+// Does not support Turbo Module, use new APIs
+abstract class BaseNativeEventEmittingModule(private val reactContext: ReactApplicationContext) : ReactContextBaseJavaModule(reactContext), EventEmittingDelegate {
   override fun sendEvent(eventName: String, params: ReadableMap?) {
     reactContext
       .getJSModule(DeviceEventManagerModule.RCTDeviceEventEmitter::class.java)
