@@ -1098,6 +1098,8 @@ public:
   virtual void reply(jsi::Runtime &rt, jsi::String replyId, bool reply) = 0;
   virtual void replyWithString(jsi::Runtime &rt, jsi::String replyId, jsi::String value) = 0;
   virtual jsi::Value ping(jsi::Runtime &rt) = 0;
+  virtual void addListener(jsi::Runtime &rt, jsi::String eventType) = 0;
+  virtual void removeListeners(jsi::Runtime &rt, double count) = 0;
 
 };
 
@@ -1245,6 +1247,22 @@ private:
 
       return bridging::callFromJs<jsi::Value>(
           rt, &T::ping, jsInvoker_, instance_);
+    }
+    void addListener(jsi::Runtime &rt, jsi::String eventType) override {
+      static_assert(
+          bridging::getParameterCount(&T::addListener) == 2,
+          "Expected addListener(...) to have 2 parameters");
+
+      return bridging::callFromJs<void>(
+          rt, &T::addListener, jsInvoker_, instance_, std::move(eventType));
+    }
+    void removeListeners(jsi::Runtime &rt, double count) override {
+      static_assert(
+          bridging::getParameterCount(&T::removeListeners) == 2,
+          "Expected removeListeners(...) to have 2 parameters");
+
+      return bridging::callFromJs<void>(
+          rt, &T::removeListeners, jsInvoker_, instance_, std::move(count));
     }
 
   private:

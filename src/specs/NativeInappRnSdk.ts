@@ -354,6 +354,10 @@ export interface Spec extends TurboModule {
   readonly onReclaimAttestorAuthRequest: EventEmitter<ReclaimAttestorAuthRequest>
   // unimplemented
   readonly onSessionIdentityUpdate: EventEmitter<ReclaimSessionIdentityUpdate>
+
+  // God knows why, if I die early then I'll ask him and tell you through this same RN event emitter
+  addListener: (eventType: string) => void;
+  removeListeners: (count: number) => void;
 }
 
 export default TurboModuleRegistry.getEnforcing<Spec>('InappRnSdk');

@@ -13,11 +13,10 @@ import org.reclaimprotocol.inapp_sdk.ReclaimSessionStatus
 import org.reclaimprotocol.inapp_sdk.ReclaimVerification
 import java.util.UUID
 
-class InappRnSdkModuleDelegate(private val reactContext: ReactApplicationContext): EventEmittingModule(reactContext) {
-  override fun getName(): String {
-    return NAME
-  }
-
+class InappRnSdkModuleDelegate(
+  private val reactContext: ReactApplicationContext,
+  private val eventEmittingDelegate: EventEmittingDelegate
+): EventEmittingModule(eventEmittingDelegate) {
   companion object {
     const val NAME = "InappRnSdk"
   }

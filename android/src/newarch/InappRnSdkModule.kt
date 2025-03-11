@@ -16,8 +16,16 @@ import java.util.UUID
 
 @ReactModule(name = InappRnSdkModule.NAME)
 class InappRnSdkModule(private val reactContext: ReactApplicationContext) :
-  NativeInappRnSdkSpec(reactContext) {
-  private var delegate = InappRnSdkModuleDelegate(reactContext)
+  NativeInappRnSdkSpec(reactContext), EventEmittingDelegate {
+
+  override fun sendEvent(eventName: String, params: ReadableMap?) {
+    mEventEmitterCallback?.invoke(eventName, params);
+  }
+  override fun sendEvent(eventName: String, params: String?) {
+    mEventEmitterCallback?.invoke(eventName, params);
+  }
+
+  private var delegate = InappRnSdkModuleDelegate(reactContext, this)
 
   override fun getName(): String {
     return NAME
@@ -58,4 +66,8 @@ class InappRnSdkModule(private val reactContext: ReactApplicationContext) :
   override fun ping(promise: Promise?) {
     return delegate.ping(promise)
   }
+
+  override fun addListener(eventType: String?) {}
+
+  override fun removeListeners(count: Double) {}
 }

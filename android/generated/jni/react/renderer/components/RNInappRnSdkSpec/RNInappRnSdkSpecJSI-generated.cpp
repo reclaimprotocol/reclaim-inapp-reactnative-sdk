@@ -61,6 +61,20 @@ static jsi::Value __hostFunction_NativeInappRnSdkCxxSpecJSI_ping(jsi::Runtime &r
     rt
   );
 }
+static jsi::Value __hostFunction_NativeInappRnSdkCxxSpecJSI_addListener(jsi::Runtime &rt, TurboModule &turboModule, const jsi::Value* args, size_t count) {
+  static_cast<NativeInappRnSdkCxxSpecJSI *>(&turboModule)->addListener(
+    rt,
+    count <= 0 ? throw jsi::JSError(rt, "Expected argument in position 0 to be passed") : args[0].asString(rt)
+  );
+  return jsi::Value::undefined();
+}
+static jsi::Value __hostFunction_NativeInappRnSdkCxxSpecJSI_removeListeners(jsi::Runtime &rt, TurboModule &turboModule, const jsi::Value* args, size_t count) {
+  static_cast<NativeInappRnSdkCxxSpecJSI *>(&turboModule)->removeListeners(
+    rt,
+    count <= 0 ? throw jsi::JSError(rt, "Expected argument in position 0 to be passed") : args[0].asNumber()
+  );
+  return jsi::Value::undefined();
+}
 
 NativeInappRnSdkCxxSpecJSI::NativeInappRnSdkCxxSpecJSI(std::shared_ptr<CallInvoker> jsInvoker)
   : TurboModule("InappRnSdk", jsInvoker) {
@@ -72,6 +86,8 @@ NativeInappRnSdkCxxSpecJSI::NativeInappRnSdkCxxSpecJSI(std::shared_ptr<CallInvok
   methodMap_["reply"] = MethodMetadata {2, __hostFunction_NativeInappRnSdkCxxSpecJSI_reply};
   methodMap_["replyWithString"] = MethodMetadata {2, __hostFunction_NativeInappRnSdkCxxSpecJSI_replyWithString};
   methodMap_["ping"] = MethodMetadata {0, __hostFunction_NativeInappRnSdkCxxSpecJSI_ping};
+  methodMap_["addListener"] = MethodMetadata {1, __hostFunction_NativeInappRnSdkCxxSpecJSI_addListener};
+  methodMap_["removeListeners"] = MethodMetadata {1, __hostFunction_NativeInappRnSdkCxxSpecJSI_removeListeners};
 }
 
 

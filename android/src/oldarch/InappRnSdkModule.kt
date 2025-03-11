@@ -15,11 +15,27 @@ import org.reclaimprotocol.inapp_sdk.ReclaimOverrides
 import org.reclaimprotocol.inapp_sdk.ReclaimSessionStatus
 import org.reclaimprotocol.inapp_sdk.ReclaimVerification
 import java.util.UUID
+import com.facebook.react.modules.core.DeviceEventManagerModule
 
 @ReactModule(name = InappRnSdkModule.NAME)
 class InappRnSdkModule(private val reactContext: ReactApplicationContext) :
-  ReactContextBaseJavaModule(reactContext) {
-  private var delegate = InappRnSdkModuleDelegate(reactContext)
+  ReactContextBaseJavaModule(reactContext), EventEmittingDelegate {
+
+  override fun sendEvent(eventName: String, params: ReadableMap?) {
+    // mEventEmitterCallback?.invoke(eventName, params);
+    reactContext
+      .getJSModule(DeviceEventManagerModule.RCTDeviceEventEmitter::class.java)
+      .emit(eventName, params)
+  }
+
+  override fun sendEvent(eventName: String, params: String?) {
+    // mEventEmitterCallback?.invoke(eventName, params);
+    reactContext
+      .getJSModule(DeviceEventManagerModule.RCTDeviceEventEmitter::class.java)
+      .emit(eventName, params)
+  }
+
+  private var delegate = InappRnSdkModuleDelegate(reactContext, this)
 
   override fun getName(): String {
     return NAME
@@ -68,4 +84,10 @@ class InappRnSdkModule(private val reactContext: ReactApplicationContext) :
   fun ping(promise: Promise?) {
     return delegate.ping(promise)
   }
+
+  @ReactMethod()
+  fun addListener(eventName: String) {}
+
+  @ReactMethod()
+  fun removeListeners(count: Double) {}
 }

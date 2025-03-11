@@ -232,6 +232,8 @@ namespace JS {
                   value:(NSString *)value;
 - (void)ping:(RCTPromiseResolveBlock)resolve
       reject:(RCTPromiseRejectBlock)reject;
+- (void)addListener:(NSString *)eventType;
+- (void)removeListeners:(double)count;
 
 @end
 

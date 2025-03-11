@@ -331,6 +331,7 @@ const styles = StyleSheet.create({
     borderRadius: 4,
     padding: 8,
     marginBottom: 16,
+    color: 'black'
   },
   resultContainer: {
     marginTop: 16,
@@ -339,8 +340,10 @@ const styles = StyleSheet.create({
     borderColor: '#ccc',
     borderRadius: 4,
     padding: 8,
+    color: 'black'
   },
   resultText: {
     fontFamily: 'monospace',
+    color: 'black'
   },
 });

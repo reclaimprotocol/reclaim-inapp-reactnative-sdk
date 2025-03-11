@@ -1,8 +1,6 @@
 import type { EventSubscription } from "react-native";
-import NativeReclaimInappModule from "./specs/NativeInappRnSdk";
+import Module from "./backwardCompatModule";
 import * as NativeReclaimInappModuleTypes from "./specs/NativeInappRnSdk";
-import { ReclaimResult, type ReclaimVerificationResponse } from "./types/proof";
-export type { ReclaimVerificationResponse, ReclaimResult } from "./types/proof";
 
 /**
  * This namespace provides types involved in initiating and managing the verification process
@@ -25,7 +23,49 @@ export namespace ReclaimVerificationApi {
     /**
      * Contains the proof and response data after verification
      */
-    export type Response = ReclaimVerificationResponse;
+    export interface Response extends NativeReclaimInappModuleTypes.Response {
+        proofs: ReclaimResult.Proof[];
+    }
+
+    export namespace ReclaimResult {
+        export interface Proof {
+            identifier: string;
+            signatures: string[];
+            /**
+             * A data associated with this [Proof].
+             * The data type of this object is dynamic and can be any JSON serializable Javascript object.
+             */
+            publicData?: any | null;
+            witnesses: WitnessData[];
+            claimData: ProviderClaimData;
+        }
+
+        export const isProof = (value: Record<string, any>): value is Proof => {
+            return typeof value === 'object' && value !== null && 'identifier' in value && 'signatures' in value && 'witnesses' in value;
+        }
+
+        export const asProofs = (proofs: Record<string, any>[]): Proof[] => {
+            return proofs.filter(isProof);
+        }
+
+        export interface ProviderClaimData {
+            owner: string;
+            provider: string;
+            /// int
+            timestampS: number;
+            /// int
+            epoch: number;
+            context: string;
+            identifier: string;
+            parameters: string;
+        }
+
+        export interface WitnessData {
+            id: string;
+            url: string;
+        }
+    }
+
 
     export interface VerificationOptions {
         canDeleteCookiesBeforeVerificationStarts: boolean;
@@ -196,10 +236,10 @@ export abstract class ReclaimVerificationPlatformChannel {
 export class ReclaimVerificationPlatformChannelImpl extends ReclaimVerificationPlatformChannel {
     override async startVerification(request: ReclaimVerificationApi.Request): Promise<ReclaimVerificationApi.Response> {
         try {
-            const response = await NativeReclaimInappModule.startVerification(request);
+            const response = await Module.startVerification(request);
             return {
                 ...response,
-                proofs: ReclaimResult.asProofs(response.proofs),
+                proofs: ReclaimVerificationApi.ReclaimResult.asProofs(response.proofs),
             }
         } catch (error) {
             console.info({
@@ -214,10 +254,10 @@ export class ReclaimVerificationPlatformChannelImpl extends ReclaimVerificationP
 
     override async startVerificationFromUrl(requestUrl: string): Promise<ReclaimVerificationApi.Response> {
         try {
-            const response = await NativeReclaimInappModule.startVerificationFromUrl(requestUrl);
+            const response = await Module.startVerificationFromUrl(requestUrl);
             return {
                 ...response,
-                proofs: ReclaimResult.asProofs(response.proofs),
+                proofs: ReclaimVerificationApi.ReclaimResult.asProofs(response.proofs),
             }
         } catch (error) {
             console.info({
@@ -231,7 +271,7 @@ export class ReclaimVerificationPlatformChannelImpl extends ReclaimVerificationP
     }
 
     override async ping(): Promise<boolean> {
-        return await NativeReclaimInappModule.ping();
+        return await Module.ping();
     }
 
     private previousSessionManagementCancelCallback: null | (() => void) = null;
@@ -274,13 +314,13 @@ export class ReclaimVerificationPlatformChannelImpl extends ReclaimVerificationP
         }
         if (providerCallback) {
             this.disposeProviderRequestListener();
-            let providerRequestSubscription = NativeReclaimInappModule.onProviderInformationRequest(async (event) => {
+            let providerRequestSubscription = Module.onProviderInformationRequest(async (event) => {
                 try {
                     let result = await providerCallback(event);
-                    NativeReclaimInappModule.replyWithString(event.replyId, result);
+                    Module.replyWithString(event.replyId, result);
                 } catch (error) {
                     console.error(error);
-                    NativeReclaimInappModule.replyWithString(event.replyId, "");
+                    Module.replyWithString(event.replyId, "");
                 }
             });
             const cancel = () => {
@@ -301,7 +341,7 @@ export class ReclaimVerificationPlatformChannelImpl extends ReclaimVerificationP
                 this.previousLogSubscription?.remove();
                 this.previousLogSubscription = null;
             };
-            this.previousLogSubscription = NativeReclaimInappModule.onLogs((arg) => {
+            this.previousLogSubscription = Module.onLogs((arg) => {
                 onLogsListener(arg, cancel);
             })
         }
@@ -312,27 +352,27 @@ export class ReclaimVerificationPlatformChannelImpl extends ReclaimVerificationP
         }
         if (sessionManagement) {
             this.disposeSessionManagement();
-            let sessionCreateSubscription = NativeReclaimInappModule.onSessionCreateRequest(async (event) => {
+            let sessionCreateSubscription = Module.onSessionCreateRequest(async (event) => {
                 const replyId = event.replyId;
                 try {
                     let result = await sessionManagement.onSessionCreateRequest(event);
-                    NativeReclaimInappModule.reply(replyId, result);
+                    Module.reply(replyId, result);
                 } catch (error) {
                     console.error(error);
-                    NativeReclaimInappModule.reply(replyId, false);
+                    Module.reply(replyId, false);
                 }
             });
-            let sessionUpdateSubscription = NativeReclaimInappModule.onSessionUpdateRequest(async (event) => {
+            let sessionUpdateSubscription = Module.onSessionUpdateRequest(async (event) => {
                 const replyId = event.replyId;
                 try {
                     let result = await sessionManagement.onSessionUpdateRequest(event);
-                    NativeReclaimInappModule.reply(replyId, result);
+                    Module.reply(replyId, result);
                 } catch (error) {
                     console.error(error);
-                    NativeReclaimInappModule.reply(replyId, false);
+                    Module.reply(replyId, false);
                 }
             });
-            let sessionLogsSubscription = NativeReclaimInappModule.onSessionLogs((event) => {
+            let sessionLogsSubscription = Module.onSessionLogs((event) => {
                 try {
                     sessionManagement.onLog(event);
                 } catch (error) {
@@ -348,7 +388,7 @@ export class ReclaimVerificationPlatformChannelImpl extends ReclaimVerificationP
         }
 
         try {
-            return await NativeReclaimInappModule.setOverrides({
+            return await Module.setOverrides({
                 provider: providerOverride,
                 featureOptions,
                 logConsumer: logConsumerRequest,
@@ -365,7 +405,7 @@ export class ReclaimVerificationPlatformChannelImpl extends ReclaimVerificationP
         this.disposeProviderRequestListener();
         this.disposeLogListener();
         this.disposeSessionManagement();
-        return NativeReclaimInappModule.clearAllOverrides();
+        return Module.clearAllOverrides();
     }
 
     private previousAttestorAuthRequestCancelCallback: null | (() => void) = null;
@@ -387,9 +427,9 @@ export class ReclaimVerificationPlatformChannelImpl extends ReclaimVerificationP
             }
             if (canUseAttestorAuthenticationRequest) {
                 this.disposeAttestorAuthRequestListener();
-                let attestorAuthRequestSubscription = NativeReclaimInappModule.onReclaimAttestorAuthRequest(async (event) => {
+                let attestorAuthRequestSubscription = Module.onReclaimAttestorAuthRequest(async (event) => {
                     let result = await options.fetchAttestorAuthenticationRequest(event.reclaimHttpProviderJsonString);
-                    NativeReclaimInappModule.replyWithString(event.replyId, result);
+                    Module.replyWithString(event.replyId, result);
                 });
                 const cancel = () => {
                     attestorAuthRequestSubscription.remove();
@@ -398,7 +438,7 @@ export class ReclaimVerificationPlatformChannelImpl extends ReclaimVerificationP
             }
         }
         try {
-            return await NativeReclaimInappModule.setVerificationOptions({
+            return await Module.setVerificationOptions({
                 options: args
             });
         } catch (error) {

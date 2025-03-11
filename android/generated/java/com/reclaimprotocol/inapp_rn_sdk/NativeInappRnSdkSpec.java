@@ -92,4 +92,12 @@ public abstract class NativeInappRnSdkSpec extends ReactContextBaseJavaModule im
   @ReactMethod
   @DoNotStrip
   public abstract void ping(Promise promise);
+
+  @ReactMethod
+  @DoNotStrip
+  public abstract void addListener(String eventType);
+
+  @ReactMethod
+  @DoNotStrip
+  public abstract void removeListeners(double count);
 }

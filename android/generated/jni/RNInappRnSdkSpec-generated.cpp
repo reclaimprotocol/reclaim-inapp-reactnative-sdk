@@ -52,6 +52,16 @@ static facebook::jsi::Value __hostFunction_NativeInappRnSdkSpecJSI_ping(facebook
   return static_cast<JavaTurboModule &>(turboModule).invokeJavaMethod(rt, PromiseKind, "ping", "(Lcom/facebook/react/bridge/Promise;)V", args, count, cachedMethodId);
 }
 
+static facebook::jsi::Value __hostFunction_NativeInappRnSdkSpecJSI_addListener(facebook::jsi::Runtime& rt, TurboModule &turboModule, const facebook::jsi::Value* args, size_t count) {
+  static jmethodID cachedMethodId = nullptr;
+  return static_cast<JavaTurboModule &>(turboModule).invokeJavaMethod(rt, VoidKind, "addListener", "(Ljava/lang/String;)V", args, count, cachedMethodId);
+}
+
+static facebook::jsi::Value __hostFunction_NativeInappRnSdkSpecJSI_removeListeners(facebook::jsi::Runtime& rt, TurboModule &turboModule, const facebook::jsi::Value* args, size_t count) {
+  static jmethodID cachedMethodId = nullptr;
+  return static_cast<JavaTurboModule &>(turboModule).invokeJavaMethod(rt, VoidKind, "removeListeners", "(D)V", args, count, cachedMethodId);
+}
+
 NativeInappRnSdkSpecJSI::NativeInappRnSdkSpecJSI(const JavaTurboModule::InitParams &params)
   : JavaTurboModule(params) {
   methodMap_["startVerification"] = MethodMetadata {1, __hostFunction_NativeInappRnSdkSpecJSI_startVerification};
@@ -62,6 +72,8 @@ NativeInappRnSdkSpecJSI::NativeInappRnSdkSpecJSI(const JavaTurboModule::InitPara
   methodMap_["reply"] = MethodMetadata {2, __hostFunction_NativeInappRnSdkSpecJSI_reply};
   methodMap_["replyWithString"] = MethodMetadata {2, __hostFunction_NativeInappRnSdkSpecJSI_replyWithString};
   methodMap_["ping"] = MethodMetadata {0, __hostFunction_NativeInappRnSdkSpecJSI_ping};
+  methodMap_["addListener"] = MethodMetadata {1, __hostFunction_NativeInappRnSdkSpecJSI_addListener};
+  methodMap_["removeListeners"] = MethodMetadata {1, __hostFunction_NativeInappRnSdkSpecJSI_removeListeners};
   eventEmitterMap_["onLogs"] = std::make_shared<AsyncEventEmitter<folly::dynamic>>();
   eventEmitterMap_["onSessionLogs"] = std::make_shared<AsyncEventEmitter<folly::dynamic>>();
   eventEmitterMap_["onSessionCreateRequest"] = std::make_shared<AsyncEventEmitter<folly::dynamic>>();
