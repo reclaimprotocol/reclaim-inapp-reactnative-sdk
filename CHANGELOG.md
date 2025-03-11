@@ -1,3 +1,7 @@
+## 0.3.1
+
+- Add Android backwards compatibility with old arch without codegen (Tested with 0.75.5)
+
 ## 0.3.0
 
 - Add setter for ReclaimVerificationOptions which can be used in ReclaimVerification.
