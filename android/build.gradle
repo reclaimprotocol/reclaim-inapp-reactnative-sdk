@@ -100,7 +100,7 @@ android {
           "src/oldarch",
           // This is needed to build Kotlin project with NewArch enabled
           "${project.buildDir}/generated/source/codegen/java",
-          "generated/java",
+          // "generated/java",
           "generated/jni"
         ]
       }
