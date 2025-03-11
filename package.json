@@ -44,6 +44,7 @@
     "lint": "eslint \"**/*.{js,ts,tsx}\"",
     "android:gen:specs": "cd example/android && ./gradlew :app:invokeLibraryCodegen",
     "ios:gen:specs": "cd example/ios && bundle install && bundle exec pod install",
+    "gen:specs": "npx react-native codegen",
     "clean": "del-cli android/build example/android/build example/android/app/build example/ios/build lib",
     "prepare": "bob build",
     "release": "release-it"
