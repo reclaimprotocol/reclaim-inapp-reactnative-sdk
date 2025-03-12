@@ -74,7 +74,7 @@ import ReclaimInAppSdk
     parameters: [String: String]?,
     autoSubmit: Bool,
     acceptAiProviders: Bool,
-    webhookUrl: String
+    webhookUrl: String?
   ) async throws -> [String: Any] {
     var session: ReclaimSessionInformation? = nil
     if let sessionTimestamp = sessionTimestamp, let sessionSessionId = sessionSessionId, let sessionSignature = sessionSignature {
