@@ -2,7 +2,9 @@
 
 ## @reclaimprotocol/inapp-rn-sdk
 
-![NPM Version](https://img.shields.io/npm/v/%40reclaimprotocol%2Finapp-rn-sdk)
+[![Reclaim React Native SDK](https://img.shields.io/github/v/tag/reclaimprotocol/reclaim-inapp-reactnative-sdk.svg)](https://github.com/reclaimprotocol/reclaim-inapp-reactnative-sdk)
+[![Documentation](https://img.shields.io/badge/read_the-docs-blue.svg)](https://docs.reclaimprotocol.org/inapp-sdks/react-native)
+[![NPM Version](https://img.shields.io/npm/v/%40reclaimprotocol%2Finapp-rn-sdk.svg)](https://www.npmjs.com/package/@reclaimprotocol/inapp-rn-sdk)
 
 This SDK allows you to integrate Reclaim's in-app verification process into your React Native application.
 
@@ -171,7 +173,7 @@ pod install
 
 Your app performance will be severely impacted when you run debug executable on a physical device. Fixing this requires a simple change in your Xcode project xcscheme.
 
-#### Method 1: Update Environment Variables for XCScheme (Recommended) 
+##### Method 1: Update Environment Variables for XCScheme (Recommended) 
 1. Open your iOS project (*.xcworkspace) in Xcode.
 2. Click on the project target.
 3. Click on the **Scheme** dropdown.
@@ -190,7 +192,7 @@ Your app performance will be severely impacted when you run debug executable on 
 8. Click on the **Close** button in the dialog and build the project.
 9. Run the app on a physical device.
 
-#### Method 2: Disable "Debug executable"
+##### Method 2: Disable "Debug executable"
 
 This method is **not recommended** but could be useful if you don't want to add environment variables to the xcscheme.
 
@@ -308,8 +310,6 @@ reclaimVerification.setOverrides({
   // .. other overrides
 })
 ```
-
-Note: Overriding again will clear previous overrides
 
 ## Contributing
 
