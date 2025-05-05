@@ -38,7 +38,6 @@
     "!**/.*"
   ],
   "scripts": {
-    "example": "yarn workspace @reclaimprotocol/inapp-rn-sdk-example",
     "test": "jest",
     "typecheck": "tsc",
     "lint": "eslint \"**/*.{js,ts,tsx}\"",
@@ -99,7 +98,6 @@
   "workspaces": [
     "example"
   ],
-  "packageManager": "yarn@3.6.1",
   "jest": {
     "preset": "react-native",
     "modulePathIgnorePatterns": [
