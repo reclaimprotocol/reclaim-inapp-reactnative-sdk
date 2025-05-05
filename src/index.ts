@@ -1,18 +1,19 @@
-import { PlatformImpl } from "./platform";
-import { ReclaimVerification as ReclaimVerificationTypes } from "./types";
+import { PlatformImpl } from './platform';
+import { ReclaimVerification as ReclaimVerificationTypes } from './types';
 
 /**
  * [ReclaimVerification] is the main class for interacting with the Reclaim verification system.
  * It provides methods to start verification processes, manage platform configurations,
  * and handle verification options.
- * 
+ *
  * The class can be instantiated with a custom platform implementation, or will use
  * the default [PlatformImpl] if none is provided.
  */
 export class ReclaimVerification {
   public platform: ReclaimVerificationTypes.Platform;
 
-  private static defaultPlatform: ReclaimVerificationTypes.Platform | null = null;
+  private static defaultPlatform: ReclaimVerificationTypes.Platform | null =
+    null;
 
   public constructor(platform?: ReclaimVerificationTypes.Platform) {
     if (platform) {
@@ -25,7 +26,9 @@ export class ReclaimVerification {
     }
   }
 
-  public async startVerification(request: ReclaimVerificationTypes.Request): Promise<ReclaimVerificationTypes.Response> {
+  public async startVerification(
+    request: ReclaimVerificationTypes.Request
+  ): Promise<ReclaimVerificationTypes.Response> {
     return this.platform.startVerification(request);
   }
 
@@ -41,7 +44,9 @@ export class ReclaimVerification {
     return this.platform.clearAllOverrides();
   }
 
-  public setVerificationOptions(options?: ReclaimVerificationTypes.VerificationOptions | null) {
+  public setVerificationOptions(
+    options?: ReclaimVerificationTypes.VerificationOptions | null
+  ) {
     return this.platform.setVerificationOptions(options);
   }
 }
@@ -53,26 +58,37 @@ export namespace ReclaimVerification {
   export type Response = ReclaimVerificationTypes.Response;
   export namespace ReclaimResult {
     export type Proof = ReclaimVerificationTypes.ReclaimResult.Proof;
-    export type ProviderClaimData = ReclaimVerificationTypes.ReclaimResult.ProviderClaimData;
-    export type WitnessData = ReclaimVerificationTypes.ReclaimResult.WitnessData;
+    export type ProviderClaimData =
+      ReclaimVerificationTypes.ReclaimResult.ProviderClaimData;
+    export type WitnessData =
+      ReclaimVerificationTypes.ReclaimResult.WitnessData;
     export const isProof = ReclaimVerificationTypes.ReclaimResult.isProof;
     export const asProofs = ReclaimVerificationTypes.ReclaimResult.asProofs;
   }
-  export type VerificationOptions = ReclaimVerificationTypes.VerificationOptions;
+  export type VerificationOptions =
+    ReclaimVerificationTypes.VerificationOptions;
   export namespace Overrides {
-    export type ProviderInformation = ReclaimVerificationTypes.Overrides.ProviderInformation;
-    export type FeatureOptions = ReclaimVerificationTypes.Overrides.FeatureOptions;
+    export type ProviderInformation =
+      ReclaimVerificationTypes.Overrides.ProviderInformation;
+    export type FeatureOptions =
+      ReclaimVerificationTypes.Overrides.FeatureOptions;
     export type LogConsumer = ReclaimVerificationTypes.Overrides.LogConsumer;
-    export type SessionManagement = ReclaimVerificationTypes.Overrides.SessionManagement;
-    export type ReclaimAppInfo = ReclaimVerificationTypes.Overrides.ReclaimAppInfo;
+    export type SessionManagement =
+      ReclaimVerificationTypes.Overrides.SessionManagement;
+    export type ReclaimAppInfo =
+      ReclaimVerificationTypes.Overrides.ReclaimAppInfo;
   }
   export type OverrideConfig = ReclaimVerificationTypes.OverrideConfig;
   export const ExceptionType = ReclaimVerificationTypes.ExceptionType;
   export type ExceptionType = ReclaimVerificationTypes.ExceptionType;
-  export const ReclaimPlatformException = ReclaimVerificationTypes.ReclaimPlatformException;
-  export type ReclaimPlatformException = ReclaimVerificationTypes.ReclaimPlatformException;
-  export const ReclaimVerificationException = ReclaimVerificationTypes.ReclaimVerificationException;
-  export type ReclaimVerificationException = ReclaimVerificationTypes.ReclaimVerificationException;
+  export const ReclaimPlatformException =
+    ReclaimVerificationTypes.ReclaimPlatformException;
+  export type ReclaimPlatformException =
+    ReclaimVerificationTypes.ReclaimPlatformException;
+  export const ReclaimVerificationException =
+    ReclaimVerificationTypes.ReclaimVerificationException;
+  export type ReclaimVerificationException =
+    ReclaimVerificationTypes.ReclaimVerificationException;
   export const Platform = ReclaimVerificationTypes.Platform;
   export type Platform = ReclaimVerificationTypes.Platform;
 }
