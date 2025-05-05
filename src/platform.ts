@@ -1,8 +1,6 @@
 import type { EventSubscription } from "react-native";
-import NativeReclaimInappModule from "./specs/NativeInappRnSdk";
-import * as NativeReclaimInappModuleTypes from "./specs/NativeInappRnSdk";
-import { ReclaimVerification } from "./index";
-
+import NativeReclaimInappModule, * as NativeReclaimInappModuleTypes from "./specs/NativeInappRnSdk";
+import { ReclaimVerification } from "./types";
 export class PlatformImpl extends ReclaimVerification.Platform {
     override async startVerification(request: ReclaimVerification.Request): Promise<ReclaimVerification.Response> {
         try {
