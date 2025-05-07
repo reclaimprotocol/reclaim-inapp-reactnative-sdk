@@ -38,6 +38,7 @@
     "!**/.*"
   ],
   "scripts": {
+    "example": "yarn workspace @reclaimprotocol/inapp-rn-sdk-example",
     "test": "jest",
     "typecheck": "tsc",
     "lint": "eslint \"**/*.{js,ts,tsx}\"",
