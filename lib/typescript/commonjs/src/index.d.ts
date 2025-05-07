@@ -1,4 +1,4 @@
-import * as NativeReclaimInappModuleTypes from "./specs/NativeInappRnSdk";
+import * as NativeReclaimInappModuleTypes from './specs/NativeInappRnSdk';
 /**
  * [ReclaimVerification] is the main class for interacting with the Reclaim verification system.
  * It provides methods to start verification processes, manage platform configurations,
@@ -123,15 +123,15 @@ export declare namespace ReclaimVerification {
         static isReclaimPlatformException(error: Error): error is ReclaimPlatformException;
     }
     class ReclaimVerificationException extends Error {
-        readonly innerError: Error;
-        readonly type: ExceptionType;
-        readonly sessionId: string;
-        readonly "didSubmitManualVerification": boolean;
-        readonly "reason": string;
+        readonly 'innerError': Error;
+        readonly 'type': ExceptionType;
+        readonly 'sessionId': string;
+        readonly 'didSubmitManualVerification': boolean;
+        readonly 'reason': string;
         constructor(message: string, innerError: Error, type: ExceptionType, sessionId: string, didSubmitManualVerification: boolean, reason: string);
-        private static fromTypeName;
-        static fromError(error: Error, sessionIdHint: string): ReclaimVerificationException;
-        static isReclaimVerificationException(error: Error): error is ReclaimVerificationException;
+        private static 'fromTypeName';
+        static 'fromError'(error: Error, sessionIdHint: string): ReclaimVerificationException;
+        static 'isReclaimVerificationException'(error: Error): error is ReclaimVerificationException;
     }
     abstract class Platform {
         abstract startVerification(request: ReclaimVerification.Request): Promise<ReclaimVerification.Response>;
@@ -141,5 +141,21 @@ export declare namespace ReclaimVerification {
         abstract clearAllOverrides(): Promise<void>;
         abstract setVerificationOptions(options?: ReclaimVerification.VerificationOptions | null): Promise<void>;
     }
+}
+export declare class PlatformImpl extends ReclaimVerification.Platform {
+    startVerification(request: ReclaimVerification.Request): Promise<ReclaimVerification.Response>;
+    startVerificationFromUrl(requestUrl: string): Promise<ReclaimVerification.Response>;
+    ping(): Promise<boolean>;
+    private previousSessionManagementCancelCallback;
+    disposeSessionManagement(): void;
+    private previousLogSubscription;
+    disposeLogListener(): void;
+    private previousProviderRequestCancelCallback;
+    private disposeProviderRequestListener;
+    setOverrides({ provider, featureOptions, logConsumer, sessionManagement, appInfo, capabilityAccessToken, }: ReclaimVerification.OverrideConfig): Promise<void>;
+    clearAllOverrides(): Promise<void>;
+    private previousAttestorAuthRequestCancelCallback;
+    disposeAttestorAuthRequestListener(): void;
+    setVerificationOptions(options?: ReclaimVerification.VerificationOptions | null): Promise<void>;
 }
 //# sourceMappingURL=index.d.ts.map
