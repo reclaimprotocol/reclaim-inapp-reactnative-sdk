@@ -72,7 +72,6 @@ import ReclaimInAppSdk
     sessionSignature: String?,
     context: String?,
     parameters: [String: String]?,
-    autoSubmit: Bool,
     acceptAiProviders: Bool,
     webhookUrl: String?
   ) async throws -> [String: Any] {
@@ -92,7 +91,6 @@ import ReclaimInAppSdk
         session: session,
         context: context ?? "",
         parameters: parameters ?? [String:String](),
-        autoSubmit: autoSubmit,
         acceptAiProviders: acceptAiProviders,
         webhookUrl: webhookUrl
       ))
@@ -102,7 +100,7 @@ import ReclaimInAppSdk
         session: session,
         context: context ?? "",
         parameters: parameters ?? [String:String](),
-        autoSubmit: autoSubmit,
+        autoSubmit: true, // unused.
         acceptAiProviders: acceptAiProviders,
         webhookUrl: webhookUrl
       ))
@@ -134,14 +132,13 @@ import ReclaimInAppSdk
       nil
     }
     
-    var featureOptionsOverrides: ReclaimOverrides.FeatureOptions? = if let featureOptions {
+    let featureOptionsOverrides: ReclaimOverrides.FeatureOptions? = if let featureOptions {
       .init(
         cookiePersist: featureOptions.cookiePersist?.boolValue,
         singleReclaimRequest: featureOptions.singleReclaimRequest?.boolValue,
         idleTimeThresholdForManualVerificationTrigger: featureOptions.idleTimeThresholdForManualVerificationTrigger?.int64Value,
         sessionTimeoutForManualVerificationTrigger: featureOptions.sessionTimeoutForManualVerificationTrigger?.int64Value,
         attestorBrowserRpcUrl: featureOptions.attestorBrowserRpcUrl,
-        isResponseRedactionRegexEscapingEnabled: featureOptions.isResponseRedactionRegexEscapingEnabled?.boolValue,
         isAIFlowEnabled: featureOptions.isAIFlowEnabled?.boolValue
       )
     } else {
@@ -311,8 +308,6 @@ public typealias OverridenProviderCallback = (
   @objc  public var sessionTimeoutForManualVerificationTrigger: NSNumber?
   @objc  public var attestorBrowserRpcUrl: String?
   // bool
-  @objc  public var isResponseRedactionRegexEscapingEnabled: NSNumber?
-  // bool
   @objc  public var isAIFlowEnabled: NSNumber?
   
   @objc public init(
@@ -321,7 +316,6 @@ public typealias OverridenProviderCallback = (
     idleTimeThresholdForManualVerificationTrigger: NSNumber? = nil,
     sessionTimeoutForManualVerificationTrigger: NSNumber? = nil,
     attestorBrowserRpcUrl: String? = nil,
-    isResponseRedactionRegexEscapingEnabled: NSNumber? = nil,
     isAIFlowEnabled: NSNumber? = nil
   ) {
     self.cookiePersist = cookiePersist
@@ -329,7 +323,6 @@ public typealias OverridenProviderCallback = (
     self.idleTimeThresholdForManualVerificationTrigger = idleTimeThresholdForManualVerificationTrigger
     self.sessionTimeoutForManualVerificationTrigger = sessionTimeoutForManualVerificationTrigger
     self.attestorBrowserRpcUrl = attestorBrowserRpcUrl
-    self.isResponseRedactionRegexEscapingEnabled = isResponseRedactionRegexEscapingEnabled
     self.isAIFlowEnabled = isAIFlowEnabled
   }
 }
@@ -392,7 +385,8 @@ public typealias OverridenProviderCallback = (
 public typealias OverridenCreateSessionCallback = (
   _ appId: String,
   _ providerId: String,
-  _ sessionId: String,
+  _ timestamp: String,
+  _ signature: String,
   _ replyId: String
 ) -> Void
 public typealias OverridenUpdateSessionCallback = (
@@ -416,7 +410,6 @@ public typealias OverridenLogSessionCallback = (
   }
   
   @objc(OverridenSessionHandler) public class OverridenSessionHandler: NSObject, ReclaimOverrides.SessionManagement.SessionHandler {
-    
     @objc let _createSession: OverridenCreateSessionCallback
     @objc let _updateSession: OverridenUpdateSessionCallback
     @objc let _logSession: OverridenLogSessionCallback
@@ -430,12 +423,9 @@ public typealias OverridenLogSessionCallback = (
       self._updateSession = _updateSession
       self._logSession = _logSession
     }
-    
-    public func createSession(
-      appId: String, providerId: String, sessionId: String, completion: @escaping (Result<Bool, any Error>) -> Void
-    ) {
-      let replyId = Api.setReplyCallback(completion)
-      self._createSession(appId, providerId, sessionId, replyId)
+    public func createSession(appId: String, providerId: String, timestamp: String, signature: String, completion: @escaping (Result<String, any Error>) -> Void) {
+      let replyId = Api.setReplyWithStringCallback(completion)
+      self._createSession(appId, providerId, timestamp, signature, replyId)
     }
     
     public func updateSession(
@@ -469,7 +459,8 @@ public typealias OverridenLogSessionCallback = (
       appId: String,
       providerId: String,
       sessionId: String,
-      logType: String
+      logType: String,
+      metadata: [String : (any Sendable)?]?
     ) {
       self._logSession(appId, providerId, sessionId, logType)
     }
@@ -484,10 +475,17 @@ public typealias ReclaimVerificationOptionFetchAttestorAuthRequestHandler = (
 @objc(ReclaimApiVerificationOptions) public class ReclaimApiVerificationOptions: NSObject {
   public let canDeleteCookiesBeforeVerificationStarts: Bool
   public let attestorAuthRequestProvider: ReclaimVerification.VerificationOptions.AttestorAuthRequestProvider?
+  public let claimCreationType: String?
+  public let canAutoSubmit: Bool
+  public let isCloseButtonVisible: Bool
+  
   
   @objc public init(
     canDeleteCookiesBeforeVerificationStarts: Bool,
-    fetchAttestorAuthenticationRequest: ReclaimVerificationOptionFetchAttestorAuthRequestHandler?
+    fetchAttestorAuthenticationRequest: ReclaimVerificationOptionFetchAttestorAuthRequestHandler?,
+    claimCreationType: String?,
+    canAutoSubmit: Bool,
+    isCloseButtonVisible: Bool
   ) {
     self.canDeleteCookiesBeforeVerificationStarts = canDeleteCookiesBeforeVerificationStarts
     if let fetchAttestorAuthenticationRequest {
@@ -497,12 +495,25 @@ public typealias ReclaimVerificationOptionFetchAttestorAuthRequestHandler = (
     } else {
       self.attestorAuthRequestProvider = nil
     }
+    self.claimCreationType = claimCreationType
+    self.canAutoSubmit = canAutoSubmit
+    self.isCloseButtonVisible = isCloseButtonVisible
+  }
+  
+  func claimCreationTypeApi() -> ReclaimVerification.VerificationOptions.ClaimCreationType {
+    switch (claimCreationType) {
+      case "meChain": return .meChain
+      case _: return .standalone
+    }
   }
   
   func toSdkOptions() -> ReclaimVerification.VerificationOptions {
     return .init(
       canDeleteCookiesBeforeVerificationStarts: canDeleteCookiesBeforeVerificationStarts,
-      attestorAuthRequestProvider: attestorAuthRequestProvider
+      attestorAuthRequestProvider: attestorAuthRequestProvider,
+      claimCreationType: claimCreationTypeApi(),
+      canAutoSubmit: canAutoSubmit,
+      isCloseButtonVisible: isCloseButtonVisible,
     )
   }
   

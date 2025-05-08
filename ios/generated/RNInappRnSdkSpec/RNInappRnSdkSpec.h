@@ -58,7 +58,6 @@ namespace JS {
       std::optional<JS::NativeInappRnSdk::SessionInformation> session() const;
       NSString *contextString() const;
       id<NSObject> _Nullable parameters() const;
-      std::optional<bool> autoSubmit() const;
       std::optional<bool> acceptAiProviders() const;
       NSString *webhookUrl() const;
 
@@ -97,7 +96,6 @@ namespace JS {
       std::optional<double> idleTimeThresholdForManualVerificationTrigger() const;
       std::optional<double> sessionTimeoutForManualVerificationTrigger() const;
       NSString *attestorBrowserRpcUrl() const;
-      std::optional<bool> isResponseRedactionRegexEscapingEnabled() const;
       std::optional<bool> isAIFlowEnabled() const;
 
       FeatureOptions(NSDictionary *const v) : _v(v) {}
@@ -184,6 +182,9 @@ namespace JS {
     struct VerificationOptions {
       bool canDeleteCookiesBeforeVerificationStarts() const;
       bool canUseAttestorAuthenticationRequest() const;
+      NSString *claimCreationType() const;
+      bool canAutoSubmit() const;
+      bool isCloseButtonVisible() const;
 
       VerificationOptions(NSDictionary *const v) : _v(v) {}
     private:
@@ -304,11 +305,6 @@ inline id<NSObject> _Nullable JS::NativeInappRnSdk::Request::parameters() const
   id const p = _v[@"parameters"];
   return p;
 }
-inline std::optional<bool> JS::NativeInappRnSdk::Request::autoSubmit() const
-{
-  id const p = _v[@"autoSubmit"];
-  return RCTBridgingToOptionalBool(p);
-}
 inline std::optional<bool> JS::NativeInappRnSdk::Request::acceptAiProviders() const
 {
   id const p = _v[@"acceptAiProviders"];
@@ -358,11 +354,6 @@ inline NSString *JS::NativeInappRnSdk::FeatureOptions::attestorBrowserRpcUrl() c
 {
   id const p = _v[@"attestorBrowserRpcUrl"];
   return RCTBridgingToOptionalString(p);
-}
-inline std::optional<bool> JS::NativeInappRnSdk::FeatureOptions::isResponseRedactionRegexEscapingEnabled() const
-{
-  id const p = _v[@"isResponseRedactionRegexEscapingEnabled"];
-  return RCTBridgingToOptionalBool(p);
 }
 inline std::optional<bool> JS::NativeInappRnSdk::FeatureOptions::isAIFlowEnabled() const
 {
@@ -442,6 +433,21 @@ inline bool JS::NativeInappRnSdk::VerificationOptions::canDeleteCookiesBeforeVer
 inline bool JS::NativeInappRnSdk::VerificationOptions::canUseAttestorAuthenticationRequest() const
 {
   id const p = _v[@"canUseAttestorAuthenticationRequest"];
+  return RCTBridgingToBool(p);
+}
+inline NSString *JS::NativeInappRnSdk::VerificationOptions::claimCreationType() const
+{
+  id const p = _v[@"claimCreationType"];
+  return RCTBridgingToString(p);
+}
+inline bool JS::NativeInappRnSdk::VerificationOptions::canAutoSubmit() const
+{
+  id const p = _v[@"canAutoSubmit"];
+  return RCTBridgingToBool(p);
+}
+inline bool JS::NativeInappRnSdk::VerificationOptions::isCloseButtonVisible() const
+{
+  id const p = _v[@"isCloseButtonVisible"];
   return RCTBridgingToBool(p);
 }
 inline std::optional<JS::NativeInappRnSdk::VerificationOptions> JS::NativeInappRnSdk::VerificationOptionsOptional::options() const

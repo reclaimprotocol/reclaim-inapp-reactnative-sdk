@@ -11,12 +11,13 @@ Pod::Spec.new do |s|
   s.license      = package["license"]
   s.authors      = package["author"]
 
+  # Try documentation/migration.md before updating this file. SDK supports iOS 13.0 and above.
   s.platforms    = { :ios => min_ios_version_supported }
   s.source       = { :git => "https://github.com/reclaimprotocol/reclaim-inapp-reactnative-sdk.git", :tag => "#{s.version}" }
 
   s.source_files = "ios/**/*.{h,m,mm,cpp,swift}"
   s.private_header_files = "ios/generated/**/*.h"
-  s.dependency "ReclaimInAppSdk", "~> 0.3.0"
+  s.dependency "ReclaimInAppSdk", "~> 0.6.0"
 
   # Use install_modules_dependencies helper to install the dependencies if React Native version >=0.71.0.
   # See https://github.com/facebook/react-native/blob/febf6b7f33fdb4904669f99d795eba4c0f95d7bf/scripts/cocoapods/new_architecture.rb#L79.
