@@ -18,17 +18,16 @@ namespace facebook::react {
   
 #pragma mark - NativeInappRnSdkFeatureOptions
 
-template <typename P0, typename P1, typename P2, typename P3, typename P4, typename P5, typename P6>
+template <typename P0, typename P1, typename P2, typename P3, typename P4, typename P5>
 struct NativeInappRnSdkFeatureOptions {
   P0 cookiePersist;
   P1 singleReclaimRequest;
   P2 idleTimeThresholdForManualVerificationTrigger;
   P3 sessionTimeoutForManualVerificationTrigger;
   P4 attestorBrowserRpcUrl;
-  P5 isResponseRedactionRegexEscapingEnabled;
-  P6 isAIFlowEnabled;
+  P5 isAIFlowEnabled;
   bool operator==(const NativeInappRnSdkFeatureOptions &other) const {
-    return cookiePersist == other.cookiePersist && singleReclaimRequest == other.singleReclaimRequest && idleTimeThresholdForManualVerificationTrigger == other.idleTimeThresholdForManualVerificationTrigger && sessionTimeoutForManualVerificationTrigger == other.sessionTimeoutForManualVerificationTrigger && attestorBrowserRpcUrl == other.attestorBrowserRpcUrl && isResponseRedactionRegexEscapingEnabled == other.isResponseRedactionRegexEscapingEnabled && isAIFlowEnabled == other.isAIFlowEnabled;
+    return cookiePersist == other.cookiePersist && singleReclaimRequest == other.singleReclaimRequest && idleTimeThresholdForManualVerificationTrigger == other.idleTimeThresholdForManualVerificationTrigger && sessionTimeoutForManualVerificationTrigger == other.sessionTimeoutForManualVerificationTrigger && attestorBrowserRpcUrl == other.attestorBrowserRpcUrl && isAIFlowEnabled == other.isAIFlowEnabled;
   }
 };
 
@@ -46,7 +45,6 @@ struct NativeInappRnSdkFeatureOptionsBridging {
       bridging::fromJs<decltype(types.idleTimeThresholdForManualVerificationTrigger)>(rt, value.getProperty(rt, "idleTimeThresholdForManualVerificationTrigger"), jsInvoker),
       bridging::fromJs<decltype(types.sessionTimeoutForManualVerificationTrigger)>(rt, value.getProperty(rt, "sessionTimeoutForManualVerificationTrigger"), jsInvoker),
       bridging::fromJs<decltype(types.attestorBrowserRpcUrl)>(rt, value.getProperty(rt, "attestorBrowserRpcUrl"), jsInvoker),
-      bridging::fromJs<decltype(types.isResponseRedactionRegexEscapingEnabled)>(rt, value.getProperty(rt, "isResponseRedactionRegexEscapingEnabled"), jsInvoker),
       bridging::fromJs<decltype(types.isAIFlowEnabled)>(rt, value.getProperty(rt, "isAIFlowEnabled"), jsInvoker)};
     return result;
   }
@@ -69,10 +67,6 @@ struct NativeInappRnSdkFeatureOptionsBridging {
   }
 
   static std::optional<jsi::String> attestorBrowserRpcUrlToJs(jsi::Runtime &rt, decltype(types.attestorBrowserRpcUrl) value) {
-    return bridging::toJs(rt, value);
-  }
-
-  static std::optional<bool> isResponseRedactionRegexEscapingEnabledToJs(jsi::Runtime &rt, decltype(types.isResponseRedactionRegexEscapingEnabled) value) {
     return bridging::toJs(rt, value);
   }
 
@@ -100,9 +94,6 @@ struct NativeInappRnSdkFeatureOptionsBridging {
     }
     if (value.attestorBrowserRpcUrl) {
       result.setProperty(rt, "attestorBrowserRpcUrl", bridging::toJs(rt, value.attestorBrowserRpcUrl.value(), jsInvoker));
-    }
-    if (value.isResponseRedactionRegexEscapingEnabled) {
-      result.setProperty(rt, "isResponseRedactionRegexEscapingEnabled", bridging::toJs(rt, value.isResponseRedactionRegexEscapingEnabled.value(), jsInvoker));
     }
     if (value.isAIFlowEnabled) {
       result.setProperty(rt, "isAIFlowEnabled", bridging::toJs(rt, value.isAIFlowEnabled.value(), jsInvoker));
@@ -557,7 +548,7 @@ struct NativeInappRnSdkReclaimSessionIdentityUpdateBridging {
 
 #pragma mark - NativeInappRnSdkRequest
 
-template <typename P0, typename P1, typename P2, typename P3, typename P4, typename P5, typename P6, typename P7, typename P8>
+template <typename P0, typename P1, typename P2, typename P3, typename P4, typename P5, typename P6, typename P7>
 struct NativeInappRnSdkRequest {
   P0 appId;
   P1 secret;
@@ -565,11 +556,10 @@ struct NativeInappRnSdkRequest {
   P3 session;
   P4 contextString;
   P5 parameters;
-  P6 autoSubmit;
-  P7 acceptAiProviders;
-  P8 webhookUrl;
+  P6 acceptAiProviders;
+  P7 webhookUrl;
   bool operator==(const NativeInappRnSdkRequest &other) const {
-    return appId == other.appId && secret == other.secret && providerId == other.providerId && session == other.session && contextString == other.contextString && parameters == other.parameters && autoSubmit == other.autoSubmit && acceptAiProviders == other.acceptAiProviders && webhookUrl == other.webhookUrl;
+    return appId == other.appId && secret == other.secret && providerId == other.providerId && session == other.session && contextString == other.contextString && parameters == other.parameters && acceptAiProviders == other.acceptAiProviders && webhookUrl == other.webhookUrl;
   }
 };
 
@@ -588,7 +578,6 @@ struct NativeInappRnSdkRequestBridging {
       bridging::fromJs<decltype(types.session)>(rt, value.getProperty(rt, "session"), jsInvoker),
       bridging::fromJs<decltype(types.contextString)>(rt, value.getProperty(rt, "contextString"), jsInvoker),
       bridging::fromJs<decltype(types.parameters)>(rt, value.getProperty(rt, "parameters"), jsInvoker),
-      bridging::fromJs<decltype(types.autoSubmit)>(rt, value.getProperty(rt, "autoSubmit"), jsInvoker),
       bridging::fromJs<decltype(types.acceptAiProviders)>(rt, value.getProperty(rt, "acceptAiProviders"), jsInvoker),
       bridging::fromJs<decltype(types.webhookUrl)>(rt, value.getProperty(rt, "webhookUrl"), jsInvoker)};
     return result;
@@ -619,10 +608,6 @@ struct NativeInappRnSdkRequestBridging {
     return bridging::toJs(rt, value);
   }
 
-  static bool autoSubmitToJs(jsi::Runtime &rt, decltype(types.autoSubmit) value) {
-    return bridging::toJs(rt, value);
-  }
-
   static bool acceptAiProvidersToJs(jsi::Runtime &rt, decltype(types.acceptAiProviders) value) {
     return bridging::toJs(rt, value);
   }
@@ -648,9 +633,6 @@ struct NativeInappRnSdkRequestBridging {
     }
     if (value.parameters) {
       result.setProperty(rt, "parameters", bridging::toJs(rt, value.parameters.value(), jsInvoker));
-    }
-    if (value.autoSubmit) {
-      result.setProperty(rt, "autoSubmit", bridging::toJs(rt, value.autoSubmit.value(), jsInvoker));
     }
     if (value.acceptAiProviders) {
       result.setProperty(rt, "acceptAiProviders", bridging::toJs(rt, value.acceptAiProviders.value(), jsInvoker));
@@ -721,14 +703,15 @@ struct NativeInappRnSdkResponseBridging {
 
 #pragma mark - NativeInappRnSdkSessionCreateRequestEvent
 
-template <typename P0, typename P1, typename P2, typename P3>
+template <typename P0, typename P1, typename P2, typename P3, typename P4>
 struct NativeInappRnSdkSessionCreateRequestEvent {
   P0 appId;
   P1 providerId;
-  P2 sessionId;
-  P3 replyId;
+  P2 timestamp;
+  P3 signature;
+  P4 replyId;
   bool operator==(const NativeInappRnSdkSessionCreateRequestEvent &other) const {
-    return appId == other.appId && providerId == other.providerId && sessionId == other.sessionId && replyId == other.replyId;
+    return appId == other.appId && providerId == other.providerId && timestamp == other.timestamp && signature == other.signature && replyId == other.replyId;
   }
 };
 
@@ -743,7 +726,8 @@ struct NativeInappRnSdkSessionCreateRequestEventBridging {
     T result{
       bridging::fromJs<decltype(types.appId)>(rt, value.getProperty(rt, "appId"), jsInvoker),
       bridging::fromJs<decltype(types.providerId)>(rt, value.getProperty(rt, "providerId"), jsInvoker),
-      bridging::fromJs<decltype(types.sessionId)>(rt, value.getProperty(rt, "sessionId"), jsInvoker),
+      bridging::fromJs<decltype(types.timestamp)>(rt, value.getProperty(rt, "timestamp"), jsInvoker),
+      bridging::fromJs<decltype(types.signature)>(rt, value.getProperty(rt, "signature"), jsInvoker),
       bridging::fromJs<decltype(types.replyId)>(rt, value.getProperty(rt, "replyId"), jsInvoker)};
     return result;
   }
@@ -757,7 +741,11 @@ struct NativeInappRnSdkSessionCreateRequestEventBridging {
     return bridging::toJs(rt, value);
   }
 
-  static jsi::String sessionIdToJs(jsi::Runtime &rt, decltype(types.sessionId) value) {
+  static jsi::String timestampToJs(jsi::Runtime &rt, decltype(types.timestamp) value) {
+    return bridging::toJs(rt, value);
+  }
+
+  static jsi::String signatureToJs(jsi::Runtime &rt, decltype(types.signature) value) {
     return bridging::toJs(rt, value);
   }
 
@@ -773,7 +761,8 @@ struct NativeInappRnSdkSessionCreateRequestEventBridging {
     auto result = facebook::jsi::Object(rt);
     result.setProperty(rt, "appId", bridging::toJs(rt, value.appId, jsInvoker));
     result.setProperty(rt, "providerId", bridging::toJs(rt, value.providerId, jsInvoker));
-    result.setProperty(rt, "sessionId", bridging::toJs(rt, value.sessionId, jsInvoker));
+    result.setProperty(rt, "timestamp", bridging::toJs(rt, value.timestamp, jsInvoker));
+    result.setProperty(rt, "signature", bridging::toJs(rt, value.signature, jsInvoker));
     result.setProperty(rt, "replyId", bridging::toJs(rt, value.replyId, jsInvoker));
     return result;
   }
@@ -998,12 +987,15 @@ struct NativeInappRnSdkSessionUpdateRequestEventBridging {
 
 #pragma mark - NativeInappRnSdkVerificationOptions
 
-template <typename P0, typename P1>
+template <typename P0, typename P1, typename P2, typename P3, typename P4>
 struct NativeInappRnSdkVerificationOptions {
   P0 canDeleteCookiesBeforeVerificationStarts;
   P1 canUseAttestorAuthenticationRequest;
+  P2 claimCreationType;
+  P3 canAutoSubmit;
+  P4 isCloseButtonVisible;
   bool operator==(const NativeInappRnSdkVerificationOptions &other) const {
-    return canDeleteCookiesBeforeVerificationStarts == other.canDeleteCookiesBeforeVerificationStarts && canUseAttestorAuthenticationRequest == other.canUseAttestorAuthenticationRequest;
+    return canDeleteCookiesBeforeVerificationStarts == other.canDeleteCookiesBeforeVerificationStarts && canUseAttestorAuthenticationRequest == other.canUseAttestorAuthenticationRequest && claimCreationType == other.claimCreationType && canAutoSubmit == other.canAutoSubmit && isCloseButtonVisible == other.isCloseButtonVisible;
   }
 };
 
@@ -1017,7 +1009,10 @@ struct NativeInappRnSdkVerificationOptionsBridging {
       const std::shared_ptr<CallInvoker> &jsInvoker) {
     T result{
       bridging::fromJs<decltype(types.canDeleteCookiesBeforeVerificationStarts)>(rt, value.getProperty(rt, "canDeleteCookiesBeforeVerificationStarts"), jsInvoker),
-      bridging::fromJs<decltype(types.canUseAttestorAuthenticationRequest)>(rt, value.getProperty(rt, "canUseAttestorAuthenticationRequest"), jsInvoker)};
+      bridging::fromJs<decltype(types.canUseAttestorAuthenticationRequest)>(rt, value.getProperty(rt, "canUseAttestorAuthenticationRequest"), jsInvoker),
+      bridging::fromJs<decltype(types.claimCreationType)>(rt, value.getProperty(rt, "claimCreationType"), jsInvoker),
+      bridging::fromJs<decltype(types.canAutoSubmit)>(rt, value.getProperty(rt, "canAutoSubmit"), jsInvoker),
+      bridging::fromJs<decltype(types.isCloseButtonVisible)>(rt, value.getProperty(rt, "isCloseButtonVisible"), jsInvoker)};
     return result;
   }
 
@@ -1029,6 +1024,18 @@ struct NativeInappRnSdkVerificationOptionsBridging {
   static bool canUseAttestorAuthenticationRequestToJs(jsi::Runtime &rt, decltype(types.canUseAttestorAuthenticationRequest) value) {
     return bridging::toJs(rt, value);
   }
+
+  static jsi::String claimCreationTypeToJs(jsi::Runtime &rt, decltype(types.claimCreationType) value) {
+    return bridging::toJs(rt, value);
+  }
+
+  static bool canAutoSubmitToJs(jsi::Runtime &rt, decltype(types.canAutoSubmit) value) {
+    return bridging::toJs(rt, value);
+  }
+
+  static bool isCloseButtonVisibleToJs(jsi::Runtime &rt, decltype(types.isCloseButtonVisible) value) {
+    return bridging::toJs(rt, value);
+  }
 #endif
 
   static jsi::Object toJs(
@@ -1038,6 +1045,9 @@ struct NativeInappRnSdkVerificationOptionsBridging {
     auto result = facebook::jsi::Object(rt);
     result.setProperty(rt, "canDeleteCookiesBeforeVerificationStarts", bridging::toJs(rt, value.canDeleteCookiesBeforeVerificationStarts, jsInvoker));
     result.setProperty(rt, "canUseAttestorAuthenticationRequest", bridging::toJs(rt, value.canUseAttestorAuthenticationRequest, jsInvoker));
+    result.setProperty(rt, "claimCreationType", bridging::toJs(rt, value.claimCreationType, jsInvoker));
+    result.setProperty(rt, "canAutoSubmit", bridging::toJs(rt, value.canAutoSubmit, jsInvoker));
+    result.setProperty(rt, "isCloseButtonVisible", bridging::toJs(rt, value.isCloseButtonVisible, jsInvoker));
     return result;
   }
 };

@@ -99,12 +99,8 @@ export interface Request {
    */
   parameters?: { [key: string]: string }; // Use index signature for Map
 
-  /**
-   * Whether to automatically submit the proof after generation.
-   */
-  autoSubmit?: boolean; // Optional
-
   acceptAiProviders?: boolean; // Optional
+
   webhookUrl?: string | null; // Optional and nullable
 }
 
@@ -167,12 +163,6 @@ export interface FeatureOptions {
    * Optional, defaults to null.
    */
   attestorBrowserRpcUrl?: string | null;
-
-  /**
-   * Whether response redaction regex escaping is enabled.
-   * Optional, defaults to null.
-   */
-  isResponseRedactionRegexEscapingEnabled?: boolean | null;
 
   /**
    * Whether AI flow is enabled.
@@ -274,9 +264,13 @@ export interface SessionCreateRequestEvent {
    */
   providerId: string;
   /**
-   * The session ID for the verification attempt
+   * The session timestamp for the verification attempt
    */
-  sessionId: string;
+  timestamp: string;
+  /**
+   * The session signature for the verification attempt
+   */
+  signature: string;
   /**
    * internal
    */
@@ -322,6 +316,21 @@ export interface ProviderInformationRequest {
 export interface VerificationOptions {
   canDeleteCookiesBeforeVerificationStarts: boolean;
   canUseAttestorAuthenticationRequest: boolean;
+
+  /**
+   * The type of claim creation to use. Defaults to 'standalone'.
+   */
+  claimCreationType: 'standalone' | 'meChain';
+
+  /**
+   * Whether to automatically submit the proof after generation. Defaults to true.
+   */
+  canAutoSubmit: boolean;
+
+  /**
+   * Whether the close button is visible. Defaults to true.
+   */
+  isCloseButtonVisible: boolean;
 }
 
 export interface VerificationOptionsOptional {

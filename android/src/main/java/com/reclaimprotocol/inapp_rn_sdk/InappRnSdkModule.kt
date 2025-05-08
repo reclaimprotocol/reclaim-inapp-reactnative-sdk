@@ -86,7 +86,6 @@ class InappRnSdkModule(private val reactContext: ReactApplicationContext) :
           }
         }
       }
-      val autoSubmit = getBoolean(request, "autoSubmit")
       val acceptAiProviders = getBoolean(request, "acceptAiProviders")
       val webhookUrl = getString(request, "webhookUrl")
       if (appId.isNullOrBlank() && secret.isNullOrBlank()) {
@@ -100,7 +99,6 @@ class InappRnSdkModule(private val reactContext: ReactApplicationContext) :
             signature = getString(session, "signature") ?: "",
           ),
           parameters = parameters,
-          autoSubmit = autoSubmit ?: false,
           acceptAiProviders = acceptAiProviders ?: false,
           webhookUrl = webhookUrl,
         )
@@ -116,7 +114,6 @@ class InappRnSdkModule(private val reactContext: ReactApplicationContext) :
             signature = getString(session, "signature") ?: "",
           ),
           parameters = parameters,
-          autoSubmit = autoSubmit ?: false,
           acceptAiProviders = acceptAiProviders ?: false,
           webhookUrl = webhookUrl,
         )
@@ -174,6 +171,13 @@ class InappRnSdkModule(private val reactContext: ReactApplicationContext) :
     var options:  ReclaimVerification.VerificationOptions? = null
     if (inputOptions != null) {
       val canUseAttestorAuthRequestProvider = getBoolean(inputOptions, "canUseAttestorAuthenticationRequest") == true;
+      val claimCreationType: ReclaimVerification.VerificationOptions.ClaimCreationType = when (getString(inputOptions, "claimCreationType")) {
+        "meChain" -> ReclaimVerification.VerificationOptions.ClaimCreationType.ME_CHAIN
+          else  -> ReclaimVerification.VerificationOptions.ClaimCreationType.STANDALONE
+
+      }
+      val canAutoSubmit = getBoolean(inputOptions, "canAutoSubmit") ?: true
+      val isCloseButtonVisible = getBoolean(inputOptions, "isCloseButtonVisible") ?: true
       options = ReclaimVerification.VerificationOptions(
         canDeleteCookiesBeforeVerificationStarts = getBoolean(inputOptions, "canDeleteCookiesBeforeVerificationStarts") ?: true,
         attestorAuthRequestProvider = if (canUseAttestorAuthRequestProvider) {
@@ -192,7 +196,10 @@ class InappRnSdkModule(private val reactContext: ReactApplicationContext) :
           }
         } else {
           null
-        }
+        },
+        claimCreationType = claimCreationType,
+        canAutoSubmit = canAutoSubmit,
+        isCloseButtonVisible = isCloseButtonVisible
       )
     }
     reactContext.runOnUiQueueThread {
@@ -269,9 +276,6 @@ class InappRnSdkModule(private val reactContext: ReactApplicationContext) :
             featureOptions, "sessionTimeoutForManualVerificationTrigger"
           )?.toLong(),
           attestorBrowserRpcUrl = getString(featureOptions, "attestorBrowserRpcUrl"),
-          isResponseRedactionRegexEscapingEnabled = getBoolean(
-            featureOptions, "isResponseRedactionRegexEscapingEnabled"
-          ),
           isAIFlowEnabled = getBoolean(featureOptions, "isAIFlowEnabled")
         ),
         logConsumer = if (logConsumer == null) null else ReclaimOverrides.LogConsumer(
@@ -292,21 +296,23 @@ class InappRnSdkModule(private val reactContext: ReactApplicationContext) :
           override fun createSession(
             appId: String,
             providerId: String,
-            sessionId: String,
-            callback: (Result<Boolean>) -> Unit
+            timestamp: String,
+            signature: String,
+            callback: (Result<String>) -> Unit
           ) {
             val args = Arguments.createMap()
             args.putString("appId", appId)
             args.putString("providerId", providerId)
-            args.putString("sessionId", sessionId)
+            args.putString("timestamp", timestamp)
+            args.putString("signature", signature)
             val replyId = UUID.randomUUID().toString()
             args.putString("replyId", replyId)
-            replyHandlers[replyId] = callback
+            replyWithString[replyId] = callback
             emitOnSessionCreateRequest(args)
           }
 
           override fun logSession(
-            appId: String, providerId: String, sessionId: String, logType: String
+            appId: String, providerId: String, sessionId: String, logType: String, metadata: Map<String, Any?>?
           ) {
             val args = Arguments.createMap()
             args.putString("appId", appId)

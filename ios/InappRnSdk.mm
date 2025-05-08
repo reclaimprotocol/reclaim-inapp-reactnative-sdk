@@ -42,10 +42,6 @@ Api *api = [[Api alloc] init];
 - (void)startVerification:(JS::NativeInappRnSdk::Request &)request resolve:(nonnull RCTPromiseResolveBlock)resolve reject:(nonnull RCTPromiseRejectBlock)reject {
   NSLog(@"[InappRnSdk] starting verification");
   
-  bool autoSubmit = false;
-  if (request.autoSubmit().has_value()) {
-    autoSubmit = request.autoSubmit().value();
-  }
   bool acceptAiProviders = false;
   if (request.acceptAiProviders().has_value()) {
     acceptAiProviders = request.acceptAiProviders().value();
@@ -85,7 +81,7 @@ Api *api = [[Api alloc] init];
   }
   
   NSLog(@"[InappRnSdk] starting verification now");
-  [api startVerificationWithAppId:request.appId() secret:request.secret() providerId:request.providerId() sessionTimestamp:timestamp sessionSessionId:sessionId sessionSignature:signature context:request.contextString() parameters:parameters autoSubmit:autoSubmit acceptAiProviders:acceptAiProviders webhookUrl:request.webhookUrl() completionHandler:^(NSDictionary<NSString *,id> * _Nullable result, NSError * _Nullable error) {
+  [api startVerificationWithAppId:request.appId() secret:request.secret() providerId:request.providerId() sessionTimestamp:timestamp sessionSessionId:sessionId sessionSignature:signature context:request.contextString() parameters:parameters acceptAiProviders:acceptAiProviders webhookUrl:request.webhookUrl() completionHandler:^(NSDictionary<NSString *,id> * _Nullable result, NSError * _Nullable error) {
     if (error != nil) {
       NSLog(@"[InappRnSdk] Api Error: %@", error);
       reject(@"VERIFICATION_ERROR", @"Verification Error", error);
@@ -136,7 +132,7 @@ Api *api = [[Api alloc] init];
   OverridenFeatureOptions * _Nullable overridenFeatureOptions = nil;
   if (overrides.featureOptions().has_value()) {
     JS::NativeInappRnSdk::FeatureOptions featureOptions = overrides.featureOptions().value();
-    overridenFeatureOptions = [[OverridenFeatureOptions alloc] initWithCookiePersist:nil singleReclaimRequest:nil idleTimeThresholdForManualVerificationTrigger:nil sessionTimeoutForManualVerificationTrigger:nil attestorBrowserRpcUrl:nil isResponseRedactionRegexEscapingEnabled:nil isAIFlowEnabled:nil];
+    overridenFeatureOptions = [[OverridenFeatureOptions alloc] initWithCookiePersist:nil singleReclaimRequest:nil idleTimeThresholdForManualVerificationTrigger:nil sessionTimeoutForManualVerificationTrigger:nil attestorBrowserRpcUrl:nil isAIFlowEnabled:nil];
     
     if (featureOptions.cookiePersist().has_value()) {
       overridenFeatureOptions.cookiePersist = [NSNumber numberWithBool:featureOptions.cookiePersist().value()];
@@ -152,9 +148,6 @@ Api *api = [[Api alloc] init];
     }
     if (featureOptions.attestorBrowserRpcUrl() != nil && featureOptions.attestorBrowserRpcUrl().length > 0) {
       overridenFeatureOptions.attestorBrowserRpcUrl = featureOptions.attestorBrowserRpcUrl();
-    }
-    if (featureOptions.isResponseRedactionRegexEscapingEnabled().has_value()) {
-      overridenFeatureOptions.isResponseRedactionRegexEscapingEnabled = [NSNumber numberWithBool:featureOptions.isResponseRedactionRegexEscapingEnabled().value()];
     }
     if (featureOptions.isAIFlowEnabled().has_value()) {
       overridenFeatureOptions.isAIFlowEnabled = [NSNumber numberWithBool:featureOptions.isAIFlowEnabled().value()];
@@ -182,11 +175,12 @@ Api *api = [[Api alloc] init];
   
   OverridenSessionManagement * _Nullable sessionManagement;
   if (overrides.sessionManagement().has_value()) {
-    sessionManagement = [[OverridenSessionManagement alloc] initWithHandler:[[OverridenSessionHandler alloc] initWith_createSession:^(NSString * _Nonnull appId, NSString * _Nonnull providerId, NSString * _Nonnull sessionId, NSString * _Nonnull replyId) {
+    sessionManagement = [[OverridenSessionManagement alloc] initWithHandler:[[OverridenSessionHandler alloc] initWith_createSession:^(NSString * _Nonnull appId, NSString * _Nonnull providerId, NSString * _Nonnull timestamp, NSString * _Nonnull signature, NSString * _Nonnull replyId) {
       [self emitOnSessionCreateRequest:@{
         @"appId": appId,
         @"providerId": providerId,
-        @"sessionId": sessionId,
+        @"timestamp": timestamp,
+        @"signature": signature,
         @"replyId": replyId
       }];
     } _updateSession:^(NSString * _Nonnull sessionId, NSString * _Nonnull status, NSString * _Nonnull replyId) {
@@ -243,16 +237,17 @@ Api *api = [[Api alloc] init];
   ReclaimApiVerificationOptions * _Nullable options = nil;
   if (args.options().has_value()) {
     JS::NativeInappRnSdk::VerificationOptions inputOptions = args.options().value();
+    
     if (inputOptions.canUseAttestorAuthenticationRequest()) {
       options = [[ReclaimApiVerificationOptions alloc] initWithCanDeleteCookiesBeforeVerificationStarts:inputOptions.canDeleteCookiesBeforeVerificationStarts() fetchAttestorAuthenticationRequest:^(NSString * _Nonnull reclaimHttpProviderJsonString, NSString * _Nonnull replyId) {
         [self emitOnReclaimAttestorAuthRequest:@{
           @"reclaimHttpProviderJsonString": reclaimHttpProviderJsonString,
           @"replyId": replyId
         }];
-      }
+      } claimCreationType:inputOptions.claimCreationType() canAutoSubmit:inputOptions.canAutoSubmit() isCloseButtonVisible:inputOptions.isCloseButtonVisible()
       ];
     } else {
-      options = [[ReclaimApiVerificationOptions alloc] initWithCanDeleteCookiesBeforeVerificationStarts:inputOptions.canDeleteCookiesBeforeVerificationStarts() fetchAttestorAuthenticationRequest:nil];
+      options = [[ReclaimApiVerificationOptions alloc] initWithCanDeleteCookiesBeforeVerificationStarts:inputOptions.canDeleteCookiesBeforeVerificationStarts() fetchAttestorAuthenticationRequest:nil claimCreationType:inputOptions.claimCreationType() canAutoSubmit:inputOptions.canAutoSubmit() isCloseButtonVisible:inputOptions.isCloseButtonVisible()];
     }
     
   }

@@ -125,6 +125,16 @@ export namespace ReclaimVerification {
     fetchAttestorAuthenticationRequest: (
       reclaimHttpProviderJsonString: string
     ) => Promise<string>;
+    claimCreationType?: 'standalone' | 'meChain'; // Optional
+    /**
+     * Whether to automatically submit the proof after generation. Defaults to true.
+     */
+    canAutoSubmit?: boolean; // Optional
+
+    /**
+     * Whether the close button is visible. Defaults to true.
+     */
+    isCloseButtonVisible?: boolean; // Optional
   }
 
   export namespace Overrides {
@@ -156,9 +166,14 @@ export namespace ReclaimVerification {
     }
     export interface SessionManagement {
       onLog: (event: NativeReclaimInappModuleTypes.SessionLogEvent) => void;
+      /**
+       * Receive request for creating a session and return a session id.
+       * @param event Receive request for creating a session and return a session id.
+       * @returns A session id.
+       */
       onSessionCreateRequest: (
         event: NativeReclaimInappModuleTypes.SessionCreateRequestEvent
-      ) => Promise<boolean>;
+      ) => Promise<string>;
       onSessionUpdateRequest: (
         event: NativeReclaimInappModuleTypes.SessionUpdateRequestEvent
       ) => Promise<boolean>;
@@ -402,10 +417,10 @@ export class PlatformImpl extends ReclaimVerification.Platform {
     let providerOverride = !provider
       ? null
       : {
-          url: provider?.url,
-          jsonString: provider?.jsonString,
-          canFetchProviderInformationFromHost: !!providerCallback,
-        };
+        url: provider?.url,
+        jsonString: provider?.jsonString,
+        canFetchProviderInformationFromHost: !!providerCallback,
+      };
     if (providerCallback) {
       this.disposeProviderRequestListener();
       let providerRequestSubscription =
@@ -428,10 +443,10 @@ export class PlatformImpl extends ReclaimVerification.Platform {
     let logConsumerRequest = !logConsumer
       ? undefined
       : {
-          enableLogHandler: !!onLogsListener,
-          canSdkCollectTelemetry: logConsumer?.canSdkCollectTelemetry,
-          canSdkPrintLogs: logConsumer?.canSdkPrintLogs,
-        };
+        enableLogHandler: !!onLogsListener,
+        canSdkCollectTelemetry: logConsumer?.canSdkCollectTelemetry,
+        canSdkPrintLogs: logConsumer?.canSdkPrintLogs,
+      };
     if (onLogsListener) {
       this.disposeLogListener();
       const cancel = () => {
@@ -446,9 +461,9 @@ export class PlatformImpl extends ReclaimVerification.Platform {
     let sessionManagementRequest = !sessionManagement
       ? undefined
       : {
-          // A handler is provided, so we don't let SDK manage sessions
-          enableSdkSessionManagement: false,
-        };
+        // A handler is provided, so we don't let SDK manage sessions
+        enableSdkSessionManagement: false,
+      };
     if (sessionManagement) {
       this.disposeSessionManagement();
       let sessionCreateSubscription =
@@ -456,7 +471,7 @@ export class PlatformImpl extends ReclaimVerification.Platform {
           const replyId = event.replyId;
           try {
             let result = await sessionManagement.onSessionCreateRequest(event);
-            NativeReclaimInappModule.reply(replyId, result);
+            NativeReclaimInappModule.replyWithString(replyId, result);
           } catch (error) {
             console.error(error);
             NativeReclaimInappModule.reply(replyId, false);
@@ -535,6 +550,9 @@ export class PlatformImpl extends ReclaimVerification.Platform {
           options.canDeleteCookiesBeforeVerificationStarts,
         canUseAttestorAuthenticationRequest:
           canUseAttestorAuthenticationRequest,
+        claimCreationType: options.claimCreationType ?? 'standalone',
+        canAutoSubmit: options.canAutoSubmit ?? true,
+        isCloseButtonVisible: options.isCloseButtonVisible ?? true,
       };
       if (canUseAttestorAuthenticationRequest) {
         this.disposeAttestorAuthRequestListener();

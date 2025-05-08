@@ -70,6 +70,15 @@ export declare namespace ReclaimVerification {
     interface VerificationOptions {
         canDeleteCookiesBeforeVerificationStarts: boolean;
         fetchAttestorAuthenticationRequest: (reclaimHttpProviderJsonString: string) => Promise<string>;
+        claimCreationType?: 'standalone' | 'meChain';
+        /**
+         * Whether to automatically submit the proof after generation. Defaults to true.
+         */
+        canAutoSubmit?: boolean;
+        /**
+         * Whether the close button is visible. Defaults to true.
+         */
+        isCloseButtonVisible?: boolean;
     }
     namespace Overrides {
         interface ProviderInformation {
@@ -96,7 +105,12 @@ export declare namespace ReclaimVerification {
         }
         interface SessionManagement {
             onLog: (event: NativeReclaimInappModuleTypes.SessionLogEvent) => void;
-            onSessionCreateRequest: (event: NativeReclaimInappModuleTypes.SessionCreateRequestEvent) => Promise<boolean>;
+            /**
+             * Receive request for creating a session and return a session id.
+             * @param event Receive request for creating a session and return a session id.
+             * @returns A session id.
+             */
+            onSessionCreateRequest: (event: NativeReclaimInappModuleTypes.SessionCreateRequestEvent) => Promise<string>;
             onSessionUpdateRequest: (event: NativeReclaimInappModuleTypes.SessionUpdateRequestEvent) => Promise<boolean>;
         }
         type ReclaimAppInfo = NativeReclaimInappModuleTypes.ReclaimAppInfo;
