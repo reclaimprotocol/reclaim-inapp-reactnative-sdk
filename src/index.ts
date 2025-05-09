@@ -474,7 +474,8 @@ export class PlatformImpl extends ReclaimVerification.Platform {
             NativeReclaimInappModule.replyWithString(replyId, result);
           } catch (error) {
             console.error(error);
-            NativeReclaimInappModule.reply(replyId, false);
+            // Send an empty string to indicate failure
+            NativeReclaimInappModule.replyWithString(replyId, '');
           }
         });
       let sessionUpdateSubscription =
