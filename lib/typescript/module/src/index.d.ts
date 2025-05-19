@@ -12,6 +12,7 @@ export declare class ReclaimVerification {
     private static defaultPlatform;
     constructor(platform?: ReclaimVerification.Platform);
     startVerification(request: ReclaimVerification.Request): Promise<ReclaimVerification.Response>;
+    startVerificationFromUrl(requestUrl: string): Promise<ReclaimVerification.Response>;
     ping(): Promise<boolean>;
     setOverrides(overrides: ReclaimVerification.OverrideConfig): Promise<void>;
     clearAllOverrides(): Promise<void>;
