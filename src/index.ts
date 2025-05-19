@@ -30,6 +30,12 @@ export class ReclaimVerification {
     return this.platform.startVerification(request);
   }
 
+  public async startVerificationFromUrl(
+    requestUrl: string
+  ): Promise<ReclaimVerification.Response> {
+    return this.platform.startVerificationFromUrl(requestUrl);
+  }
+
   public async ping(): Promise<boolean> {
     return this.platform.ping();
   }

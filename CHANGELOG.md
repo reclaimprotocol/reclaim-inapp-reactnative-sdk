@@ -1,3 +1,7 @@
+## 0.7.0
+
+* Updates inapp module dependency to 0.7.0
+
 ## 0.6.0
 
 * Update claim creation updates UI
