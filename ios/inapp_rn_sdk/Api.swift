@@ -100,7 +100,6 @@ import ReclaimInAppSdk
         session: session,
         context: context ?? "",
         parameters: parameters ?? [String:String](),
-        autoSubmit: true, // unused.
         acceptAiProviders: acceptAiProviders,
         webhookUrl: webhookUrl
       ))

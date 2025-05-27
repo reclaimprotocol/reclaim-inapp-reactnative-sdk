@@ -1,3 +1,7 @@
+## 0.7.1
+
+* Fix ios build failure caused by a patch in module that broke api
+
 ## 0.7.0
 
 * Updates inapp module dependency to 0.7.0

@@ -290,9 +290,15 @@ error.reason
 error.innerError
 ```
 
+## Troubleshooting
+
+### Build failures for iOS in 0.7.0
+
+- An accidental breaking change causes 0.7.0 to fail with build failures for ios. 0.7.1 fixes this issue.
+
 ## Migration
 
-- Migration steps for [0.7.0](https://github.com/reclaimprotocol/reclaim-inapp-reactnative-sdk/blob/main/documentation/migration.md#070)
+- Migration steps for [0.7.1](https://github.com/reclaimprotocol/reclaim-inapp-reactnative-sdk/blob/main/documentation/migration.md#071)
 - Migration steps for [0.6.0](https://github.com/reclaimprotocol/reclaim-inapp-reactnative-sdk/blob/main/documentation/migration.md#060)
 - Migration steps for [0.3.1](https://github.com/reclaimprotocol/reclaim-inapp-reactnative-sdk/blob/main/documentation/migration.md#031)
 - Migration steps for [0.3.0](https://github.com/reclaimprotocol/reclaim-inapp-reactnative-sdk/blob/main/documentation/migration.md#030)
