@@ -1,3 +1,7 @@
+## 0.7.2
+
+* Fix ios build failure caused by swift 6.1's formatting in Api.swift when using swift <6.1
+
 ## 0.7.1
 
 * Fix ios build failure caused by a patch in module that broke api
