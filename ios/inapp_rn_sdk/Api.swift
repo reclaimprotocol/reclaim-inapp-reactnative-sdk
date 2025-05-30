@@ -512,7 +512,7 @@ public typealias ReclaimVerificationOptionFetchAttestorAuthRequestHandler = (
       attestorAuthRequestProvider: attestorAuthRequestProvider,
       claimCreationType: claimCreationTypeApi(),
       canAutoSubmit: canAutoSubmit,
-      isCloseButtonVisible: isCloseButtonVisible,
+      isCloseButtonVisible: isCloseButtonVisible
     )
   }
   
