@@ -22,6 +22,7 @@ const reclaimVerification = new ReclaimVerification();
 
 export default function App() {
   const [providerId, setProviderId] = useState('6d3f6753-7ee6-49ee-a545-62f1b1822ae5');
+  const [verificationUrl, setVerificationUrl] = useState('');
   const [result, setResult] = useState<ReclaimVerification.Response | null>(null);
   const handleStartVerification = async () => {
     if (!providerId) {
@@ -79,6 +80,58 @@ export default function App() {
       }
     }
   };
+
+  const handleStartVerificationFromUrl = async () => {
+    if (!verificationUrl) {
+      Snackbar.show({
+        text: 'Verification URL is required',
+        duration: Snackbar.LENGTH_LONG,
+      });
+      return;
+    }
+
+    try {
+      const verificationResult = await reclaimVerification.startVerificationFromUrl(verificationUrl);
+      setResult(verificationResult);
+    } catch (error) {
+      console.info({
+        verificationError: error,
+      });
+      if (error instanceof ReclaimVerification.ReclaimVerificationException) {
+        switch (error.type) {
+          case ReclaimVerification.ExceptionType.Cancelled:
+            Snackbar.show({
+              text: 'Verification cancelled',
+              duration: Snackbar.LENGTH_LONG,
+            });
+            break;
+          case ReclaimVerification.ExceptionType.Dismissed:
+            Snackbar.show({
+              text: 'Verification dismissed',
+              duration: Snackbar.LENGTH_LONG,
+            });
+            break;
+          case ReclaimVerification.ExceptionType.SessionExpired:
+            Snackbar.show({
+              text: 'Verification session expired',
+              duration: Snackbar.LENGTH_LONG,
+            });
+            break;
+          case ReclaimVerification.ExceptionType.Failed:
+          default:
+            Snackbar.show({
+              text: 'Verification failed',
+              duration: Snackbar.LENGTH_LONG,
+            });
+        }
+      } else {
+        Snackbar.show({
+          text: error instanceof Error ? error.message : 'An unknown verification error occurred',
+          duration: Snackbar.LENGTH_LONG,
+        });
+      }
+    }
+  }
 
   const copyProof = async () => {
     if (!result) {
@@ -138,12 +191,33 @@ export default function App() {
           onChangeText={setProviderId}
           placeholder="Enter Provider ID"
           placeholderTextColor="#666"
+          numberOfLines={1}
+          multiline={false}
         />
 
         <Button
           title="Start Verification"
           onPress={handleStartVerification}
         />
+
+        <Text style={styles.orLabel}>OR</Text>
+
+        <TextInput
+          style={styles.input}
+          value={verificationUrl}
+          onChangeText={setVerificationUrl}
+          placeholder="Enter Verification URL"
+          placeholderTextColor="#666"
+          numberOfLines={1}
+          multiline={false}
+        />
+
+        <Button
+          title="Start Verification from URL"
+          onPress={handleStartVerificationFromUrl}
+        />
+
+        <Text style={styles.button} ></Text>
 
         <Button
           title="Ping"
@@ -185,6 +259,13 @@ const styles = StyleSheet.create({
   content: {
     flex: 1,
     padding: 16,
+  },
+  orLabel: {
+    flex: 0,
+    padding: 6,
+  },
+  button: {
+    marginBottom: 6,
   },
   input: {
     borderWidth: 1,

@@ -1,3 +1,8 @@
+## 0.7.3
+
+* Fix android verification
+* Update android inapp module to 0.7.3
+
 ## 0.7.2
 
 * Fix ios build failure caused by swift 6.1's formatting in Api.swift when using swift <6.1
