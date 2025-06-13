@@ -147,7 +147,10 @@ export default function App() {
           },
           onSessionCreateRequest: async (event) => {
             console.log({ "reclaim.session.createRequest": event });
-            return true;
+            return {
+              sessionId: '123',
+              resolvedProviderVersion: '1.0.0',
+            };
           },
           onSessionUpdateRequest: async (event) => {
             console.log({ "reclaim.session.updateRequest": event });
