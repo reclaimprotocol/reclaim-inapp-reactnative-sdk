@@ -118,7 +118,7 @@ dependencies {
   implementation "org.jetbrains.kotlin:kotlin-stdlib:$kotlin_version"
 
   //noinspection UseTomlInstead
-  implementation "org.reclaimprotocol:inapp_sdk:0.7.0"
+  implementation "org.reclaimprotocol:inapp_sdk:0.7.3"
 }
 
 if (isNewArchitectureEnabled()) {
