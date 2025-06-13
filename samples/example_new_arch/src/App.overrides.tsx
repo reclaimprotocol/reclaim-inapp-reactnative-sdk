@@ -11,11 +11,12 @@ import {
 } from 'react-native';
 import { ReclaimVerification } from '@reclaimprotocol/inapp-rn-sdk';
 import Snackbar from 'react-native-snackbar';
-import { REACT_APP_RECLAIM_APP_ID, REACT_APP_RECLAIM_APP_SECRET } from '@env';
+import { REACT_APP_RECLAIM_APP_ID, REACT_APP_RECLAIM_APP_SECRET, REACT_APP_RECLAIM_CAPABILITY_ACCESS_TOKEN } from '@env';
 
 const config = {
   REACT_APP_RECLAIM_APP_ID: REACT_APP_RECLAIM_APP_ID,
   REACT_APP_RECLAIM_APP_SECRET: REACT_APP_RECLAIM_APP_SECRET,
+  REACT_APP_RECLAIM_CAPABILITY_ACCESS_TOKEN: REACT_APP_RECLAIM_CAPABILITY_ACCESS_TOKEN,
 }
 const reclaimVerification = new ReclaimVerification();
 
@@ -27,7 +28,7 @@ export default function App() {
       // Advanced Usage: Use ReclaimVerification.setOverrides for overriding sdk
       await reclaimVerification.setOverrides({
         provider: {
-          jsonString: await (async () => {
+          callback: async () => {
             // With a response from an HTTP call
             // const response = await fetch(`https://api.reclaimprotocol.org/api/providers/${providerId}`);
             // const responseJson =  await response.json();
@@ -119,7 +120,7 @@ export default function App() {
               ],
               "useIncognitoWebview": false
             });
-          })()
+          },
         },
         logConsumer: {
           canSdkCollectTelemetry: false,
@@ -138,7 +139,6 @@ export default function App() {
           idleTimeThresholdForManualVerificationTrigger: 2,
           sessionTimeoutForManualVerificationTrigger: 180,
           attestorBrowserRpcUrl: 'https://attestor.reclaimprotocol.org/browser-rpc',
-          isResponseRedactionRegexEscapingEnabled: false,
           isAIFlowEnabled: false,
         },
         sessionManagement: {
@@ -147,14 +147,17 @@ export default function App() {
           },
           onSessionCreateRequest: async (event) => {
             console.log({ "reclaim.session.createRequest": event });
-            return true;
+            return {
+              sessionId: '123',
+              resolvedProviderVersion: '1.0.0',
+            } as any;
           },
           onSessionUpdateRequest: async (event) => {
             console.log({ "reclaim.session.updateRequest": event });
             return true;
           },
         },
-        capabilityAccessToken: "<REQUIRED_FOR_SOME_OVERRIDES>"
+        capabilityAccessToken: config.REACT_APP_RECLAIM_CAPABILITY_ACCESS_TOKEN,
       });
       console.info('Overrides set');
     } catch (error: any) {
