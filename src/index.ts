@@ -210,8 +210,8 @@ export namespace ReclaimVerification {
     }
 
     export interface SessionInitResponse {
-      sessionId: String,
-      resolvedProviderVersion: String
+      sessionId: string,
+      resolvedProviderVersion: string
     }
 
     export type ReclaimAppInfo = NativeReclaimInappModuleTypes.ReclaimAppInfo;

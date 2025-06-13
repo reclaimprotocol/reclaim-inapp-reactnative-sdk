@@ -106,8 +106,8 @@ export interface Request {
 }
 
 export interface ProviderVersion {
-  resolvedVersion: string,
-  versionExpression: string
+  resolvedVersion: string;
+  versionExpression: string;
 }
 
 /**
