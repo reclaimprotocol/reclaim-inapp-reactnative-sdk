@@ -1,5 +1,6 @@
 package com.reclaimprotocol.inapp_rn_sdk
 
+import android.util.JsonReader
 import android.util.Log
 import com.facebook.react.bridge.Arguments
 import com.facebook.react.bridge.Promise
@@ -12,6 +13,7 @@ import org.json.JSONObject
 import org.reclaimprotocol.inapp_sdk.ReclaimOverrides
 import org.reclaimprotocol.inapp_sdk.ReclaimSessionStatus
 import org.reclaimprotocol.inapp_sdk.ReclaimVerification
+import org.reclaimprotocol.inapp_sdk.ReclaimVerification.Request.ProviderVersion
 import java.util.UUID
 
 @ReactModule(name = InappRnSdkModule.NAME)
@@ -86,8 +88,12 @@ class InappRnSdkModule(private val reactContext: ReactApplicationContext) :
           }
         }
       }
-      val acceptAiProviders = getBoolean(request, "acceptAiProviders")
-      val webhookUrl = getString(request, "webhookUrl")
+      val providerVersion = request.getMap("providerVersion").let { providerVersion ->
+        ProviderVersion(
+          resolvedVersion = getString(providerVersion, "resolvedVersion") ?: "",
+          versionExpression = getString(providerVersion, "versionExpression") ?: ""
+        )
+      }
       if (appId.isNullOrBlank() && secret.isNullOrBlank()) {
         verificationRequest = ReclaimVerification.Request.fromManifestMetaData(
           context = reactContext.applicationContext,
@@ -99,8 +105,7 @@ class InappRnSdkModule(private val reactContext: ReactApplicationContext) :
             signature = getString(session, "signature") ?: "",
           ),
           parameters = parameters,
-          acceptAiProviders = acceptAiProviders ?: false,
-          webhookUrl = webhookUrl,
+          providerVersion = providerVersion,
         )
       } else {
         verificationRequest = ReclaimVerification.Request(
@@ -114,8 +119,7 @@ class InappRnSdkModule(private val reactContext: ReactApplicationContext) :
             signature = getString(session, "signature") ?: "",
           ),
           parameters = parameters,
-          acceptAiProviders = acceptAiProviders ?: false,
-          webhookUrl = webhookUrl,
+          providerVersion = providerVersion,
         )
       }
       ReclaimVerification.startVerification(
@@ -136,6 +140,20 @@ class InappRnSdkModule(private val reactContext: ReactApplicationContext) :
     reactContext.runOnUiQueueThread {
       ReclaimVerification.startVerificationFromUrl(
         context = reactContext.applicationContext, requestUrl = requestUrl, handler = handler
+      )
+    }
+  }
+
+  override fun startVerificationFromJson(templateJsonString: String, promise: Promise?) {
+    Log.d(NAME, "startVerificationFromJson")
+    val templateJson = HashMap<Any?, Any?>()
+    JSONObject(templateJsonString).toMap().forEach { (key, value) ->
+      templateJson[key] = value
+    }
+    val handler = ReclaimVerificationResultHandlerImpl(promise)
+    reactContext.runOnUiQueueThread {
+      ReclaimVerification.startVerificationFromJson(
+        context = reactContext.applicationContext, template = templateJson, handler = handler
       )
     }
   }
@@ -276,7 +294,9 @@ class InappRnSdkModule(private val reactContext: ReactApplicationContext) :
             featureOptions, "sessionTimeoutForManualVerificationTrigger"
           )?.toLong(),
           attestorBrowserRpcUrl = getString(featureOptions, "attestorBrowserRpcUrl"),
-          isAIFlowEnabled = getBoolean(featureOptions, "isAIFlowEnabled")
+          isAIFlowEnabled = getBoolean(featureOptions, "isAIFlowEnabled"),
+          manualReviewMessage = getString(featureOptions, "manualReviewMessage"),
+          loginPromptMessage = getString(featureOptions, "loginPromptMessage")
         ),
         logConsumer = if (logConsumer == null) null else ReclaimOverrides.LogConsumer(
           logHandler = if (getBoolean(logConsumer, "enableLogHandler") != true) null else object :
@@ -298,16 +318,31 @@ class InappRnSdkModule(private val reactContext: ReactApplicationContext) :
             providerId: String,
             timestamp: String,
             signature: String,
-            callback: (Result<String>) -> Unit
+            providerVersion: String,
+            callback: (Result<ReclaimOverrides.SessionManagement.InitResponse>) -> Unit
           ) {
             val args = Arguments.createMap()
             args.putString("appId", appId)
             args.putString("providerId", providerId)
             args.putString("timestamp", timestamp)
             args.putString("signature", signature)
+            args.putString("providerVersion", providerVersion)
             val replyId = UUID.randomUUID().toString()
             args.putString("replyId", replyId)
-            replyWithString[replyId] = callback
+            replyWithString[replyId] = { it ->
+              callback(it.fold(
+                onSuccess = { value ->
+                  val value = JSONObject(value)
+                  Result.success(ReclaimOverrides.SessionManagement.InitResponse(
+                    sessionId = value.getString("sessionId"),
+                    resolvedProviderVersion = value.getString("resolvedProviderVersion")
+                  ))
+                },
+                onFailure = { error ->
+                  Result.failure(error)
+                }
+              ))
+            }
             emitOnSessionCreateRequest(args)
           }
 

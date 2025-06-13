@@ -23,6 +23,12 @@ static jsi::Value __hostFunction_NativeInappRnSdkCxxSpecJSI_startVerificationFro
     count <= 0 ? throw jsi::JSError(rt, "Expected argument in position 0 to be passed") : args[0].asString(rt)
   );
 }
+static jsi::Value __hostFunction_NativeInappRnSdkCxxSpecJSI_startVerificationFromJson(jsi::Runtime &rt, TurboModule &turboModule, const jsi::Value* args, size_t count) {
+  return static_cast<NativeInappRnSdkCxxSpecJSI *>(&turboModule)->startVerificationFromJson(
+    rt,
+    count <= 0 ? throw jsi::JSError(rt, "Expected argument in position 0 to be passed") : args[0].asString(rt)
+  );
+}
 static jsi::Value __hostFunction_NativeInappRnSdkCxxSpecJSI_setOverrides(jsi::Runtime &rt, TurboModule &turboModule, const jsi::Value* args, size_t count) {
   return static_cast<NativeInappRnSdkCxxSpecJSI *>(&turboModule)->setOverrides(
     rt,
@@ -66,6 +72,7 @@ NativeInappRnSdkCxxSpecJSI::NativeInappRnSdkCxxSpecJSI(std::shared_ptr<CallInvok
   : TurboModule("InappRnSdk", jsInvoker) {
   methodMap_["startVerification"] = MethodMetadata {1, __hostFunction_NativeInappRnSdkCxxSpecJSI_startVerification};
   methodMap_["startVerificationFromUrl"] = MethodMetadata {1, __hostFunction_NativeInappRnSdkCxxSpecJSI_startVerificationFromUrl};
+  methodMap_["startVerificationFromJson"] = MethodMetadata {1, __hostFunction_NativeInappRnSdkCxxSpecJSI_startVerificationFromJson};
   methodMap_["setOverrides"] = MethodMetadata {1, __hostFunction_NativeInappRnSdkCxxSpecJSI_setOverrides};
   methodMap_["clearAllOverrides"] = MethodMetadata {0, __hostFunction_NativeInappRnSdkCxxSpecJSI_clearAllOverrides};
   methodMap_["setVerificationOptions"] = MethodMetadata {1, __hostFunction_NativeInappRnSdkCxxSpecJSI_setVerificationOptions};

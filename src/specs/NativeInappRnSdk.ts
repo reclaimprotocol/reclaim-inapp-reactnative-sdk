@@ -99,9 +99,15 @@ export interface Request {
    */
   parameters?: { [key: string]: string }; // Use index signature for Map
 
-  acceptAiProviders?: boolean; // Optional
+  /**
+   * The version of the provider to use in verification
+   */
+  providerVersion?: ProviderVersion | null; // Optional
+}
 
-  webhookUrl?: string | null; // Optional and nullable
+export interface ProviderVersion {
+  resolvedVersion: string,
+  versionExpression: string
 }
 
 /**
@@ -171,6 +177,17 @@ export interface FeatureOptions {
    * @deprecated Removed.
    */
   isAIFlowEnabled?: boolean | null;
+
+  /**
+   * Message to display when the user submitting a verification session for manual review.
+   * Optional, defaults to null.
+   */
+  manualReviewMessage?: string | null;
+
+  /**
+   * Message to display when the user is logging in.
+   */
+  loginPromptMessage?: string | null;
 }
 
 export interface LogConsumer {
@@ -272,6 +289,10 @@ export interface SessionCreateRequestEvent {
    */
   signature: string;
   /**
+   * The provider version for the verification attempt
+   */
+  providerVersion: string;
+  /**
    * internal
    */
   readonly replyId: string;
@@ -348,6 +369,7 @@ export interface ReclaimAttestorAuthRequest {
 export interface Spec extends TurboModule {
   startVerification(request: Request): Promise<Response>;
   startVerificationFromUrl(requestUrl: string): Promise<Response>;
+  startVerificationFromJson(templateJsonString: string): Promise<Response>;
   setOverrides(overrides: Overrides): Promise<void>;
   clearAllOverrides(): Promise<void>;
   setVerificationOptions(args: VerificationOptionsOptional): Promise<void>;

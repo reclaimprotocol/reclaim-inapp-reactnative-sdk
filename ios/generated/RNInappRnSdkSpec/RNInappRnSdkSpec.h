@@ -51,6 +51,22 @@ namespace JS {
 @end
 namespace JS {
   namespace NativeInappRnSdk {
+    struct ProviderVersion {
+      NSString *resolvedVersion() const;
+      NSString *versionExpression() const;
+
+      ProviderVersion(NSDictionary *const v) : _v(v) {}
+    private:
+      NSDictionary *_v;
+    };
+  }
+}
+
+@interface RCTCxxConvert (NativeInappRnSdk_ProviderVersion)
++ (RCTManagedPointer *)JS_NativeInappRnSdk_ProviderVersion:(id)json;
+@end
+namespace JS {
+  namespace NativeInappRnSdk {
     struct Request {
       NSString *appId() const;
       NSString *secret() const;
@@ -58,8 +74,7 @@ namespace JS {
       std::optional<JS::NativeInappRnSdk::SessionInformation> session() const;
       NSString *contextString() const;
       id<NSObject> _Nullable parameters() const;
-      std::optional<bool> acceptAiProviders() const;
-      NSString *webhookUrl() const;
+      std::optional<JS::NativeInappRnSdk::ProviderVersion> providerVersion() const;
 
       Request(NSDictionary *const v) : _v(v) {}
     private:
@@ -97,6 +112,8 @@ namespace JS {
       std::optional<double> sessionTimeoutForManualVerificationTrigger() const;
       NSString *attestorBrowserRpcUrl() const;
       std::optional<bool> isAIFlowEnabled() const;
+      NSString *manualReviewMessage() const;
+      NSString *loginPromptMessage() const;
 
       FeatureOptions(NSDictionary *const v) : _v(v) {}
     private:
@@ -219,6 +236,9 @@ namespace JS {
 - (void)startVerificationFromUrl:(NSString *)requestUrl
                          resolve:(RCTPromiseResolveBlock)resolve
                           reject:(RCTPromiseRejectBlock)reject;
+- (void)startVerificationFromJson:(NSString *)templateJsonString
+                          resolve:(RCTPromiseResolveBlock)resolve
+                           reject:(RCTPromiseRejectBlock)reject;
 - (void)setOverrides:(JS::NativeInappRnSdk::Overrides &)overrides
              resolve:(RCTPromiseResolveBlock)resolve
               reject:(RCTPromiseRejectBlock)reject;
@@ -275,6 +295,16 @@ inline NSString *JS::NativeInappRnSdk::SessionInformation::signature() const
   id const p = _v[@"signature"];
   return RCTBridgingToString(p);
 }
+inline NSString *JS::NativeInappRnSdk::ProviderVersion::resolvedVersion() const
+{
+  id const p = _v[@"resolvedVersion"];
+  return RCTBridgingToString(p);
+}
+inline NSString *JS::NativeInappRnSdk::ProviderVersion::versionExpression() const
+{
+  id const p = _v[@"versionExpression"];
+  return RCTBridgingToString(p);
+}
 inline NSString *JS::NativeInappRnSdk::Request::appId() const
 {
   id const p = _v[@"appId"];
@@ -305,15 +335,10 @@ inline id<NSObject> _Nullable JS::NativeInappRnSdk::Request::parameters() const
   id const p = _v[@"parameters"];
   return p;
 }
-inline std::optional<bool> JS::NativeInappRnSdk::Request::acceptAiProviders() const
+inline std::optional<JS::NativeInappRnSdk::ProviderVersion> JS::NativeInappRnSdk::Request::providerVersion() const
 {
-  id const p = _v[@"acceptAiProviders"];
-  return RCTBridgingToOptionalBool(p);
-}
-inline NSString *JS::NativeInappRnSdk::Request::webhookUrl() const
-{
-  id const p = _v[@"webhookUrl"];
-  return RCTBridgingToOptionalString(p);
+  id const p = _v[@"providerVersion"];
+  return (p == nil ? std::nullopt : std::make_optional(JS::NativeInappRnSdk::ProviderVersion(p)));
 }
 inline NSString *JS::NativeInappRnSdk::ProviderInformation::url() const
 {
@@ -359,6 +384,16 @@ inline std::optional<bool> JS::NativeInappRnSdk::FeatureOptions::isAIFlowEnabled
 {
   id const p = _v[@"isAIFlowEnabled"];
   return RCTBridgingToOptionalBool(p);
+}
+inline NSString *JS::NativeInappRnSdk::FeatureOptions::manualReviewMessage() const
+{
+  id const p = _v[@"manualReviewMessage"];
+  return RCTBridgingToOptionalString(p);
+}
+inline NSString *JS::NativeInappRnSdk::FeatureOptions::loginPromptMessage() const
+{
+  id const p = _v[@"loginPromptMessage"];
+  return RCTBridgingToOptionalString(p);
 }
 inline bool JS::NativeInappRnSdk::LogConsumer::enableLogHandler() const
 {

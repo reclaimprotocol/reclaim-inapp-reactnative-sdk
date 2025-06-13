@@ -110,13 +110,13 @@ Ignore if you already have this declaration in your `Podfile`.
 
 ```ruby
 # Cocoapods is the recommended way to install the SDK.
-pod 'ReclaimInAppSdk', '~> 0.7.0'
+pod 'ReclaimInAppSdk', '~> 0.8.3'
 ```
 
 ##### From a specific tag
 
 ```ruby
-pod 'ReclaimInAppSdk', :git => 'https://github.com/reclaimprotocol/reclaim-inapp-ios-sdk.git', :tag => '0.7.0'
+pod 'ReclaimInAppSdk', :git => 'https://github.com/reclaimprotocol/reclaim-inapp-ios-sdk.git', :tag => '0.8.3'
 ```
 
 ##### From git HEAD
@@ -153,7 +153,7 @@ target 'InappRnSdkExample' do
   )
 
   # This is the line that you may need to add in your podfile.
-  pod 'ReclaimInAppSdk', '~> 0.7.0'
+  pod 'ReclaimInAppSdk', '~> 0.8.3'
 
   pre_install do |installer|
     system("cd ../../ && npx bob build --target codegen")
@@ -292,13 +292,14 @@ error.innerError
 
 ## Troubleshooting
 
-### Build failures for iOS in 0.7.0
+### Build failures for iOS in 0.7.x
 
-- An accidental breaking change causes 0.7.0, 0.7.1 to fail with build failures for ios. 0.7.2 fixes this issue.
+- An accidental breaking change may cause 0.7.0, 0.7.1, 0.7.2 to fail with build failures for Android and iOS. Update 0.7.3 fixes this issue.
 
 ## Migration
 
-- Migration steps for [0.7.2](https://github.com/reclaimprotocol/reclaim-inapp-reactnative-sdk/blob/main/documentation/migration.md#072)
+- Migration steps for [0.8.3](https://github.com/reclaimprotocol/reclaim-inapp-reactnative-sdk/blob/main/documentation/migration.md#083)
+- Migration steps for [0.7.3](https://github.com/reclaimprotocol/reclaim-inapp-reactnative-sdk/blob/main/documentation/migration.md#073)
 - Migration steps for [0.6.0](https://github.com/reclaimprotocol/reclaim-inapp-reactnative-sdk/blob/main/documentation/migration.md#060)
 - Migration steps for [0.3.1](https://github.com/reclaimprotocol/reclaim-inapp-reactnative-sdk/blob/main/documentation/migration.md#031)
 - Migration steps for [0.3.0](https://github.com/reclaimprotocol/reclaim-inapp-reactnative-sdk/blob/main/documentation/migration.md#030)

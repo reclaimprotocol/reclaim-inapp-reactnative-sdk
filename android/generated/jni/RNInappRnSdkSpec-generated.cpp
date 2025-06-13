@@ -22,6 +22,11 @@ static facebook::jsi::Value __hostFunction_NativeInappRnSdkSpecJSI_startVerifica
   return static_cast<JavaTurboModule &>(turboModule).invokeJavaMethod(rt, PromiseKind, "startVerificationFromUrl", "(Ljava/lang/String;Lcom/facebook/react/bridge/Promise;)V", args, count, cachedMethodId);
 }
 
+static facebook::jsi::Value __hostFunction_NativeInappRnSdkSpecJSI_startVerificationFromJson(facebook::jsi::Runtime& rt, TurboModule &turboModule, const facebook::jsi::Value* args, size_t count) {
+  static jmethodID cachedMethodId = nullptr;
+  return static_cast<JavaTurboModule &>(turboModule).invokeJavaMethod(rt, PromiseKind, "startVerificationFromJson", "(Ljava/lang/String;Lcom/facebook/react/bridge/Promise;)V", args, count, cachedMethodId);
+}
+
 static facebook::jsi::Value __hostFunction_NativeInappRnSdkSpecJSI_setOverrides(facebook::jsi::Runtime& rt, TurboModule &turboModule, const facebook::jsi::Value* args, size_t count) {
   static jmethodID cachedMethodId = nullptr;
   return static_cast<JavaTurboModule &>(turboModule).invokeJavaMethod(rt, PromiseKind, "setOverrides", "(Lcom/facebook/react/bridge/ReadableMap;Lcom/facebook/react/bridge/Promise;)V", args, count, cachedMethodId);
@@ -56,6 +61,7 @@ NativeInappRnSdkSpecJSI::NativeInappRnSdkSpecJSI(const JavaTurboModule::InitPara
   : JavaTurboModule(params) {
   methodMap_["startVerification"] = MethodMetadata {1, __hostFunction_NativeInappRnSdkSpecJSI_startVerification};
   methodMap_["startVerificationFromUrl"] = MethodMetadata {1, __hostFunction_NativeInappRnSdkSpecJSI_startVerificationFromUrl};
+  methodMap_["startVerificationFromJson"] = MethodMetadata {1, __hostFunction_NativeInappRnSdkSpecJSI_startVerificationFromJson};
   methodMap_["setOverrides"] = MethodMetadata {1, __hostFunction_NativeInappRnSdkSpecJSI_setOverrides};
   methodMap_["clearAllOverrides"] = MethodMetadata {0, __hostFunction_NativeInappRnSdkSpecJSI_clearAllOverrides};
   methodMap_["setVerificationOptions"] = MethodMetadata {1, __hostFunction_NativeInappRnSdkSpecJSI_setVerificationOptions};

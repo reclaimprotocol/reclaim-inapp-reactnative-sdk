@@ -18,7 +18,7 @@ namespace facebook::react {
   
 #pragma mark - NativeInappRnSdkFeatureOptions
 
-template <typename P0, typename P1, typename P2, typename P3, typename P4, typename P5>
+template <typename P0, typename P1, typename P2, typename P3, typename P4, typename P5, typename P6, typename P7>
 struct NativeInappRnSdkFeatureOptions {
   P0 cookiePersist;
   P1 singleReclaimRequest;
@@ -26,8 +26,10 @@ struct NativeInappRnSdkFeatureOptions {
   P3 sessionTimeoutForManualVerificationTrigger;
   P4 attestorBrowserRpcUrl;
   P5 isAIFlowEnabled;
+  P6 manualReviewMessage;
+  P7 loginPromptMessage;
   bool operator==(const NativeInappRnSdkFeatureOptions &other) const {
-    return cookiePersist == other.cookiePersist && singleReclaimRequest == other.singleReclaimRequest && idleTimeThresholdForManualVerificationTrigger == other.idleTimeThresholdForManualVerificationTrigger && sessionTimeoutForManualVerificationTrigger == other.sessionTimeoutForManualVerificationTrigger && attestorBrowserRpcUrl == other.attestorBrowserRpcUrl && isAIFlowEnabled == other.isAIFlowEnabled;
+    return cookiePersist == other.cookiePersist && singleReclaimRequest == other.singleReclaimRequest && idleTimeThresholdForManualVerificationTrigger == other.idleTimeThresholdForManualVerificationTrigger && sessionTimeoutForManualVerificationTrigger == other.sessionTimeoutForManualVerificationTrigger && attestorBrowserRpcUrl == other.attestorBrowserRpcUrl && isAIFlowEnabled == other.isAIFlowEnabled && manualReviewMessage == other.manualReviewMessage && loginPromptMessage == other.loginPromptMessage;
   }
 };
 
@@ -45,7 +47,9 @@ struct NativeInappRnSdkFeatureOptionsBridging {
       bridging::fromJs<decltype(types.idleTimeThresholdForManualVerificationTrigger)>(rt, value.getProperty(rt, "idleTimeThresholdForManualVerificationTrigger"), jsInvoker),
       bridging::fromJs<decltype(types.sessionTimeoutForManualVerificationTrigger)>(rt, value.getProperty(rt, "sessionTimeoutForManualVerificationTrigger"), jsInvoker),
       bridging::fromJs<decltype(types.attestorBrowserRpcUrl)>(rt, value.getProperty(rt, "attestorBrowserRpcUrl"), jsInvoker),
-      bridging::fromJs<decltype(types.isAIFlowEnabled)>(rt, value.getProperty(rt, "isAIFlowEnabled"), jsInvoker)};
+      bridging::fromJs<decltype(types.isAIFlowEnabled)>(rt, value.getProperty(rt, "isAIFlowEnabled"), jsInvoker),
+      bridging::fromJs<decltype(types.manualReviewMessage)>(rt, value.getProperty(rt, "manualReviewMessage"), jsInvoker),
+      bridging::fromJs<decltype(types.loginPromptMessage)>(rt, value.getProperty(rt, "loginPromptMessage"), jsInvoker)};
     return result;
   }
 
@@ -73,6 +77,14 @@ struct NativeInappRnSdkFeatureOptionsBridging {
   static std::optional<bool> isAIFlowEnabledToJs(jsi::Runtime &rt, decltype(types.isAIFlowEnabled) value) {
     return bridging::toJs(rt, value);
   }
+
+  static std::optional<jsi::String> manualReviewMessageToJs(jsi::Runtime &rt, decltype(types.manualReviewMessage) value) {
+    return bridging::toJs(rt, value);
+  }
+
+  static std::optional<jsi::String> loginPromptMessageToJs(jsi::Runtime &rt, decltype(types.loginPromptMessage) value) {
+    return bridging::toJs(rt, value);
+  }
 #endif
 
   static jsi::Object toJs(
@@ -97,6 +109,12 @@ struct NativeInappRnSdkFeatureOptionsBridging {
     }
     if (value.isAIFlowEnabled) {
       result.setProperty(rt, "isAIFlowEnabled", bridging::toJs(rt, value.isAIFlowEnabled.value(), jsInvoker));
+    }
+    if (value.manualReviewMessage) {
+      result.setProperty(rt, "manualReviewMessage", bridging::toJs(rt, value.manualReviewMessage.value(), jsInvoker));
+    }
+    if (value.loginPromptMessage) {
+      result.setProperty(rt, "loginPromptMessage", bridging::toJs(rt, value.loginPromptMessage.value(), jsInvoker));
     }
     return result;
   }
@@ -386,6 +404,54 @@ struct NativeInappRnSdkProviderInformationRequestBridging {
 
 
 
+#pragma mark - NativeInappRnSdkProviderVersion
+
+template <typename P0, typename P1>
+struct NativeInappRnSdkProviderVersion {
+  P0 resolvedVersion;
+  P1 versionExpression;
+  bool operator==(const NativeInappRnSdkProviderVersion &other) const {
+    return resolvedVersion == other.resolvedVersion && versionExpression == other.versionExpression;
+  }
+};
+
+template <typename T>
+struct NativeInappRnSdkProviderVersionBridging {
+  static T types;
+
+  static T fromJs(
+      jsi::Runtime &rt,
+      const jsi::Object &value,
+      const std::shared_ptr<CallInvoker> &jsInvoker) {
+    T result{
+      bridging::fromJs<decltype(types.resolvedVersion)>(rt, value.getProperty(rt, "resolvedVersion"), jsInvoker),
+      bridging::fromJs<decltype(types.versionExpression)>(rt, value.getProperty(rt, "versionExpression"), jsInvoker)};
+    return result;
+  }
+
+#ifdef DEBUG
+  static jsi::String resolvedVersionToJs(jsi::Runtime &rt, decltype(types.resolvedVersion) value) {
+    return bridging::toJs(rt, value);
+  }
+
+  static jsi::String versionExpressionToJs(jsi::Runtime &rt, decltype(types.versionExpression) value) {
+    return bridging::toJs(rt, value);
+  }
+#endif
+
+  static jsi::Object toJs(
+      jsi::Runtime &rt,
+      const T &value,
+      const std::shared_ptr<CallInvoker> &jsInvoker) {
+    auto result = facebook::jsi::Object(rt);
+    result.setProperty(rt, "resolvedVersion", bridging::toJs(rt, value.resolvedVersion, jsInvoker));
+    result.setProperty(rt, "versionExpression", bridging::toJs(rt, value.versionExpression, jsInvoker));
+    return result;
+  }
+};
+
+
+
 #pragma mark - NativeInappRnSdkReclaimAppInfo
 
 template <typename P0, typename P1, typename P2>
@@ -548,7 +614,7 @@ struct NativeInappRnSdkReclaimSessionIdentityUpdateBridging {
 
 #pragma mark - NativeInappRnSdkRequest
 
-template <typename P0, typename P1, typename P2, typename P3, typename P4, typename P5, typename P6, typename P7>
+template <typename P0, typename P1, typename P2, typename P3, typename P4, typename P5, typename P6>
 struct NativeInappRnSdkRequest {
   P0 appId;
   P1 secret;
@@ -556,10 +622,9 @@ struct NativeInappRnSdkRequest {
   P3 session;
   P4 contextString;
   P5 parameters;
-  P6 acceptAiProviders;
-  P7 webhookUrl;
+  P6 providerVersion;
   bool operator==(const NativeInappRnSdkRequest &other) const {
-    return appId == other.appId && secret == other.secret && providerId == other.providerId && session == other.session && contextString == other.contextString && parameters == other.parameters && acceptAiProviders == other.acceptAiProviders && webhookUrl == other.webhookUrl;
+    return appId == other.appId && secret == other.secret && providerId == other.providerId && session == other.session && contextString == other.contextString && parameters == other.parameters && providerVersion == other.providerVersion;
   }
 };
 
@@ -578,8 +643,7 @@ struct NativeInappRnSdkRequestBridging {
       bridging::fromJs<decltype(types.session)>(rt, value.getProperty(rt, "session"), jsInvoker),
       bridging::fromJs<decltype(types.contextString)>(rt, value.getProperty(rt, "contextString"), jsInvoker),
       bridging::fromJs<decltype(types.parameters)>(rt, value.getProperty(rt, "parameters"), jsInvoker),
-      bridging::fromJs<decltype(types.acceptAiProviders)>(rt, value.getProperty(rt, "acceptAiProviders"), jsInvoker),
-      bridging::fromJs<decltype(types.webhookUrl)>(rt, value.getProperty(rt, "webhookUrl"), jsInvoker)};
+      bridging::fromJs<decltype(types.providerVersion)>(rt, value.getProperty(rt, "providerVersion"), jsInvoker)};
     return result;
   }
 
@@ -608,11 +672,7 @@ struct NativeInappRnSdkRequestBridging {
     return bridging::toJs(rt, value);
   }
 
-  static bool acceptAiProvidersToJs(jsi::Runtime &rt, decltype(types.acceptAiProviders) value) {
-    return bridging::toJs(rt, value);
-  }
-
-  static std::optional<jsi::String> webhookUrlToJs(jsi::Runtime &rt, decltype(types.webhookUrl) value) {
+  static std::optional<jsi::Object> providerVersionToJs(jsi::Runtime &rt, decltype(types.providerVersion) value) {
     return bridging::toJs(rt, value);
   }
 #endif
@@ -634,11 +694,8 @@ struct NativeInappRnSdkRequestBridging {
     if (value.parameters) {
       result.setProperty(rt, "parameters", bridging::toJs(rt, value.parameters.value(), jsInvoker));
     }
-    if (value.acceptAiProviders) {
-      result.setProperty(rt, "acceptAiProviders", bridging::toJs(rt, value.acceptAiProviders.value(), jsInvoker));
-    }
-    if (value.webhookUrl) {
-      result.setProperty(rt, "webhookUrl", bridging::toJs(rt, value.webhookUrl.value(), jsInvoker));
+    if (value.providerVersion) {
+      result.setProperty(rt, "providerVersion", bridging::toJs(rt, value.providerVersion.value(), jsInvoker));
     }
     return result;
   }
@@ -703,15 +760,16 @@ struct NativeInappRnSdkResponseBridging {
 
 #pragma mark - NativeInappRnSdkSessionCreateRequestEvent
 
-template <typename P0, typename P1, typename P2, typename P3, typename P4>
+template <typename P0, typename P1, typename P2, typename P3, typename P4, typename P5>
 struct NativeInappRnSdkSessionCreateRequestEvent {
   P0 appId;
   P1 providerId;
   P2 timestamp;
   P3 signature;
-  P4 replyId;
+  P4 providerVersion;
+  P5 replyId;
   bool operator==(const NativeInappRnSdkSessionCreateRequestEvent &other) const {
-    return appId == other.appId && providerId == other.providerId && timestamp == other.timestamp && signature == other.signature && replyId == other.replyId;
+    return appId == other.appId && providerId == other.providerId && timestamp == other.timestamp && signature == other.signature && providerVersion == other.providerVersion && replyId == other.replyId;
   }
 };
 
@@ -728,6 +786,7 @@ struct NativeInappRnSdkSessionCreateRequestEventBridging {
       bridging::fromJs<decltype(types.providerId)>(rt, value.getProperty(rt, "providerId"), jsInvoker),
       bridging::fromJs<decltype(types.timestamp)>(rt, value.getProperty(rt, "timestamp"), jsInvoker),
       bridging::fromJs<decltype(types.signature)>(rt, value.getProperty(rt, "signature"), jsInvoker),
+      bridging::fromJs<decltype(types.providerVersion)>(rt, value.getProperty(rt, "providerVersion"), jsInvoker),
       bridging::fromJs<decltype(types.replyId)>(rt, value.getProperty(rt, "replyId"), jsInvoker)};
     return result;
   }
@@ -749,6 +808,10 @@ struct NativeInappRnSdkSessionCreateRequestEventBridging {
     return bridging::toJs(rt, value);
   }
 
+  static jsi::String providerVersionToJs(jsi::Runtime &rt, decltype(types.providerVersion) value) {
+    return bridging::toJs(rt, value);
+  }
+
   static jsi::String replyIdToJs(jsi::Runtime &rt, decltype(types.replyId) value) {
     return bridging::toJs(rt, value);
   }
@@ -763,6 +826,7 @@ struct NativeInappRnSdkSessionCreateRequestEventBridging {
     result.setProperty(rt, "providerId", bridging::toJs(rt, value.providerId, jsInvoker));
     result.setProperty(rt, "timestamp", bridging::toJs(rt, value.timestamp, jsInvoker));
     result.setProperty(rt, "signature", bridging::toJs(rt, value.signature, jsInvoker));
+    result.setProperty(rt, "providerVersion", bridging::toJs(rt, value.providerVersion, jsInvoker));
     result.setProperty(rt, "replyId", bridging::toJs(rt, value.replyId, jsInvoker));
     return result;
   }
@@ -1102,6 +1166,7 @@ protected:
 public:
   virtual jsi::Value startVerification(jsi::Runtime &rt, jsi::Object request) = 0;
   virtual jsi::Value startVerificationFromUrl(jsi::Runtime &rt, jsi::String requestUrl) = 0;
+  virtual jsi::Value startVerificationFromJson(jsi::Runtime &rt, jsi::String templateJsonString) = 0;
   virtual jsi::Value setOverrides(jsi::Runtime &rt, jsi::Object overrides) = 0;
   virtual jsi::Value clearAllOverrides(jsi::Runtime &rt) = 0;
   virtual jsi::Value setVerificationOptions(jsi::Runtime &rt, jsi::Object args) = 0;
@@ -1207,6 +1272,14 @@ private:
 
       return bridging::callFromJs<jsi::Value>(
           rt, &T::startVerificationFromUrl, jsInvoker_, instance_, std::move(requestUrl));
+    }
+    jsi::Value startVerificationFromJson(jsi::Runtime &rt, jsi::String templateJsonString) override {
+      static_assert(
+          bridging::getParameterCount(&T::startVerificationFromJson) == 2,
+          "Expected startVerificationFromJson(...) to have 2 parameters");
+
+      return bridging::callFromJs<jsi::Value>(
+          rt, &T::startVerificationFromJson, jsInvoker_, instance_, std::move(templateJsonString));
     }
     jsi::Value setOverrides(jsi::Runtime &rt, jsi::Object overrides) override {
       static_assert(
