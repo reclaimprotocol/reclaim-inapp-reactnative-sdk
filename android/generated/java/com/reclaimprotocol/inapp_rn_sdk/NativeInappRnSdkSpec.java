@@ -71,6 +71,10 @@ public abstract class NativeInappRnSdkSpec extends ReactContextBaseJavaModule im
 
   @ReactMethod
   @DoNotStrip
+  public abstract void startVerificationFromJson(String templateJsonString, Promise promise);
+
+  @ReactMethod
+  @DoNotStrip
   public abstract void setOverrides(ReadableMap overrides, Promise promise);
 
   @ReactMethod

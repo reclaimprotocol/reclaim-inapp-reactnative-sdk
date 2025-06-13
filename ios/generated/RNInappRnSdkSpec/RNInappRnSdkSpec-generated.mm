@@ -56,6 +56,12 @@
   return facebook::react::managedPointer<JS::NativeInappRnSdk::SessionInformation>(json);
 }
 @end
+@implementation RCTCxxConvert (NativeInappRnSdk_ProviderVersion)
++ (RCTManagedPointer *)JS_NativeInappRnSdk_ProviderVersion:(id)json
+{
+  return facebook::react::managedPointer<JS::NativeInappRnSdk::ProviderVersion>(json);
+}
+@end
 @implementation RCTCxxConvert (NativeInappRnSdk_Request)
 + (RCTManagedPointer *)JS_NativeInappRnSdk_Request:(id)json
 {
@@ -120,6 +126,10 @@ namespace facebook::react {
       return static_cast<ObjCTurboModule&>(turboModule).invokeObjCMethod(rt, PromiseKind, "startVerificationFromUrl", @selector(startVerificationFromUrl:resolve:reject:), args, count);
     }
 
+    static facebook::jsi::Value __hostFunction_NativeInappRnSdkSpecJSI_startVerificationFromJson(facebook::jsi::Runtime& rt, TurboModule &turboModule, const facebook::jsi::Value* args, size_t count) {
+      return static_cast<ObjCTurboModule&>(turboModule).invokeObjCMethod(rt, PromiseKind, "startVerificationFromJson", @selector(startVerificationFromJson:resolve:reject:), args, count);
+    }
+
     static facebook::jsi::Value __hostFunction_NativeInappRnSdkSpecJSI_setOverrides(facebook::jsi::Runtime& rt, TurboModule &turboModule, const facebook::jsi::Value* args, size_t count) {
       return static_cast<ObjCTurboModule&>(turboModule).invokeObjCMethod(rt, PromiseKind, "setOverrides", @selector(setOverrides:resolve:reject:), args, count);
     }
@@ -151,6 +161,9 @@ namespace facebook::react {
         setMethodArgConversionSelector(@"startVerification", 0, @"JS_NativeInappRnSdk_Request:");
         
         methodMap_["startVerificationFromUrl"] = MethodMetadata {1, __hostFunction_NativeInappRnSdkSpecJSI_startVerificationFromUrl};
+        
+        
+        methodMap_["startVerificationFromJson"] = MethodMetadata {1, __hostFunction_NativeInappRnSdkSpecJSI_startVerificationFromJson};
         
         
         methodMap_["setOverrides"] = MethodMetadata {1, __hostFunction_NativeInappRnSdkSpecJSI_setOverrides};

@@ -36,6 +36,12 @@ export class ReclaimVerification {
     return this.platform.startVerificationFromUrl(requestUrl);
   }
 
+  public async startVerificationFromJson(
+    template: Record<string, any>
+  ): Promise<ReclaimVerification.Response> {
+    return this.platform.startVerificationFromJson(template);
+  }
+
   public async ping(): Promise<boolean> {
     return this.platform.ping();
   }
@@ -72,7 +78,25 @@ export namespace ReclaimVerification {
    *
    * You can create a request using the [ReclaimVerification.Request] constructor or the [ReclaimVerification.Request.fromManifestMetaData] factory method.
    */
-  export type Request = NativeReclaimInappModuleTypes.Request;
+  export type Request = NativeReclaimInappModuleTypes.Request & { providerVersion?: ProviderVersion };
+
+  export class ProviderVersion implements NativeReclaimInappModuleTypes.ProviderVersion {
+    resolvedVersion: string;
+    versionExpression: string;
+
+    private constructor(exactVersion: string, versionExpression: string) {
+      this.resolvedVersion = exactVersion;
+      this.versionExpression = versionExpression;
+    }
+
+    static resolved(exactVersion: string, versionExpression?: string): ProviderVersion {
+      return new ProviderVersion(exactVersion, versionExpression ?? exactVersion);
+    }
+
+    static from(versionExpression: string = ''): ProviderVersion {
+      return new ProviderVersion(versionExpression, versionExpression);
+    }
+  }
 
   /**
    * Contains the proof and response data after verification
@@ -179,11 +203,17 @@ export namespace ReclaimVerification {
        */
       onSessionCreateRequest: (
         event: NativeReclaimInappModuleTypes.SessionCreateRequestEvent
-      ) => Promise<string>;
+      ) => Promise<SessionInitResponse>;
       onSessionUpdateRequest: (
         event: NativeReclaimInappModuleTypes.SessionUpdateRequestEvent
       ) => Promise<boolean>;
     }
+
+    export interface SessionInitResponse {
+      sessionId: string,
+      resolvedProviderVersion: string
+    }
+
     export type ReclaimAppInfo = NativeReclaimInappModuleTypes.ReclaimAppInfo;
   }
 
@@ -320,6 +350,10 @@ export namespace ReclaimVerification {
       requestUrl: string
     ): Promise<ReclaimVerification.Response>;
 
+    abstract startVerificationFromJson(
+      template: Record<string, any>
+    ): Promise<ReclaimVerification.Response>;
+
     abstract ping(): Promise<boolean>;
 
     abstract setOverrides(
@@ -365,6 +399,28 @@ export class PlatformImpl extends ReclaimVerification.Platform {
     try {
       const response =
         await NativeReclaimInappModule.startVerificationFromUrl(requestUrl);
+      return {
+        ...response,
+        proofs: ReclaimVerification.ReclaimResult.asProofs(response.proofs),
+      };
+    } catch (error) {
+      console.info({
+        error,
+      });
+      if (error instanceof Error) {
+        throw ReclaimVerification.ReclaimVerificationException.fromError(
+          error,
+          ''
+        );
+      }
+      throw error;
+    }
+  }
+
+  override async startVerificationFromJson(template: Record<string, any>): Promise<ReclaimVerification.Response> {
+    try {
+      const response =
+        await NativeReclaimInappModule.startVerificationFromJson(JSON.stringify(template));
       return {
         ...response,
         proofs: ReclaimVerification.ReclaimResult.asProofs(response.proofs),
@@ -477,7 +533,7 @@ export class PlatformImpl extends ReclaimVerification.Platform {
           const replyId = event.replyId;
           try {
             let result = await sessionManagement.onSessionCreateRequest(event);
-            NativeReclaimInappModule.replyWithString(replyId, result);
+            NativeReclaimInappModule.replyWithString(replyId, JSON.stringify(result));
           } catch (error) {
             console.error(error);
             // Send an empty string to indicate failure

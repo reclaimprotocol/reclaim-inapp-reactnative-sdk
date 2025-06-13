@@ -4,10 +4,10 @@ import ReclaimInAppSdk
   @objc public func ping() -> Bool {
     return true
   }
-  
+
   @MainActor
   static fileprivate var replyHandlers: [String: (Result<Bool, any Error>) -> Void] = [:]
-  
+
   static fileprivate func setReplyCallback(
     _ callback: @escaping (Result<Bool, any Error>) -> Void
   ) -> String {
@@ -17,7 +17,7 @@ import ReclaimInAppSdk
     }
     return replyId
   }
-  
+
   @objc public func reply(replyId: String?, reply: Bool) {
     if let replyId {
       Task { @MainActor in
@@ -33,10 +33,10 @@ import ReclaimInAppSdk
       NSLog("[Api.reply] Missing arg replyId")
     }
   }
-  
+
   @MainActor
   static fileprivate var replyWithStringHandler: [String: (Result<String, any Error>) -> Void] = [:]
-  
+
   static fileprivate func setReplyWithStringCallback(
     _ callback: @escaping (Result<String, any Error>) -> Void
   ) -> String {
@@ -46,7 +46,7 @@ import ReclaimInAppSdk
     }
     return replyId
   }
-  
+
   @objc public func replyWithString(replyId: String?, value: String?) {
     if let replyId {
       Task { @MainActor in
@@ -55,14 +55,16 @@ import ReclaimInAppSdk
           Api.replyWithStringHandler.removeValue(forKey: replyId)
           callback(.success(value ?? ""))
         } else {
-          NSLog("[Api.replyWithString] No callback found for replyId \(replyId)")
+          NSLog(
+            "[Api.replyWithString] No callback found for replyId \(replyId)"
+          )
         }
       }
     } else {
       NSLog("[Api.replyWithString] Missing arg replyId")
     }
   }
-  
+
   @objc public func startVerification(
     appId: String?,
     secret: String?,
@@ -72,47 +74,62 @@ import ReclaimInAppSdk
     sessionSignature: String?,
     context: String?,
     parameters: [String: String]?,
-    acceptAiProviders: Bool,
-    webhookUrl: String?
+    providerVersion: [String: String]?
   ) async throws -> [String: Any] {
     var session: ReclaimSessionInformation? = nil
-    if let sessionTimestamp = sessionTimestamp, let sessionSessionId = sessionSessionId, let sessionSignature = sessionSignature {
+    if let sessionTimestamp = sessionTimestamp,
+      let sessionSessionId = sessionSessionId,
+      let sessionSignature = sessionSignature
+    {
       session = .init(
         timestamp: sessionTimestamp,
         sessionId: sessionSessionId,
         signature: sessionSignature
       )
     }
-    let request: ReclaimVerification.Request = if let appId = appId, let secret = secret, !appId.isEmpty && !secret.isEmpty {
-      .params(.init(
-        appId: appId,
-        secret: secret,
-        providerId: providerId,
-        session: session,
-        context: context ?? "",
-        parameters: parameters ?? [String:String](),
-        acceptAiProviders: acceptAiProviders,
-        webhookUrl: webhookUrl
-      ))
+    let providerVersion = ReclaimVerification.Request.Params.ProviderVersion(
+      exactVersion: providerVersion?["resolvedVersion"] ?? "",
+      versionExpression: providerVersion?["versionExpression"]
+        ?? providerVersion?["resolvedVersion"] ?? ""
+    )
+    var request: ReclaimVerification.Request? = nil
+    if let appId = appId, let secret = secret,
+      !appId.isEmpty && !secret.isEmpty
+    {
+      request = .params(
+        .init(
+          appId: appId,
+          secret: secret,
+          providerId: providerId,
+          session: session,
+          context: context ?? "",
+          parameters: parameters ?? [String: String](),
+          providerVersion: providerVersion
+        )
+      )
     } else {
-      .params(try .init(
-        providerId: providerId,
-        session: session,
-        context: context ?? "",
-        parameters: parameters ?? [String:String](),
-        acceptAiProviders: acceptAiProviders,
-        webhookUrl: webhookUrl
-      ))
+      request = .params(
+        try .init(
+          // TODO: Won't work because of a missing params providerVersion in the constructor
+          appId: "",
+          secret: "",
+          providerId: providerId,
+          session: session,
+          context: context ?? "",
+          parameters: parameters ?? [String: String](),
+          providerVersion: providerVersion
+        )
+      )
     }
-    return try await startVerificationWithRequest(request)
+    return try await startVerificationWithRequest(request!)
   }
-  
+
   @objc public func startVerificationFromUrl(
     url: String
   ) async throws -> [String: Any] {
     return try await startVerificationWithRequest(.url(url))
   }
-  
+
   @objc public func setOverrides(
     provider: OverridenProviderInformation?,
     featureOptions: OverridenFeatureOptions?,
@@ -121,55 +138,64 @@ import ReclaimInAppSdk
     appInfo: OverridenReclaimAppInfo?,
     capabilityAccessToken: String?
   ) async throws {
-    let providerOverrides: ReclaimOverrides.ProviderInformation? = if let url = provider?.url {
-      .url(url: url)
+    var providerOverrides: ReclaimOverrides.ProviderInformation? = nil
+    if let url = provider?.url {
+      providerOverrides = .url(url: url)
     } else if let jsonString = provider?.jsonString {
-      .jsonString(jsonString: jsonString)
+      providerOverrides = .jsonString(jsonString: jsonString)
     } else if let callback = provider?.callback {
-      .callback(callbackHandler: callback)
+      providerOverrides = .callback(callbackHandler: callback)
     } else {
-      nil
+      providerOverrides = nil
     }
-    
-    let featureOptionsOverrides: ReclaimOverrides.FeatureOptions? = if let featureOptions {
-      .init(
+
+    var featureOptionsOverrides: ReclaimOverrides.FeatureOptions? = nil
+    if let featureOptions {
+      featureOptionsOverrides = .init(
         cookiePersist: featureOptions.cookiePersist?.boolValue,
         singleReclaimRequest: featureOptions.singleReclaimRequest?.boolValue,
-        idleTimeThresholdForManualVerificationTrigger: featureOptions.idleTimeThresholdForManualVerificationTrigger?.int64Value,
-        sessionTimeoutForManualVerificationTrigger: featureOptions.sessionTimeoutForManualVerificationTrigger?.int64Value,
+        idleTimeThresholdForManualVerificationTrigger: featureOptions
+          .idleTimeThresholdForManualVerificationTrigger?.int64Value,
+        sessionTimeoutForManualVerificationTrigger: featureOptions
+          .sessionTimeoutForManualVerificationTrigger?.int64Value,
         attestorBrowserRpcUrl: featureOptions.attestorBrowserRpcUrl,
-        isAIFlowEnabled: featureOptions.isAIFlowEnabled?.boolValue
+        isAIFlowEnabled: featureOptions.isAIFlowEnabled?.boolValue,
+        manualReviewMessage: featureOptions.manualReviewMessage,
+        loginPromptMessage: featureOptions.loginPromptMessage
       )
     } else {
-      nil
+      featureOptionsOverrides = nil
     }
-    
-    let logConsumerOverrides: ReclaimOverrides.LogConsumer? = if let logConsumer = logConsumer {
-      .init(
+
+    var logConsumerOverrides: ReclaimOverrides.LogConsumer? = nil
+    if let logConsumer = logConsumer {
+      logConsumerOverrides = .init(
         logHandler: logConsumer.logHandler,
         canSdkCollectTelemetry: logConsumer.canSdkCollectTelemetry,
         canSdkPrintLogs: logConsumer.canSdkPrintLogs?.boolValue
       )
     } else {
-      nil
+      logConsumerOverrides = nil
     }
-    
-    let sessionManagementOverrides: ReclaimOverrides.SessionManagement? = if let sessionManagement = sessionManagement {
-      .init(handler: sessionManagement.handler)
+
+    var sessionManagementOverrides: ReclaimOverrides.SessionManagement? = nil
+    if let sessionManagement = sessionManagement {
+      sessionManagementOverrides = .init(handler: sessionManagement.handler)
     } else {
-      nil
+      sessionManagementOverrides = nil
     }
-    
-    let appInfoOverrides: ReclaimOverrides.ReclaimAppInfo? = if let appInfo {
-      .init(
+
+    var appInfoOverrides: ReclaimOverrides.ReclaimAppInfo? = nil
+    if let appInfo {
+      appInfoOverrides = .init(
         appName: appInfo.appName,
         appImageUrl: appInfo.appImageUrl,
         isRecurring: appInfo.isRecurring?.boolValue ?? false
       )
     } else {
-      nil
+      appInfoOverrides = nil
     }
-    
+
     return try await ReclaimVerification.setOverrides(
       provider: providerOverrides,
       featureOptions: featureOptionsOverrides,
@@ -179,48 +205,85 @@ import ReclaimInAppSdk
       capabilityAccessToken: capabilityAccessToken
     )
   }
-  
+
   @objc public func clearAllOverrides() async throws {
     return try await ReclaimVerification.clearAllOverrides()
   }
-  
+
   @objc public func setVerificationOptions(
     options: ReclaimApiVerificationOptions?
   ) async throws {
-    return try await ReclaimVerification.setVerificationOptions(options: options?.toSdkOptions())
+    return try await ReclaimVerification.setVerificationOptions(
+      options: options?.toSdkOptions()
+    )
   }
-  
-  func startVerificationWithRequest(_ request: ReclaimVerification.Request) async throws -> [String: Any] {
-    NSLog("[Api] starting verification");
+
+  func startVerificationWithRequest(_ request: ReclaimVerification.Request)
+    async throws -> [String: Any]
+  {
+    NSLog("[Api] starting verification")
     return try await withCheckedThrowingContinuation { continuation in
-      NSLog("[Api] starting verification going");
+      NSLog("[Api] starting verification going")
       Task { @MainActor in
-        NSLog("[Api] starting verification doing");
+        NSLog("[Api] starting verification doing")
         do {
           let result = try await ReclaimVerification.startVerification(request)
           let map: [String: Any] = [
             "sessionId": result.sessionId,
             "didSubmitManualVerification": result.didSubmitManualVerification,
-            "proofs": result.proofs
+            "proofs": result.proofs,
           ]
           continuation.resume(returning: map)
         } catch {
-          NSLog("[Api] failed verification \(error)");
-          let apiError: ApiError = if (error is ReclaimVerificationError) {
-            switch (error as! ReclaimVerificationError) {
-            case .cancelled(sessionId: let sessionId, didSubmitManualVerification: let didSubmitManualVerification):
-                .init(errorType: "cancelled", sessionId: sessionId, didSubmitManualVerification: didSubmitManualVerification, reason: nil)
-            case .dismissed(sessionId: let sessionId, didSubmitManualVerification: let didSubmitManualVerification):
-                .init(errorType: "dismissed", sessionId: sessionId, didSubmitManualVerification: didSubmitManualVerification, reason: nil)
-            case .sessionExpired(sessionId: let sessionId, didSubmitManualVerification: let didSubmitManualVerification):
-                .init(errorType: "sessionExpired", sessionId: sessionId, didSubmitManualVerification: didSubmitManualVerification, reason: nil)
-            case .failed(sessionId: let sessionId, didSubmitManualVerification: let didSubmitManualVerification, reason: let reason):
-                .init(errorType: "failed", sessionId: sessionId, didSubmitManualVerification: didSubmitManualVerification, reason: reason)
+          NSLog("[Api] failed verification \(error)")
+          var apiError: ApiError? = nil
+          if error is ReclaimVerificationError {
+            switch error as! ReclaimVerificationError {
+            case .cancelled(let sessionId, let didSubmitManualVerification):
+              apiError = .init(
+                errorType: "cancelled",
+                sessionId: sessionId,
+                didSubmitManualVerification: didSubmitManualVerification,
+                reason: nil
+              )
+            case .dismissed(let sessionId, let didSubmitManualVerification):
+              apiError = .init(
+                errorType: "dismissed",
+                sessionId: sessionId,
+                didSubmitManualVerification: didSubmitManualVerification,
+                reason: nil
+              )
+            case .sessionExpired(
+              let sessionId,
+              let didSubmitManualVerification
+            ):
+              apiError = .init(
+                errorType: "sessionExpired",
+                sessionId: sessionId,
+                didSubmitManualVerification: didSubmitManualVerification,
+                reason: nil
+              )
+            case .failed(
+              let sessionId,
+              let didSubmitManualVerification,
+              let reason
+            ):
+              apiError = .init(
+                errorType: "failed",
+                sessionId: sessionId,
+                didSubmitManualVerification: didSubmitManualVerification,
+                reason: reason
+              )
             }
           } else {
-            ApiError(errorType: "failed", sessionId: request.maybeSessionId ?? "", didSubmitManualVerification: false, reason: "\(error)")
+            apiError = ApiError(
+              errorType: "failed",
+              sessionId: request.maybeSessionId ?? "",
+              didSubmitManualVerification: false,
+              reason: "\(error)"
+            )
           }
-          continuation.resume(throwing: apiError)
+          continuation.resume(throwing: apiError!)
         }
       }
     }
@@ -232,20 +295,29 @@ import ReclaimInAppSdk
   @objc public let sessionId: String?
   @objc public let didSubmitManualVerification: Bool
   @objc public let reason: String?
-  
-  public init(errorType: String, sessionId: String?, didSubmitManualVerification: Bool, reason: String?) {
+
+  public init(
+    errorType: String,
+    sessionId: String?,
+    didSubmitManualVerification: Bool,
+    reason: String?
+  ) {
     self.errorType = errorType
     self.sessionId = sessionId
     self.didSubmitManualVerification = didSubmitManualVerification
     self.reason = reason
-    super.init(domain: "ApiError", code: 1, userInfo: [
-      "errorType": errorType,
-      "sessionId": sessionId ?? "",
-      "didSubmitManualVerification": didSubmitManualVerification,
-      "reason": reason ?? ""
-    ])
+    super.init(
+      domain: "ApiError",
+      code: 1,
+      userInfo: [
+        "errorType": errorType,
+        "sessionId": sessionId ?? "",
+        "didSubmitManualVerification": didSubmitManualVerification,
+        "reason": reason ?? "",
+      ]
+    )
   }
-  
+
   required init?(coder: NSCoder) {
     fatalError("init(coder:) has not been implemented")
   }
@@ -260,13 +332,18 @@ public typealias OverridenProviderCallback = (
   _ replyId: String
 ) -> Void
 
-@objc(OverridenProviderCallbackHandler) public class OverridenProviderCallbackHandler: NSObject, ReclaimOverrides.ProviderInformation.CallbackHandler {
+@objc(OverridenProviderCallbackHandler)
+public class OverridenProviderCallbackHandler: NSObject, ReclaimOverrides
+    .ProviderInformation.CallbackHandler
+{
   @objc let _fetchProviderInformation: OverridenProviderCallback
-  
-  @objc public init(_fetchProviderInformation: @escaping OverridenProviderCallback) {
+
+  @objc public init(
+    _fetchProviderInformation: @escaping OverridenProviderCallback
+  ) {
     self._fetchProviderInformation = _fetchProviderInformation
   }
-  
+
   public func fetchProviderInformation(
     appId: String,
     providerId: String,
@@ -276,15 +353,23 @@ public typealias OverridenProviderCallback = (
     completion: @escaping (Result<String, any Error>) -> Void
   ) {
     let replyId = Api.setReplyWithStringCallback(completion)
-    self._fetchProviderInformation(appId, providerId, sessionId, signature, timestamp, replyId)
+    self._fetchProviderInformation(
+      appId,
+      providerId,
+      sessionId,
+      signature,
+      timestamp,
+      replyId
+    )
   }
 }
 
-@objc(OverridenProviderInformation) public class OverridenProviderInformation: NSObject {
+@objc(OverridenProviderInformation)
+public class OverridenProviderInformation: NSObject {
   @objc public var url: String?
   @objc public var jsonString: String?
   @objc public var callback: OverridenProviderCallbackHandler?
-  
+
   @objc public init(
     url: String? = nil,
     jsonString: String? = nil,
@@ -300,29 +385,37 @@ public typealias OverridenProviderCallback = (
   // bool
   @objc public var cookiePersist: NSNumber?
   // bool
-  @objc   public var singleReclaimRequest: NSNumber?
+  @objc public var singleReclaimRequest: NSNumber?
   // int64 (long)
-  @objc  public var idleTimeThresholdForManualVerificationTrigger: NSNumber?
+  @objc public var idleTimeThresholdForManualVerificationTrigger: NSNumber?
   // int64 (long)
-  @objc  public var sessionTimeoutForManualVerificationTrigger: NSNumber?
-  @objc  public var attestorBrowserRpcUrl: String?
+  @objc public var sessionTimeoutForManualVerificationTrigger: NSNumber?
+  @objc public var attestorBrowserRpcUrl: String?
   // bool
-  @objc  public var isAIFlowEnabled: NSNumber?
-  
+  @objc public var isAIFlowEnabled: NSNumber?
+  @objc public var manualReviewMessage: String?
+  @objc public var loginPromptMessage: String?
+
   @objc public init(
     cookiePersist: NSNumber? = nil,
     singleReclaimRequest: NSNumber? = nil,
     idleTimeThresholdForManualVerificationTrigger: NSNumber? = nil,
     sessionTimeoutForManualVerificationTrigger: NSNumber? = nil,
     attestorBrowserRpcUrl: String? = nil,
-    isAIFlowEnabled: NSNumber? = nil
+    isAIFlowEnabled: NSNumber? = nil,
+    manualReviewMessage: String? = nil,
+    loginPromptMessage: String? = nil
   ) {
     self.cookiePersist = cookiePersist
     self.singleReclaimRequest = singleReclaimRequest
-    self.idleTimeThresholdForManualVerificationTrigger = idleTimeThresholdForManualVerificationTrigger
-    self.sessionTimeoutForManualVerificationTrigger = sessionTimeoutForManualVerificationTrigger
+    self.idleTimeThresholdForManualVerificationTrigger =
+      idleTimeThresholdForManualVerificationTrigger
+    self.sessionTimeoutForManualVerificationTrigger =
+      sessionTimeoutForManualVerificationTrigger
     self.attestorBrowserRpcUrl = attestorBrowserRpcUrl
     self.isAIFlowEnabled = isAIFlowEnabled
+    self.manualReviewMessage = manualReviewMessage
+    self.loginPromptMessage = loginPromptMessage
   }
 }
 
@@ -330,7 +423,7 @@ public typealias OverridenProviderCallback = (
   @objc public let appName: String
   @objc public let appImageUrl: String
   @objc public let isRecurring: NSNumber?
-  
+
   @objc public init(
     appName: String,
     appImageUrl: String,
@@ -357,7 +450,7 @@ public typealias OverridenProviderCallback = (
    * Type: Bool.
    */
   @objc public let canSdkPrintLogs: NSNumber?
-  
+
   @objc public init(
     logHandler: OverridenLogHandler? = nil,
     canSdkCollectTelemetry: Bool = true,
@@ -369,13 +462,16 @@ public typealias OverridenProviderCallback = (
   }
 }
 
-@objc(OverridenLogHandler) public class OverridenLogHandler: NSObject, ReclaimOverrides.LogConsumer.LogHandler {
+@objc(OverridenLogHandler)
+public class OverridenLogHandler: NSObject, ReclaimOverrides.LogConsumer
+    .LogHandler
+{
   @objc let _onLogs: (String) -> Void
-  
+
   @objc public init(onLogs: @escaping (String) -> Void) {
     self._onLogs = onLogs
   }
-  
+
   @objc public func onLogs(logJsonString: String) {
     self._onLogs(logJsonString)
   }
@@ -386,6 +482,7 @@ public typealias OverridenCreateSessionCallback = (
   _ providerId: String,
   _ timestamp: String,
   _ signature: String,
+  _ providerVersion: String,
   _ replyId: String
 ) -> Void
 public typealias OverridenUpdateSessionCallback = (
@@ -401,18 +498,22 @@ public typealias OverridenLogSessionCallback = (
   _ logType: String
 ) -> Void
 
-@objc(OverridenSessionManagement) public class OverridenSessionManagement: NSObject {
+@objc(OverridenSessionManagement)
+public class OverridenSessionManagement: NSObject {
   @objc public let handler: OverridenSessionHandler
-  
+
   @objc public init(handler: OverridenSessionHandler) {
     self.handler = handler
   }
-  
-  @objc(OverridenSessionHandler) public class OverridenSessionHandler: NSObject, ReclaimOverrides.SessionManagement.SessionHandler {
+
+  @objc(OverridenSessionHandler)
+  public class OverridenSessionHandler: NSObject, ReclaimOverrides
+      .SessionManagement.SessionHandler
+  {
     @objc let _createSession: OverridenCreateSessionCallback
     @objc let _updateSession: OverridenUpdateSessionCallback
     @objc let _logSession: OverridenLogSessionCallback
-    
+
     @objc public init(
       _createSession: @escaping OverridenCreateSessionCallback,
       _updateSession: @escaping OverridenUpdateSessionCallback,
@@ -422,44 +523,94 @@ public typealias OverridenLogSessionCallback = (
       self._updateSession = _updateSession
       self._logSession = _logSession
     }
-    public func createSession(appId: String, providerId: String, timestamp: String, signature: String, completion: @escaping (Result<String, any Error>) -> Void) {
-      let replyId = Api.setReplyWithStringCallback(completion)
-      self._createSession(appId, providerId, timestamp, signature, replyId)
-    }
-    
-    public func updateSession(
-      sessionId: String, status: ReclaimInAppSdk.ReclaimOverrides.SessionManagement.SessionStatus, completion: @escaping (Result<Bool, any Error>) -> Void
+
+    public func createSession(
+      appId: String,
+      providerId: String,
+      timestamp: String,
+      signature: String,
+      providerVersion: String,
+      completion: @escaping (
+        Result<
+          ReclaimInAppSdk.ReclaimOverrides.SessionManagement.InitResponse,
+          any Error
+        >
+      ) -> Void
     ) {
-      let statusString = switch (status) {
+      let replyId = Api.setReplyWithStringCallback({ value in
+        func process(value: String) {
+          let data = JSONUtility.fromString(value)
+          if let data = data as? [AnyHashable?: Any?] {
+            completion(
+              .success(
+                ReclaimOverrides.SessionManagement.InitResponse(
+                  sessionId: data["sessionId"] as? String ?? "",
+                  resolvedProviderVersion: data["resolvedProviderVersion"]
+                    as? String ?? ""
+                )
+              )
+            )
+          } else {
+            print(
+              "Error parsing session init response as Map. Type was: \(type(of: data)), data was: \(String(describing: data))"
+            )
+            completion(
+              .success(
+                ReclaimOverrides.SessionManagement.InitResponse(
+                  sessionId: "-",
+                  resolvedProviderVersion: ""
+                )
+              )
+            )
+          }
+        }
+      })
+      self._createSession(
+        appId,
+        providerId,
+        timestamp,
+        signature,
+        providerVersion,
+        replyId
+      )
+    }
+
+    public func updateSession(
+      sessionId: String,
+      status: ReclaimInAppSdk.ReclaimOverrides.SessionManagement.SessionStatus,
+      completion: @escaping (Result<Bool, any Error>) -> Void
+    ) {
+      var statusString: String? = nil
+      switch status {
       case .USER_STARTED_VERIFICATION:
-        "USER_STARTED_VERIFICATION"
+        statusString = "USER_STARTED_VERIFICATION"
       case .USER_INIT_VERIFICATION:
-        "USER_INIT_VERIFICATION"
+        statusString = "USER_INIT_VERIFICATION"
       case .PROOF_GENERATION_STARTED:
-        "PROOF_GENERATION_STARTED"
+        statusString = "PROOF_GENERATION_STARTED"
       case .PROOF_GENERATION_RETRY:
-        "PROOF_GENERATION_RETRY"
+        statusString = "PROOF_GENERATION_RETRY"
       case .PROOF_GENERATION_SUCCESS:
-        "PROOF_GENERATION_SUCCESS"
+        statusString = "PROOF_GENERATION_SUCCESS"
       case .PROOF_GENERATION_FAILED:
-        "PROOF_GENERATION_FAILED"
+        statusString = "PROOF_GENERATION_FAILED"
       case .PROOF_SUBMITTED:
-        "PROOF_SUBMITTED"
+        statusString = "PROOF_SUBMITTED"
       case .PROOF_SUBMISSION_FAILED:
-        "PROOF_SUBMISSION_FAILED"
+        statusString = "PROOF_SUBMISSION_FAILED"
       case .PROOF_MANUAL_VERIFICATION_SUBMITTED:
-        "PROOF_MANUAL_VERIFICATION_SUBMITTED"
+        statusString = "PROOF_MANUAL_VERIFICATION_SUBMITTED"
       }
       let replyId = Api.setReplyCallback(completion)
-      self._updateSession(sessionId, statusString, replyId)
+      self._updateSession(sessionId, statusString!, replyId)
     }
-    
+
     public func logSession(
       appId: String,
       providerId: String,
       sessionId: String,
       logType: String,
-      metadata: [String : (any Sendable)?]?
+      metadata: [String: (any Sendable)?]?
     ) {
       self._logSession(appId, providerId, sessionId, logType)
     }
@@ -471,22 +622,25 @@ public typealias ReclaimVerificationOptionFetchAttestorAuthRequestHandler = (
   _ replyId: String
 ) -> Void
 
-@objc(ReclaimApiVerificationOptions) public class ReclaimApiVerificationOptions: NSObject {
+@objc(ReclaimApiVerificationOptions)
+public class ReclaimApiVerificationOptions: NSObject {
   public let canDeleteCookiesBeforeVerificationStarts: Bool
-  public let attestorAuthRequestProvider: ReclaimVerification.VerificationOptions.AttestorAuthRequestProvider?
+  public let attestorAuthRequestProvider:
+    ReclaimVerification.VerificationOptions.AttestorAuthRequestProvider?
   public let claimCreationType: String?
   public let canAutoSubmit: Bool
   public let isCloseButtonVisible: Bool
-  
-  
+
   @objc public init(
     canDeleteCookiesBeforeVerificationStarts: Bool,
-    fetchAttestorAuthenticationRequest: ReclaimVerificationOptionFetchAttestorAuthRequestHandler?,
+    fetchAttestorAuthenticationRequest:
+      ReclaimVerificationOptionFetchAttestorAuthRequestHandler?,
     claimCreationType: String?,
     canAutoSubmit: Bool,
     isCloseButtonVisible: Bool
   ) {
-    self.canDeleteCookiesBeforeVerificationStarts = canDeleteCookiesBeforeVerificationStarts
+    self.canDeleteCookiesBeforeVerificationStarts =
+      canDeleteCookiesBeforeVerificationStarts
     if let fetchAttestorAuthenticationRequest {
       self.attestorAuthRequestProvider = _AttestorAuthRequestProvider(
         fetchAttestorAuthenticationRequest: fetchAttestorAuthenticationRequest
@@ -498,34 +652,48 @@ public typealias ReclaimVerificationOptionFetchAttestorAuthRequestHandler = (
     self.canAutoSubmit = canAutoSubmit
     self.isCloseButtonVisible = isCloseButtonVisible
   }
-  
-  func claimCreationTypeApi() -> ReclaimVerification.VerificationOptions.ClaimCreationType {
-    switch (claimCreationType) {
-      case "meChain": return .meChain
-      case _: return .standalone
+
+  func claimCreationTypeApi()
+    -> ReclaimVerification.VerificationOptions.ClaimCreationType
+  {
+    switch claimCreationType {
+    case "meChain": return .meChain
+    case _: return .standalone
     }
   }
-  
+
   func toSdkOptions() -> ReclaimVerification.VerificationOptions {
     return .init(
-      canDeleteCookiesBeforeVerificationStarts: canDeleteCookiesBeforeVerificationStarts,
+      canDeleteCookiesBeforeVerificationStarts:
+        canDeleteCookiesBeforeVerificationStarts,
       attestorAuthRequestProvider: attestorAuthRequestProvider,
       claimCreationType: claimCreationTypeApi(),
       canAutoSubmit: canAutoSubmit,
       isCloseButtonVisible: isCloseButtonVisible
     )
   }
-  
-  class _AttestorAuthRequestProvider: ReclaimVerification.VerificationOptions.AttestorAuthRequestProvider {
+
+  class _AttestorAuthRequestProvider: ReclaimVerification.VerificationOptions
+      .AttestorAuthRequestProvider
+  {
     let fetchAttestorAuthenticationRequest: ReclaimVerificationOptionFetchAttestorAuthRequestHandler
-    
-    init(fetchAttestorAuthenticationRequest: @escaping ReclaimVerificationOptionFetchAttestorAuthRequestHandler) {
-      self.fetchAttestorAuthenticationRequest = fetchAttestorAuthenticationRequest
+
+    init(
+      fetchAttestorAuthenticationRequest: @escaping
+      ReclaimVerificationOptionFetchAttestorAuthRequestHandler
+    ) {
+      self.fetchAttestorAuthenticationRequest =
+        fetchAttestorAuthenticationRequest
     }
-    
-    func fetchAttestorAuthenticationRequest(reclaimHttpProvider: [AnyHashable? : (any Sendable)?], completion: @escaping (Result<String, any Error>) -> Void) {
+
+    func fetchAttestorAuthenticationRequest(
+      reclaimHttpProvider: [AnyHashable?: (any Sendable)?],
+      completion: @escaping (Result<String, any Error>) -> Void
+    ) {
       let replyId = Api.setReplyWithStringCallback(completion)
-      let reclaimHttpProviderJsonString = JSONUtility.toString(reclaimHttpProvider)
+      let reclaimHttpProviderJsonString = JSONUtility.toString(
+        reclaimHttpProvider
+      )
       fetchAttestorAuthenticationRequest(reclaimHttpProviderJsonString, replyId)
     }
   }

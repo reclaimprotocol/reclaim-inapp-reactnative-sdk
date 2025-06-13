@@ -43,10 +43,12 @@ android.iml
 
 # Cocoapods
 #
-example/ios/Pods
+user-workspace/ios/Pods
+samples/*/ios/Pods
 
 # Ruby
-example/vendor/
+user-workspace/vendor/
+samples/*/vendor/
 
 # node.js
 #
@@ -90,6 +92,7 @@ yarn.lock
 package-lock.json
 
 *.tgz
+./lib/
 
 # Temporary
 samples/example_old_arch/

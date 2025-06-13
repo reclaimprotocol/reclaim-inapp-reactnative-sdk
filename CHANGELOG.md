@@ -1,3 +1,11 @@
+## 0.8.3
+
+* Updates inapp module dependency to 0.8.3
+* Add support for versioned providers
+* Update [BREAKING] session init handler for overrides
+* Updates the UI with a verification review banner in the verification flow
+* Remove [BREAKING] `acceptAiProviders`, and `webhookUrl` from ReclaimVerification Request
+
 ## 0.7.3
 
 * Fix android verification
