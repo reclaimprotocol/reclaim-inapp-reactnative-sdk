@@ -110,9 +110,6 @@ import ReclaimInAppSdk
     } else {
       request = .params(
         try .init(
-          // TODO: Won't work because of a missing params providerVersion in the constructor
-          appId: "",
-          secret: "",
           providerId: providerId,
           session: session,
           context: context ?? "",
@@ -329,6 +326,7 @@ public typealias OverridenProviderCallback = (
   _ sessionId: String,
   _ signature: String,
   _ timestamp: String,
+  _ resolvedVersion: String,
   _ replyId: String
 ) -> Void
 
@@ -350,6 +348,7 @@ public class OverridenProviderCallbackHandler: NSObject, ReclaimOverrides
     sessionId: String,
     signature: String,
     timestamp: String,
+    resolvedVersion: String,
     completion: @escaping (Result<String, any Error>) -> Void
   ) {
     let replyId = Api.setReplyWithStringCallback(completion)
@@ -359,6 +358,7 @@ public class OverridenProviderCallbackHandler: NSObject, ReclaimOverrides
       sessionId,
       signature,
       timestamp,
+      resolvedVersion,
       replyId
     )
   }
