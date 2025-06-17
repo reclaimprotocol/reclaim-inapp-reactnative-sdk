@@ -328,6 +328,7 @@ export interface ProviderInformationRequest {
   sessionId: string;
   signature: string;
   timestamp: string;
+  resolvedVersion: string;
   /**
    * internal
    */

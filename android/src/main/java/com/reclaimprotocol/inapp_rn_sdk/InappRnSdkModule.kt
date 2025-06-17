@@ -267,6 +267,7 @@ class InappRnSdkModule(private val reactContext: ReactApplicationContext) :
                 sessionId: String,
                 signature: String,
                 timestamp: String,
+                resolvedVersion: String,
                 callback: (Result<String>) -> Unit
               ) {
                 val args = Arguments.createMap()
@@ -275,6 +276,7 @@ class InappRnSdkModule(private val reactContext: ReactApplicationContext) :
                 args.putString("sessionId", sessionId)
                 args.putString("signature", signature)
                 args.putString("timestamp", timestamp)
+                args.putString("resolvedVersion", resolvedVersion)
                 val replyId = UUID.randomUUID().toString()
                 args.putString("replyId", replyId)
                 replyWithString[replyId] = callback

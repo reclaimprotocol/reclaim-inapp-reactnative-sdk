@@ -157,13 +157,14 @@ Api *api = [[Api alloc] init];
               initWith_fetchProviderInformation:^(
                   NSString *_Nonnull appId, NSString *_Nonnull providerId,
                   NSString *_Nonnull sessionId, NSString *_Nonnull signature,
-                  NSString *_Nonnull timestamp, NSString *_Nonnull replyId) {
+                  NSString *_Nonnull timestamp, NSString *_Nonnull resolvedVersion, NSString *_Nonnull replyId) {
                 [self emitOnProviderInformationRequest:@{
                   @"appId" : appId,
                   @"providerId" : providerId,
                   @"sessionId" : sessionId,
                   @"signature" : signature,
                   @"timestamp" : timestamp,
+                  @"resolvedVersion": resolvedVersion,
                   @"replyId" : replyId
                 }];
               }];

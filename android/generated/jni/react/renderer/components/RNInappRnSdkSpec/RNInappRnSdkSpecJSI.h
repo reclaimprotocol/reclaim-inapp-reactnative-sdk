@@ -330,16 +330,17 @@ struct NativeInappRnSdkProviderInformationBridging {
 
 #pragma mark - NativeInappRnSdkProviderInformationRequest
 
-template <typename P0, typename P1, typename P2, typename P3, typename P4, typename P5>
+template <typename P0, typename P1, typename P2, typename P3, typename P4, typename P5, typename P6>
 struct NativeInappRnSdkProviderInformationRequest {
   P0 appId;
   P1 providerId;
   P2 sessionId;
   P3 signature;
   P4 timestamp;
-  P5 replyId;
+  P5 resolvedVersion;
+  P6 replyId;
   bool operator==(const NativeInappRnSdkProviderInformationRequest &other) const {
-    return appId == other.appId && providerId == other.providerId && sessionId == other.sessionId && signature == other.signature && timestamp == other.timestamp && replyId == other.replyId;
+    return appId == other.appId && providerId == other.providerId && sessionId == other.sessionId && signature == other.signature && timestamp == other.timestamp && resolvedVersion == other.resolvedVersion && replyId == other.replyId;
   }
 };
 
@@ -357,6 +358,7 @@ struct NativeInappRnSdkProviderInformationRequestBridging {
       bridging::fromJs<decltype(types.sessionId)>(rt, value.getProperty(rt, "sessionId"), jsInvoker),
       bridging::fromJs<decltype(types.signature)>(rt, value.getProperty(rt, "signature"), jsInvoker),
       bridging::fromJs<decltype(types.timestamp)>(rt, value.getProperty(rt, "timestamp"), jsInvoker),
+      bridging::fromJs<decltype(types.resolvedVersion)>(rt, value.getProperty(rt, "resolvedVersion"), jsInvoker),
       bridging::fromJs<decltype(types.replyId)>(rt, value.getProperty(rt, "replyId"), jsInvoker)};
     return result;
   }
@@ -382,6 +384,10 @@ struct NativeInappRnSdkProviderInformationRequestBridging {
     return bridging::toJs(rt, value);
   }
 
+  static jsi::String resolvedVersionToJs(jsi::Runtime &rt, decltype(types.resolvedVersion) value) {
+    return bridging::toJs(rt, value);
+  }
+
   static jsi::String replyIdToJs(jsi::Runtime &rt, decltype(types.replyId) value) {
     return bridging::toJs(rt, value);
   }
@@ -397,6 +403,7 @@ struct NativeInappRnSdkProviderInformationRequestBridging {
     result.setProperty(rt, "sessionId", bridging::toJs(rt, value.sessionId, jsInvoker));
     result.setProperty(rt, "signature", bridging::toJs(rt, value.signature, jsInvoker));
     result.setProperty(rt, "timestamp", bridging::toJs(rt, value.timestamp, jsInvoker));
+    result.setProperty(rt, "resolvedVersion", bridging::toJs(rt, value.resolvedVersion, jsInvoker));
     result.setProperty(rt, "replyId", bridging::toJs(rt, value.replyId, jsInvoker));
     return result;
   }
