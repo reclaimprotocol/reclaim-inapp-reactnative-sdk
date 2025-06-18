@@ -1,14 +1,20 @@
 # Migration
 
+## 0.9.1
+
+- Make sure if you are using the latest versions of `ReclaimInAppSdk` cocoapod if you have overriden this dependency in your `Podfile`. Latest version on [cocoapods.org is 0.9.1](https://cocoapods.org/pods/ReclaimInAppSdk).
+- Run a `pod install --repo-update`. If this fails for reasons related to the `ReclaimInAppSdk`, try running `pod update ReclaimInAppSdk`.
+- Refer: https://github.com/reclaimprotocol/reclaim-inapp-reactnative-sdk/blob/main/README.md#ios-setup
+
 ## 0.9.0
 
-- Make sure if you are using the latest versions of `ReclaimInAppSdk` cocoapod if you have overriden this dependency in your `Podfile`. Latest version on [cocoapods.org is 0.9.0](https://cocoapods.org/pods/ReclaimInAppSdk).
+- Make sure if you are using the latest versions of `ReclaimInAppSdk` cocoapod if you have overriden this dependency in your `Podfile`. Latest version on [cocoapods.org is 0.9.1](https://cocoapods.org/pods/ReclaimInAppSdk).
 - Run a `pod install --repo-update`. If this fails for reasons related to the `ReclaimInAppSdk`, try running `pod update ReclaimInAppSdk`.
 - Refer: https://github.com/reclaimprotocol/reclaim-inapp-reactnative-sdk/blob/main/README.md#ios-setup
 
 ## 0.8.3
 
-- Make sure if you are using the latest versions of `ReclaimInAppSdk` cocoapod if you have overriden this dependency in your `Podfile`. Latest version on [cocoapods.org is 0.9.0](https://cocoapods.org/pods/ReclaimInAppSdk).
+- Make sure if you are using the latest versions of `ReclaimInAppSdk` cocoapod if you have overriden this dependency in your `Podfile`. Latest version on [cocoapods.org is 0.9.1](https://cocoapods.org/pods/ReclaimInAppSdk).
 - Run a `pod install --repo-update`. If this fails for reasons related to the `ReclaimInAppSdk`, try running `pod update ReclaimInAppSdk`.
 - Refer: https://github.com/reclaimprotocol/reclaim-inapp-reactnative-sdk/blob/main/README.md#ios-setup
 
@@ -16,7 +22,7 @@
 
 ### iOS
 
-- Make sure if you are using the latest versions of `ReclaimInAppSdk` cocoapod if you have overriden this dependency in your `Podfile`. Latest version on [cocoapods.org is 0.9.0](https://cocoapods.org/pods/ReclaimInAppSdk).
+- Make sure if you are using the latest versions of `ReclaimInAppSdk` cocoapod if you have overriden this dependency in your `Podfile`. Latest version on [cocoapods.org is 0.9.1](https://cocoapods.org/pods/ReclaimInAppSdk).
 - Run a `pod install --repo-update`. If this fails for reasons related to the `ReclaimInAppSdk`, try running `pod update ReclaimInAppSdk`.
 - Refer: https://github.com/reclaimprotocol/reclaim-inapp-reactnative-sdk/blob/main/README.md#ios-setup
 
@@ -95,7 +101,7 @@ dependencyResolutionManagement {
 
 ### iOS
 
-- Make sure if you are using the latest versions of `ReclaimInAppSdk` cocoapod if you have overriden this dependency in your `Podfile`. Latest version on [cocoapods.org is 0.9.0](https://cocoapods.org/pods/ReclaimInAppSdk).
+- Make sure if you are using the latest versions of `ReclaimInAppSdk` cocoapod if you have overriden this dependency in your `Podfile`. Latest version on [cocoapods.org is 0.9.1](https://cocoapods.org/pods/ReclaimInAppSdk).
 - Run a `pod install --repo-update`. If this fails for reasons related to the `ReclaimInAppSdk`, try running `pod update ReclaimInAppSdk`.
 - Refer: https://github.com/reclaimprotocol/reclaim-inapp-reactnative-sdk/blob/main/README.md#ios-setup
 
@@ -134,6 +140,6 @@ dependencyResolutionManagement {
 
 ### iOS
 
-- Make sure if you are using the `0.2.0` version of `ReclaimInAppSdk` cocoapod if you have overriden this dependency in your `Podfile`. Latest version on [cocoapods.org is 0.9.0](https://cocoapods.org/pods/ReclaimInAppSdk).
+- Make sure if you are using the `0.2.0` version of `ReclaimInAppSdk` cocoapod if you have overriden this dependency in your `Podfile`. Latest version on [cocoapods.org is 0.9.1](https://cocoapods.org/pods/ReclaimInAppSdk).
 - Run a `pod install --repo-update`. If this fails for reasons related to the `ReclaimInAppSdk`, try running `pod update ReclaimInAppSdk`.
 - Refer: https://github.com/reclaimprotocol/reclaim-inapp-reactnative-sdk/blob/main/README.md#ios-setup

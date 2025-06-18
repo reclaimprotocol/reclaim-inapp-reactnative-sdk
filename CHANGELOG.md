@@ -1,3 +1,7 @@
+## 0.9.1
+
+* Updates inapp module dependency to 0.9.1
+
 ## 0.9.0
 
 * Add resolvedVersion to fetch providers override
