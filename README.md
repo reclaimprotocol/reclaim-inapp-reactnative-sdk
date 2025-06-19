@@ -110,13 +110,13 @@ Ignore if you already have this declaration in your `Podfile`.
 
 ```ruby
 # Cocoapods is the recommended way to install the SDK.
-pod 'ReclaimInAppSdk', '~> 0.9.1'
+pod 'ReclaimInAppSdk', '~> 0.9.2'
 ```
 
 ##### From a specific tag
 
 ```ruby
-pod 'ReclaimInAppSdk', :git => 'https://github.com/reclaimprotocol/reclaim-inapp-ios-sdk.git', :tag => '0.9.1'
+pod 'ReclaimInAppSdk', :git => 'https://github.com/reclaimprotocol/reclaim-inapp-ios-sdk.git', :tag => '0.9.2'
 ```
 
 ##### From git HEAD
@@ -153,7 +153,7 @@ target 'InappRnSdkExample' do
   )
 
   # This is the line that you may need to add in your podfile.
-  pod 'ReclaimInAppSdk', '~> 0.9.1'
+  pod 'ReclaimInAppSdk', '~> 0.9.2'
 
   pre_install do |installer|
     system("cd ../../ && npx bob build --target codegen")
@@ -298,6 +298,7 @@ error.innerError
 
 ## Migration
 
+- Migration steps for [0.9.2](https://github.com/reclaimprotocol/reclaim-inapp-reactnative-sdk/blob/main/documentation/migration.md#092)
 - Migration steps for [0.9.1](https://github.com/reclaimprotocol/reclaim-inapp-reactnative-sdk/blob/main/documentation/migration.md#091)
 - Migration steps for [0.9.0](https://github.com/reclaimprotocol/reclaim-inapp-reactnative-sdk/blob/main/documentation/migration.md#090)
 - Migration steps for [0.8.3](https://github.com/reclaimprotocol/reclaim-inapp-reactnative-sdk/blob/main/documentation/migration.md#083)
