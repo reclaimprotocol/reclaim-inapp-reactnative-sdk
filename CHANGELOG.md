@@ -1,3 +1,11 @@
+## 0.9.2
+
+* Fixing issues with incognito (regression)
+* Fix manual verification
+* Update verification review screen
+* Fix hawkeye headers bug with a workaround
+* Updates inapp module dependency to 0.9.2
+
 ## 0.9.1
 
 * Updates inapp module dependency to 0.9.1
