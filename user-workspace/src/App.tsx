@@ -13,6 +13,7 @@ import {
 import { ReclaimVerification } from '@reclaimprotocol/inapp-rn-sdk';
 import Snackbar from 'react-native-snackbar';
 import { REACT_APP_RECLAIM_APP_ID, REACT_APP_RECLAIM_APP_SECRET } from '@env';
+import React from 'react';
 
 const config = {
   REACT_APP_RECLAIM_APP_ID: REACT_APP_RECLAIM_APP_ID,

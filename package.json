@@ -1,6 +1,6 @@
 {
   "name": "@reclaimprotocol/inapp-rn-sdk",
-  "version": "0.9.3-alpha.7",
+  "version": "0.9.4-alpha.4",
   "description": "Reclaim Protocol's InApp React Native SDK for ZK proof generations for requests with an in-app experience of web verification",
   "source": "./src/index.ts",
   "main": "./lib/commonjs/index.js",
@@ -17,9 +17,12 @@
         "types": "./lib/typescript/commonjs/src/index.d.ts",
         "default": "./lib/commonjs/index.js"
       }
-    }
+    },
+    "./app.plugin.js": "./app.plugin.js",
+    "./package.json": "./package.json"
   },
   "files": [
+    "app.plugin.js",
     "expo-plugin",
     "src",
     "lib",

@@ -25,6 +25,12 @@ This SDK allows you to integrate Reclaim's in-app verification process into your
 npm install @reclaimprotocol/inapp-rn-sdk
 ```
 
+Or if you're using Expo, use:
+
+```sh
+npx expo install @reclaimprotocol/inapp-rn-sdk
+```
+
 ### Alternative: Install from git source
 
 #### NPM
@@ -40,6 +46,60 @@ yarn add git+https://github.com/reclaimprotocol/reclaim-inapp-reactnative-sdk.gi
 ```
 
 ## Setup
+
+### Expo Only Setup
+
+Expo users can skip the native configuration changes by adding the Reclaim InApp Config Plugin. To do so merge the following code to the plugins section of your `app.json`, `app.config.js`, or `app.config.ts` file:
+
+```diff
+{
+  // .. other plugin options (removed for brevity)
+  "plugins": [
+    "expo-router",
+    // Add the following in the plugins section:
++   "@reclaimprotocol/inapp-rn-sdk",
+    [
+      "expo-splash-screen",
+      {
+        "image": "./assets/images/splash-icon.png",
+        "imageWidth": 200,
+        "resizeMode": "contain",
+        "backgroundColor": "#ffffff"
+      }
+    ]
+    // ... other plugins (removed for brevity)
+  ],
+  // .. other options (removed for brevity)
+}
+```
+
+Note: This module contains custom native code which is NOT supported by Expo Go
+
+If you're using Expo without EAS, run the following commands:
+
+```
+# For iOS
+npx expo prebuild
+npx expo run:ios
+
+# For Android
+npx expo prebuild
+npx expo run:android
+```
+
+If you're using Expo with EAS, create a new build:
+
+```
+# For online builds
+npx eas-cli build --profile development
+
+# For local builds
+npx eas-cli build --profile development --local
+```
+
+Follow [the fixing ios performance issues guide](#fixing-performance-issues-on-ios-physical-devices) to fix slow proof generation on iOS physicial devices.
+
+Now your expo project is ready to use. [You can follow the usage section for more](#usage).
 
 ### Android Setup
 
