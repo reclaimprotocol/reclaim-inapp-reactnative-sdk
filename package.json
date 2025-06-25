@@ -72,7 +72,6 @@
     "registry": "https://registry.npmjs.org/"
   },
   "devDependencies": {
-    "expo-module-scripts": "^4.1.7",
     "@commitlint/config-conventional": "^17.0.2",
     "@evilmartians/lefthook": "^1.5.0",
     "@expo/config-plugins": "^9.0.14",
