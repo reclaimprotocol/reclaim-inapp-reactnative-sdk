@@ -1,13 +1,13 @@
-import { type ConfigPlugin, withPlugins } from '@expo/config-plugins';
+import { type ConfigPlugin, createRunOncePlugin, withPlugins } from '@expo/config-plugins';
 import {
-    installReclaimAndroidManifest,
-    installReclaimProjectBuildGradle,
+    withReclaimAndroidManifest,
+    withReclaimProjectBuildGradle,
 } from './android';
 
 const withReclaimInAppSdk: ConfigPlugin = (config) => {
     return withPlugins(config, [
-        installReclaimAndroidManifest,
-        installReclaimProjectBuildGradle,
+        withReclaimAndroidManifest,
+        withReclaimProjectBuildGradle,
     ]);
 };
 

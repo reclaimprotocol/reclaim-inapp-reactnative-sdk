@@ -1,6 +1,6 @@
 import { type ConfigPlugin, withAndroidManifest } from '@expo/config-plugins';
 
-export const installReclaimAndroidManifest: ConfigPlugin = (config) => {
+export const withReclaimAndroidManifest: ConfigPlugin = (config) => {
     return withAndroidManifest(config, (config) => {
         let androidManifest = config.modResults.manifest;
         const cannotInstallMessage = 'cannot install reclaim inapp android sdk';
