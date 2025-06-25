@@ -161,7 +161,7 @@ platform :ios, '13.0' # or platform :ios, min_ios_version_supported
 
 Ignore if you already have this declaration in your `Podfile`.
 
-2. Add the following to your `Podfile` to override SDK dependency:
+#### Overriding SDK dependency in `Podfile` (Optional):
 
 - You can override the version of dependency when you wish to use a specific version of the SDK.
 - You can add a declaration in your `Podfile` to install the SDK from cocoapods, or from a specific git tag, head, commit, or branch.
