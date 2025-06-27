@@ -5,8 +5,8 @@
   "scripts": {
     "start": "expo start",
     "reset-project": "node ./scripts/reset-project.js",
-    "android": "expo run:android",
-    "ios": "expo run:ios",
+    "android": "npx expo run:android",
+    "ios": "npx expo run:ios",
     "web": "expo start --web",
     "expo:prebuild": "npx expo prebuild",
     "run:android": "npx expo run:android",

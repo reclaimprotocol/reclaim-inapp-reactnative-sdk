@@ -2,41 +2,63 @@
 
 This is an [Expo](https://expo.dev) project created with [`create-expo-app`](https://www.npmjs.com/package/create-expo-app).
 
+**Note:** This plugin is not compatible with Expo Go. Please use a development build, Android emulator, or iOS simulator for testing.
 
 ## Get started
 
-1. Install dependencies
+1. Don't forget to create `.env` file with reclaim app id and app secret from devtools. Refer [`.env.example`](./.env.example).
+
+2. Install dependencies
 
    ```bash
    npm install
    ```
 
-2. Start the app
+3. Start the app
 
    ```bash
    npx expo start
    ```
 
-In the output, you'll find options to open the app in a
+From the options you see, you can open the app in a [Android emulator](https://docs.expo.dev/workflow/android-studio-emulator/), physical android device, [iOS simulator](https://docs.expo.dev/workflow/ios-simulator/), or physical iOS device. 
 
-- [development build](https://docs.expo.dev/develop/development-builds/introduction/)
-- [Android emulator](https://docs.expo.dev/workflow/android-studio-emulator/)
-- [iOS simulator](https://docs.expo.dev/workflow/ios-simulator/)
-- [Expo Go](https://expo.dev/go), a limited sandbox for trying out app development with Expo
+4. Build and run your app
 
-**Note:** This plugin is not compatible with Expo Go. Please use a development build, Android emulator, or iOS simulator for testing.
+### Android
 
-You can start developing by editing the files inside the **app** directory. This project uses [file-based routing](https://docs.expo.dev/router/introduction).
+```sh
+# Using npm
+npm run android
 
-## Get a fresh project
-
-When you're ready, run:
-
-```bash
-npm run reset-project
+# OR using Yarn
+yarn android
 ```
 
-This command will move the starter code to the **app-example** directory and create a blank **app** directory where you can start developing.
+### iOS
+
+For iOS, remember to install CocoaPods dependencies (this only needs to be run on first clone or after updating inapp sdk).
+
+To update your native dependencies, run:
+
+```sh
+cd ios/; pod install;
+```
+
+For more information, please visit [CocoaPods Getting Started guide](https://guides.cocoapods.org/using/getting-started.html).
+
+Start your app with
+
+```sh
+# Using npm
+npm run ios
+
+# OR using Yarn
+yarn ios
+```
+
+If everything is set up correctly, you should see your new app running in the Android Emulator, iOS Simulator, or your connected device.
+
+This is one way to run your app — you can also build it directly from Android Studio or Xcode.
 
 ## Learn more
 

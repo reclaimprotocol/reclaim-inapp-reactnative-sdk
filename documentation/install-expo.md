@@ -71,7 +71,7 @@ npx eas-cli build --profile development --local
 
 Your app performance will be severely impacted when you run debug executable on a physical device. Fixing this requires a simple change in your Xcode project xcscheme.
 
-##### Update Environment Variables for XCScheme (Recommended) 
+##### Update Environment Variables for XCScheme
 1. Open your iOS project (*.xcworkspace) in Xcode.
 2. Click on the project target.
 3. Click on the **Scheme** dropdown.
