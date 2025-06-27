@@ -1,3 +1,7 @@
+## 0.9.4-alpha.4
+
+* Add support for expo android
+
 ## 0.9.2
 
 * Fixing issues with incognito (regression)

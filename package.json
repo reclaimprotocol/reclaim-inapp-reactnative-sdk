@@ -1,6 +1,6 @@
 {
   "name": "@reclaimprotocol/inapp-rn-sdk",
-  "version": "0.9.2",
+  "version": "0.9.4-alpha.4",
   "description": "Reclaim Protocol's InApp React Native SDK for ZK proof generations for requests with an in-app experience of web verification",
   "source": "./src/index.ts",
   "main": "./lib/commonjs/index.js",
@@ -17,9 +17,13 @@
         "types": "./lib/typescript/commonjs/src/index.d.ts",
         "default": "./lib/commonjs/index.js"
       }
-    }
+    },
+    "./app.plugin.js": "./app.plugin.js",
+    "./package.json": "./package.json"
   },
   "files": [
+    "app.plugin.js",
+    "expo-plugin",
     "src",
     "lib",
     "android",
@@ -47,7 +51,9 @@
     "ios:gen:specs": "cd user-workspace/ios && bundle install && bundle exec pod install",
     "gen:specs": "npx react-native codegen",
     "clean": "del-cli android/build user-workspace/android/build user-workspace/android/app/build user-workspace/ios/build lib",
-    "prepare": "bob build",
+    "prepare": "bob build && npm run build:expo:plugin",
+    "prepack": "bob build && npm run build:expo:plugin",
+    "build:expo:plugin": "tsc -p ./expo-plugin/tsconfig.json",
     "release": "release-it"
   },
   "keywords": [
@@ -71,6 +77,7 @@
   "devDependencies": {
     "@commitlint/config-conventional": "^17.0.2",
     "@evilmartians/lefthook": "^1.5.0",
+    "@expo/config-plugins": "^9.0.14",
     "@react-native-community/cli": "15.0.1",
     "@react-native/eslint-config": "^0.73.1",
     "@release-it/conventional-changelog": "^9.0.2",
