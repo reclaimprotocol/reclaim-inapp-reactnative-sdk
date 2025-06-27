@@ -2,7 +2,7 @@
 
 This is an [Expo](https://expo.dev) project created with [`create-expo-app`](https://www.npmjs.com/package/create-expo-app).
 
-**Note:** This plugin is not compatible with Expo Go. Please use a development build, Android emulator, or iOS simulator for testing.
+**Note:** This project is not compatible with Expo Go.
 
 ## Get started
 
