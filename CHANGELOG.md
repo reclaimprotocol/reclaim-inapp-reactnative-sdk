@@ -1,3 +1,16 @@
+## 0.10.0
+
+* Bug fixes and performance improvements
+* Add retries on timeout when creating claim creation request
+* Throw unsupported warning for non 64 bit runtime platforms
+* Add device logging id as a fallback device identifier
+* Print logs to attached app debugging consoles when logs upload fails 
+* Update exceptions cases
+* Add check for 4xx errors when throwing ReclaimExpiredSessionException exception
+* Fix attestor startup causing requests to get stuck by pre-initializing a separate single browser rpc client for json path and xpath evaluation
+* Update copy for manual review, add feature flags for customizing manual review messages and prompt before manual review submission
+* Updates inapp module dependency to 0.10.0
+
 ## 0.9.4-alpha.4
 
 * Add support for expo android
