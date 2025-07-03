@@ -114,6 +114,16 @@ error.innerError
 
 ## Troubleshooting
 
+### iOS build issues
+
+Incase you get errors which say `CocoaPods could not find compatible versions for pod "ReclaimInAppSdk"`, run the following in your project's `ios/` directory:
+
+```sh
+bundle exec pod update ReclaimInAppSdk
+# or
+pod update ReclaimInAppSdk
+```
+
 ### Build failures for iOS in 0.7.x
 
 - An accidental breaking change may cause 0.7.0, 0.7.1, 0.7.2 to fail with build failures for Android and iOS. Update 0.7.3 fixes this issue.

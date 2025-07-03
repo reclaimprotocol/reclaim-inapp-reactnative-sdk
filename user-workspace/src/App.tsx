@@ -12,6 +12,7 @@ import {
 } from 'react-native';
 import { ReclaimVerification } from '@reclaimprotocol/inapp-rn-sdk';
 import Snackbar from 'react-native-snackbar';
+import { Picker } from '@react-native-picker/picker';
 import { REACT_APP_RECLAIM_APP_ID, REACT_APP_RECLAIM_APP_SECRET } from '@env';
 import React from 'react';
 
@@ -22,25 +23,57 @@ const config = {
 const reclaimVerification = new ReclaimVerification();
 
 export default function App() {
-  const [providerId, setProviderId] = useState('6d3f6753-7ee6-49ee-a545-62f1b1822ae5');
-  const [verificationUrl, setVerificationUrl] = useState('');
+  const [verificationMethod, setVerificationMethod] = useState<'provider' | 'json' | 'url'>('provider');
+  const [inputText, setInputText] = useState('6d3f6753-7ee6-49ee-a545-62f1b1822ae5');
   const [result, setResult] = useState<ReclaimVerification.Response | null>(null);
+
+  const getInputPlaceholder = () => {
+    switch (verificationMethod) {
+      case 'provider':
+        return 'Enter Provider ID';
+      case 'json':
+        return 'Enter JSON Configuration';
+      case 'url':
+        return 'Enter Verification URL';
+    }
+  };
+
   const handleStartVerification = async () => {
-    if (!providerId) {
+    if (!inputText) {
       Snackbar.show({
-        text: 'Provider ID is required',
+        text: 'Input is required',
         duration: Snackbar.LENGTH_LONG,
       });
       return;
     }
-    console.assert(config.REACT_APP_RECLAIM_APP_ID, 'RECLAIM_APP_ID is not set');
-    console.assert(config.REACT_APP_RECLAIM_APP_SECRET, 'RECLAIM_APP_SECRET is not set');
+
+    switch (verificationMethod) {
+      case 'provider':
+        console.assert(config.REACT_APP_RECLAIM_APP_ID, 'RECLAIM_APP_ID is not set');
+        console.assert(config.REACT_APP_RECLAIM_APP_SECRET, 'RECLAIM_APP_SECRET is not set');
+        break;
+      case 'json':
+        break;
+      case 'url':
+        break;
+    }
     try {
-      const verificationResult = await reclaimVerification.startVerification({
-        appId: config.REACT_APP_RECLAIM_APP_ID ?? '',
-        secret: config.REACT_APP_RECLAIM_APP_SECRET ?? '',
-        providerId: providerId,
-      });
+      let verificationResult: ReclaimVerification.Response;
+      switch (verificationMethod) {
+        case 'provider':
+          verificationResult = await reclaimVerification.startVerification({
+            appId: config.REACT_APP_RECLAIM_APP_ID ?? '',
+            secret: config.REACT_APP_RECLAIM_APP_SECRET ?? '',
+            providerId: inputText,
+          });
+          break;
+        case 'json':
+          verificationResult = await reclaimVerification.startVerificationFromJson(JSON.parse(inputText));
+          break;
+        case 'url':
+          verificationResult = await reclaimVerification.startVerificationFromUrl(inputText);
+          break;
+      }
       setResult(verificationResult);
     } catch (error) {
       console.info({
@@ -81,58 +114,6 @@ export default function App() {
       }
     }
   };
-
-  const handleStartVerificationFromUrl = async () => {
-    if (!verificationUrl) {
-      Snackbar.show({
-        text: 'Verification URL is required',
-        duration: Snackbar.LENGTH_LONG,
-      });
-      return;
-    }
-
-    try {
-      const verificationResult = await reclaimVerification.startVerificationFromUrl(verificationUrl);
-      setResult(verificationResult);
-    } catch (error) {
-      console.info({
-        verificationError: error,
-      });
-      if (error instanceof ReclaimVerification.ReclaimVerificationException) {
-        switch (error.type) {
-          case ReclaimVerification.ExceptionType.Cancelled:
-            Snackbar.show({
-              text: 'Verification cancelled',
-              duration: Snackbar.LENGTH_LONG,
-            });
-            break;
-          case ReclaimVerification.ExceptionType.Dismissed:
-            Snackbar.show({
-              text: 'Verification dismissed',
-              duration: Snackbar.LENGTH_LONG,
-            });
-            break;
-          case ReclaimVerification.ExceptionType.SessionExpired:
-            Snackbar.show({
-              text: 'Verification session expired',
-              duration: Snackbar.LENGTH_LONG,
-            });
-            break;
-          case ReclaimVerification.ExceptionType.Failed:
-          default:
-            Snackbar.show({
-              text: 'Verification failed',
-              duration: Snackbar.LENGTH_LONG,
-            });
-        }
-      } else {
-        Snackbar.show({
-          text: error instanceof Error ? error.message : 'An unknown verification error occurred',
-          duration: Snackbar.LENGTH_LONG,
-        });
-      }
-    }
-  }
 
   const copyProof = async () => {
     if (!result) {
@@ -186,36 +167,33 @@ export default function App() {
 
       {/* Main Content */}
       <View style={styles.content}>
+        {/* Verification Method Dropdown */}
+        <View style={styles.dropdownContainer}>
+          <Text style={styles.dropdownLabel}>Verification Method:</Text>
+          <Picker
+            selectedValue={verificationMethod}
+            style={styles.dropdown}
+            onValueChange={(itemValue) => setVerificationMethod(itemValue as 'provider' | 'json' | 'url')}
+          >
+            <Picker.Item label="Provider ID" value="provider" />
+            <Picker.Item label="JSON Config" value="json" />
+            <Picker.Item label="URL" value="url" />
+          </Picker>
+        </View>
+
         <TextInput
-          style={styles.input}
-          value={providerId}
-          onChangeText={setProviderId}
-          placeholder="Enter Provider ID"
+          style={[styles.input, verificationMethod === 'json' && styles.jsonInput]}
+          value={inputText}
+          onChangeText={setInputText}
+          placeholder={getInputPlaceholder()}
           placeholderTextColor="#666"
-          numberOfLines={1}
-          multiline={false}
+          numberOfLines={verificationMethod === 'json' ? 4 : 1}
+          multiline={verificationMethod === 'json'}
         />
 
         <Button
           title="Start Verification"
           onPress={handleStartVerification}
-        />
-
-        <Text style={styles.orLabel}>OR</Text>
-
-        <TextInput
-          style={styles.input}
-          value={verificationUrl}
-          onChangeText={setVerificationUrl}
-          placeholder="Enter Verification URL"
-          placeholderTextColor="#666"
-          numberOfLines={1}
-          multiline={false}
-        />
-
-        <Button
-          title="Start Verification from URL"
-          onPress={handleStartVerificationFromUrl}
         />
 
         <Text style={styles.button} ></Text>
@@ -261,6 +239,21 @@ const styles = StyleSheet.create({
     flex: 1,
     padding: 16,
   },
+  dropdownContainer: {
+    marginBottom: 16,
+  },
+  dropdownLabel: {
+    fontSize: 16,
+    fontWeight: 'bold',
+    marginBottom: 8,
+    color: '#333',
+  },
+  dropdown: {
+    borderWidth: 1,
+    borderColor: '#ccc',
+    borderRadius: 4,
+    backgroundColor: '#f9f9f9',
+  },
   orLabel: {
     flex: 0,
     padding: 6,
@@ -274,6 +267,10 @@ const styles = StyleSheet.create({
     borderRadius: 4,
     padding: 8,
     marginBottom: 16,
+  },
+  jsonInput: {
+    height: 100,
+    textAlignVertical: 'top',
   },
   resultContainer: {
     marginTop: 16,

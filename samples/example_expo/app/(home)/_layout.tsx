@@ -1,4 +1,3 @@
-// import { ReclaimVerification } from '@reclaimprotocol/inapp-rn-sdk';
 import { ReclaimVerification } from '@reclaimprotocol/inapp-rn-sdk';
 import React, { useState } from 'react';
 import { Button, Clipboard, ScrollView, Text, TextInput, View } from 'react-native';
