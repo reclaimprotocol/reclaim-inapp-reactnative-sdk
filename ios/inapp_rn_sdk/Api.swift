@@ -126,7 +126,13 @@ import ReclaimInAppSdk
   ) async throws -> [String: Any] {
     return try await startVerificationWithRequest(.url(url))
   }
-
+  
+  @objc public func startVerificationFromJson(
+    template: String
+  ) async throws -> [String: Any] {
+    return try await startVerificationWithRequest(.json(JSONUtility.fromString(template) as? [AnyHashable?: Sendable?] ?? [:]))
+  }
+  
   @objc public func setOverrides(
     provider: OverridenProviderInformation?,
     featureOptions: OverridenFeatureOptions?,

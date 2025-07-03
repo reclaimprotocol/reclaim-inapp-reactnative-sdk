@@ -42,7 +42,7 @@
     "react-native-snackbar": "^2.9.0",
     "react-native-web": "~0.20.0",
     "react-native-webview": "13.13.5",
-    "@reclaimprotocol/inapp-rn-sdk": "0.10.0"
+    "@reclaimprotocol/inapp-rn-sdk": "0.10.1"
   },
   "devDependencies": {
     "@babel/core": "^7.25.2",
