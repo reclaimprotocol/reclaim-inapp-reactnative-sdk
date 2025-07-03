@@ -11,7 +11,6 @@
     "ios_setup": "bundle install && cd ios && pod install --repo-update && pod update ReclaimInAppSdk && bundle exec pod install"
   },
   "dependencies": {
-    "@react-native-picker/picker": "^2.11.1",
     "react": "18.3.1",
     "react-native": "0.77.1",
     "react-native-snackbar": "^2.8.0"

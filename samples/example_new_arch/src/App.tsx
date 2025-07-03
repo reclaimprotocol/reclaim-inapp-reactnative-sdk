@@ -9,10 +9,14 @@ import {
   SafeAreaView,
   StatusBar,
   Clipboard,
+  Pressable,
+  Modal,
+  TouchableOpacity,
+  KeyboardTypeOptions,
+  InputModeOptions,
 } from 'react-native';
 import { ReclaimVerification } from '@reclaimprotocol/inapp-rn-sdk';
 import Snackbar from 'react-native-snackbar';
-import { Picker } from '@react-native-picker/picker';
 import { REACT_APP_RECLAIM_APP_ID, REACT_APP_RECLAIM_APP_SECRET } from '@env';
 import React from 'react';
 
@@ -22,16 +26,27 @@ const config = {
 }
 const reclaimVerification = new ReclaimVerification();
 
+type VerificationMode = 'providerId' | 'jsonConfig' | 'url';
+
 export default function App() {
-  const [verificationMethod, setVerificationMethod] = useState<'provider' | 'json' | 'url'>('provider');
+  const [verificationMethod, setVerificationMethod] = useState<VerificationMode>('providerId');
   const [inputText, setInputText] = useState('6d3f6753-7ee6-49ee-a545-62f1b1822ae5');
   const [result, setResult] = useState<ReclaimVerification.Response | null>(null);
+  const [showDropdown, setShowDropdown] = useState(false);
+
+  const verificationOptions = [
+    { label: 'Provider ID', value: 'providerId' },
+    { label: 'JSON Config', value: 'jsonConfig' },
+    { label: 'URL', value: 'url' },
+  ];
+
+  const selectedOption = verificationOptions.find(option => option.value === verificationMethod);
 
   const getInputPlaceholder = () => {
     switch (verificationMethod) {
-      case 'provider':
+      case 'providerId':
         return 'Enter Provider ID';
-      case 'json':
+      case 'jsonConfig':
         return 'Enter JSON Configuration';
       case 'url':
         return 'Enter Verification URL';
@@ -48,11 +63,11 @@ export default function App() {
     }
 
     switch (verificationMethod) {
-      case 'provider':
+      case 'providerId':
         console.assert(config.REACT_APP_RECLAIM_APP_ID, 'RECLAIM_APP_ID is not set');
         console.assert(config.REACT_APP_RECLAIM_APP_SECRET, 'RECLAIM_APP_SECRET is not set');
         break;
-      case 'json':
+      case 'jsonConfig':
         break;
       case 'url':
         break;
@@ -60,14 +75,14 @@ export default function App() {
     try {
       let verificationResult: ReclaimVerification.Response;
       switch (verificationMethod) {
-        case 'provider':
+        case 'providerId':
           verificationResult = await reclaimVerification.startVerification({
             appId: config.REACT_APP_RECLAIM_APP_ID ?? '',
             secret: config.REACT_APP_RECLAIM_APP_SECRET ?? '',
             providerId: inputText,
           });
           break;
-        case 'json':
+        case 'jsonConfig':
           verificationResult = await reclaimVerification.startVerificationFromJson(JSON.parse(inputText));
           break;
         case 'url':
@@ -168,27 +183,127 @@ export default function App() {
       {/* Main Content */}
       <View style={styles.content}>
         {/* Verification Method Dropdown */}
-        <View style={styles.dropdownContainer}>
-          <Text style={styles.dropdownLabel}>Verification Method:</Text>
-          <Picker
-            selectedValue={verificationMethod}
-            style={styles.dropdown}
-            onValueChange={(itemValue) => setVerificationMethod(itemValue as 'provider' | 'json' | 'url')}
+        <View style={{ paddingHorizontal: 20, marginBottom: 20 }}>
+          <Text style={{ fontSize: 16, fontWeight: '600', marginBottom: 8, color: '#000000' }}>
+            Verification Mode
+          </Text>
+          <Pressable
+            onPress={() => setShowDropdown(true)}
+            style={{
+              borderWidth: 1,
+              borderColor: '#cccccc',
+              borderRadius: 8,
+              backgroundColor: '#ffffff',
+              padding: 15,
+              flexDirection: 'row',
+              justifyContent: 'space-between',
+              alignItems: 'center',
+            }}
           >
-            <Picker.Item label="Provider ID" value="provider" />
-            <Picker.Item label="JSON Config" value="json" />
-            <Picker.Item label="URL" value="url" />
-          </Picker>
+            <Text style={{ fontSize: 16, color: '#000000' }}>
+              {selectedOption?.label || 'Select verification mode'}
+            </Text>
+            <Text style={{ fontSize: 16, color: '#666666' }}>▼</Text>
+          </Pressable>
+
+          <Modal
+            visible={showDropdown}
+            transparent={true}
+            animationType="fade"
+            onRequestClose={() => setShowDropdown(false)}
+          >
+            <TouchableOpacity
+              style={{
+                flex: 1,
+                backgroundColor: 'rgba(0, 0, 0, 0.5)',
+                justifyContent: 'center',
+                alignItems: 'center',
+              }}
+              activeOpacity={1}
+              onPress={() => setShowDropdown(false)}
+            >
+              <View
+                style={{
+                  backgroundColor: '#ffffff',
+                  borderRadius: 12,
+                  padding: 20,
+                  width: '80%',
+                  maxWidth: 300,
+                }}
+              >
+                <Text style={{ fontSize: 18, fontWeight: 'bold', marginBottom: 15, textAlign: 'center' }}>
+                  Select Verification Mode
+                </Text>
+                {verificationOptions.map((option) => (
+                  <TouchableOpacity
+                    key={option.value}
+                    style={{
+                      paddingVertical: 12,
+                      paddingHorizontal: 16,
+                      borderBottomWidth: 1,
+                      borderBottomColor: '#f0f0f0',
+                      backgroundColor: verificationMethod === option.value ? '#f0f8ff' : 'transparent',
+                    }}
+                    onPress={() => {
+                      setVerificationMethod(option.value as VerificationMode);
+                      setInputText('');
+                      setShowDropdown(false);
+                    }}
+                  >
+                    <Text
+                      style={{
+                        fontSize: 16,
+                        color: verificationMethod === option.value ? '#007AFF' : '#000000',
+                        fontWeight: verificationMethod === option.value ? '600' : '400',
+                      }}
+                    >
+                      {option.label}
+                    </Text>
+                  </TouchableOpacity>
+                ))}
+                <TouchableOpacity
+                  style={{
+                    marginTop: 10,
+                    paddingVertical: 12,
+                    paddingHorizontal: 16,
+                    alignItems: 'center',
+                  }}
+                  onPress={() => setShowDropdown(false)}
+                >
+                  <Text style={{ fontSize: 16, color: '#666666' }}>Cancel</Text>
+                </TouchableOpacity>
+              </View>
+            </TouchableOpacity>
+          </Modal>
         </View>
 
         <TextInput
-          style={[styles.input, verificationMethod === 'json' && styles.jsonInput]}
+          style={[styles.input, verificationMethod === 'jsonConfig' && styles.jsonInput]}
           value={inputText}
           onChangeText={setInputText}
+          inputMode={((): InputModeOptions => {
+            switch (verificationMethod) {
+              case 'providerId':
+              case 'jsonConfig':
+                return 'text';
+              case 'url':
+                return 'url';
+            }
+          })()}
+          keyboardType={((): KeyboardTypeOptions => {
+            switch (verificationMethod) {
+              case 'providerId':
+              case 'jsonConfig':
+                return 'default';
+              case 'url':
+                return 'url';
+            }
+          })()}
+          autoCapitalize={'none'}
           placeholder={getInputPlaceholder()}
           placeholderTextColor="#666"
-          numberOfLines={verificationMethod === 'json' ? 4 : 1}
-          multiline={verificationMethod === 'json'}
+          multiline={verificationMethod === 'jsonConfig'}
+          numberOfLines={verificationMethod === 'jsonConfig' ? 4 : 1}
         />
 
         <Button
