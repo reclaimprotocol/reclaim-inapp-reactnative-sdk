@@ -132,6 +132,24 @@ Api *api = [[Api alloc] init];
                      }];
 }
 
+- (void)startVerificationFromJson:(nonnull NSString *)templateJsonString resolve:(nonnull RCTPromiseResolveBlock)resolve reject:(nonnull RCTPromiseRejectBlock)reject {
+  NSLog(@"[InappRnSdk] starting verification");
+
+  NSLog(@"[InappRnSdk] starting verification now");
+  [api startVerificationFromJsonWithTemplate:templateJsonString
+                     completionHandler:^(
+                         NSDictionary<NSString *, id> *_Nullable result,
+                         NSError *_Nullable error) {
+                       if (error != nil) {
+                         NSLog(@"[InappRnSdk] Api Error: %@", error);
+                         reject(@"VERIFICATION_ERROR", @"Verification Error",
+                                error);
+                       } else {
+                         resolve(result);
+                       }
+                     }];
+}
+
 - (void)setOverrides:(JS::NativeInappRnSdk::Overrides &)overrides
              resolve:(nonnull RCTPromiseResolveBlock)resolve
               reject:(nonnull RCTPromiseRejectBlock)reject {

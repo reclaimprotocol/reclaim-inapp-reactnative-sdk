@@ -1,3 +1,7 @@
+## 0.10.1
+
+* Add missing implementation on ios api from starting verification with json
+
 ## 0.10.0
 
 * Bug fixes and performance improvements
