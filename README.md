@@ -114,6 +114,14 @@ error.innerError
 
 ## Troubleshooting
 
+### Compatibility Notice: expo-dev-client on iOS
+
+Please be aware of a known incompatibility between ReclaimInAppSdk and the [`expo-dev-client`](https://www.npmjs.com/package/expo-dev-client) package on the iOS platform.
+
+When both packages are present in your iOS application, critical network requests from ReclaimInAppSdk may fail with a request timeout error (i.e `Http failed. Checking if we can retry..\nNSErrorClientException: The request timed out.`).
+
+Our team is investigating this issue to find a solution. In the meantime, we recommend temporarily removing expo-dev-client from your project when you need to test or use ReclaimInAppSdk functionality on iOS.
+
 ### iOS build issues
 
 Incase you get errors which say `CocoaPods could not find compatible versions for pod "ReclaimInAppSdk"`, run the following in your project's `ios/` directory:
