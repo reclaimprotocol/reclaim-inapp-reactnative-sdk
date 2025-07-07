@@ -1,3 +1,11 @@
+## 0.10.2
+
+* Add humanized summary of values shown in the verification review UI
+* Add async lock around json & xml path evaluations to avoid rpc request deadlock
+* Update user login interaction requirement detection
+* Fix handling of requests where response selection either doesn't have match or redaction options
+* Updates inapp module dependency to 0.10.2
+
 ## 0.10.1
 
 * Add missing implementation on ios api from starting verification with json
