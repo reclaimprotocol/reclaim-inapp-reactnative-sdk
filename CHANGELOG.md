@@ -1,3 +1,9 @@
+## 0.10.3
+
+* Fix param key text overflow verification review
+* Add liveliness checks of javascript calls sent to attestor webview
+* Updates inapp module dependency to 0.10.3
+
 ## 0.10.2
 
 * Add humanized summary of values shown in the verification review UI
