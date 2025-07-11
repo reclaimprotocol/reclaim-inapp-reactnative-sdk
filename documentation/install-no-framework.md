@@ -136,13 +136,13 @@ Now your React Native project is ready to use the Reclaim InApp SDK. You can fol
 
 ```ruby
 # Cocoapods is the recommended way to install the SDK.
-pod 'ReclaimInAppSdk', '~> 0.10.3'
+pod 'ReclaimInAppSdk', '~> 0.10.4'
 ```
 
 ##### From a specific tag
 
 ```ruby
-pod 'ReclaimInAppSdk', :git => 'https://github.com/reclaimprotocol/reclaim-inapp-ios-sdk.git', :tag => '0.10.3'
+pod 'ReclaimInAppSdk', :git => 'https://github.com/reclaimprotocol/reclaim-inapp-ios-sdk.git', :tag => '0.10.4'
 ```
 
 ##### From git HEAD
@@ -179,7 +179,7 @@ target 'InappRnSdkExample' do
   )
 
   # This is the line that you may need to add in your podfile.
-  pod 'ReclaimInAppSdk', '~> 0.10.3'
+  pod 'ReclaimInAppSdk', '~> 0.10.4'
 
   pre_install do |installer|
     system("cd ../../ && npx bob build --target codegen")

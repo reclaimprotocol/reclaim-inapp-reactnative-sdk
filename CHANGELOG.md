@@ -1,3 +1,10 @@
+## 0.10.4
+
+* Add a fix to prevent app from launching deeplinks in incognito
+* Update readiness test for attestor 
+* Fix fonts abrupt visual swap when required fonts are loaded
+* Fix UI crash because of missing redaction
+
 ## 0.10.3
 
 * Fix param key text overflow verification review
