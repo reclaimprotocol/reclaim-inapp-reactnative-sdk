@@ -1,3 +1,10 @@
+## 0.10.7
+
+* Update retries during message handling for attestor browser rpc
+* Handle android render process gone
+* Rebuild browser rpc used for value extraction on receiving no response
+* Updates inapp module dependency to 0.10.7
+
 ## 0.10.4
 
 * Add a fix to prevent app from launching deeplinks in incognito
