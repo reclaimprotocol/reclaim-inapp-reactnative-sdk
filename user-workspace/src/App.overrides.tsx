@@ -124,7 +124,7 @@ export default function App() {
         },
         logConsumer: {
           canSdkCollectTelemetry: false,
-          canSdkPrintLogs: false,
+          canSdkPrintLogs: true,
           onLogs: (logJsonString, _) => {
             console.log({ "reclaim.logs": logJsonString });
           },
@@ -150,7 +150,7 @@ export default function App() {
             return {
               sessionId: '123',
               resolvedProviderVersion: '1.0.0',
-            };
+            } as any;
           },
           onSessionUpdateRequest: async (event) => {
             console.log({ "reclaim.session.updateRequest": event });

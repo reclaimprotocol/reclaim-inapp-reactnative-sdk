@@ -76,11 +76,15 @@ export default function App() {
       let verificationResult: ReclaimVerification.Response;
       switch (verificationMethod) {
         case 'providerId':
-          verificationResult = await reclaimVerification.startVerification({
+          const params: ReclaimVerification.Request = {
             appId: config.REACT_APP_RECLAIM_APP_ID ?? '',
             secret: config.REACT_APP_RECLAIM_APP_SECRET ?? '',
             providerId: inputText,
+          }
+          console.info({
+            params,
           });
+          verificationResult = await reclaimVerification.startVerification(params);
           break;
         case 'jsonConfig':
           verificationResult = await reclaimVerification.startVerificationFromJson(JSON.parse(inputText));
