@@ -124,7 +124,7 @@ export default function App() {
         },
         logConsumer: {
           canSdkCollectTelemetry: false,
-          canSdkPrintLogs: false,
+          canSdkPrintLogs: true,
           onLogs: (logJsonString, _) => {
             console.log({ "reclaim.logs": logJsonString });
           },

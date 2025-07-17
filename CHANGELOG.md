@@ -1,3 +1,10 @@
+## 0.10.8
+
+* Update Hawkeye script
+* Add login detection logging
+* Fix unnecessary rebuilds of webview used for value extraction by path
+* Updates inapp module dependency to 0.10.8
+
 ## 0.10.7
 
 * Update retries during message handling for attestor browser rpc

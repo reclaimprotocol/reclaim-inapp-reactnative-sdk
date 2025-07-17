@@ -114,6 +114,20 @@ error.innerError
 
 ## Troubleshooting
 
+### Cronet errors on android without play services
+
+On android devices which don't have play services, you may get following errors in Android logs: `java.lang.RuntimeException: All available Cronet providers are disabled. A provider should be enabled before it can be used.`, `Google-Play-Services-Cronet-Provider is unavailable.`. This is because the Reclaim InApp SDK depends on cronet for making http requests.
+
+To fix this, you need to use embedded cronet in your android app by adding the following dependency in your build.gradle dependencies block: 
+
+```gradle
+dependencies {
+    // ... other dependencies (not shown for brevity)
+    // Use embedded cronet
+    implementation("org.chromium.net:cronet-embedded:113.5672.61")
+}
+```
+
 ### Compatibility Notice: expo-dev-client on iOS
 
 Please be aware of a known incompatibility between ReclaimInAppSdk and the [`expo-dev-client`](https://www.npmjs.com/package/expo-dev-client) package on the iOS platform.
@@ -138,7 +152,7 @@ pod update ReclaimInAppSdk
 
 ## Migration
 
-- Migration steps for [0.10.7](https://github.com/reclaimprotocol/reclaim-inapp-reactnative-sdk/blob/main/documentation/migration.md#0107)
+- Migration steps for [0.10.8](https://github.com/reclaimprotocol/reclaim-inapp-reactnative-sdk/blob/main/documentation/migration.md#0108)
 - Migration steps for [0.9.2](https://github.com/reclaimprotocol/reclaim-inapp-reactnative-sdk/blob/main/documentation/migration.md#092)
 - Migration steps for [0.9.1](https://github.com/reclaimprotocol/reclaim-inapp-reactnative-sdk/blob/main/documentation/migration.md#091)
 - Migration steps for [0.9.0](https://github.com/reclaimprotocol/reclaim-inapp-reactnative-sdk/blob/main/documentation/migration.md#090)
