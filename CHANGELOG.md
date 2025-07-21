@@ -1,3 +1,8 @@
+## 0.10.9
+
+* Replace old attestor clients before use
+* Updates inapp module dependency to 0.10.9
+
 ## 0.10.8
 
 * Update Hawkeye script
