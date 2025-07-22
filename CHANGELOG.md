@@ -1,3 +1,8 @@
+## 0.10.10
+
+* Update attestor client recovery
+* Show a client error screen when no verification activity is detected for some time
+
 ## 0.10.9
 
 * Replace old attestor clients before use
