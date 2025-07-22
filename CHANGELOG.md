@@ -1,3 +1,9 @@
+## 0.10.11
+
+* Update activity detection
+* Reduce number of browser rpc clients used for value extraction and claim creation
+* Lazy initialize browser rpc clients
+
 ## 0.10.10
 
 * Update attestor client recovery
