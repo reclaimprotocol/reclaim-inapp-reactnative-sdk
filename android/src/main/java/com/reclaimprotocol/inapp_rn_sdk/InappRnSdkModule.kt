@@ -42,10 +42,7 @@ class InappRnSdkModule(private val reactContext: ReactApplicationContext) :
       userInfoMap.putString("errorType", errorType)
       userInfoMap.putString("sessionId", exception.sessionId)
       userInfoMap.putBoolean("didSubmitManualVerification", exception.didSubmitManualVerification)
-      userInfoMap.putString(
-        "reason",
-        if (exception is ReclaimVerification.ReclaimVerificationException.Failed) exception.reason else null
-      )
+      userInfoMap.putString("reason", exception.reason)
       promise?.reject("VERIFICATION_ERROR", "Verification Error", exception, userInfoMap)
     }
 

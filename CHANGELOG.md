@@ -1,3 +1,14 @@
+## 0.10.13
+
+* Add reasons on all android exception cases from verification error responses
+* Fix webview re-initialization when initial attempt fails
+* Update verification review screen UI
+* Add handling of local client errors on attestor browser rpc message
+* Fix permissions request dialog on permissions from android webview
+* Fix url loading without trying app link from webview
+* Add cookie `credentials` field in requests
+* Fix verification review UI when oprf is enabled and real value is unavailable
+
 ## 0.10.11
 
 * Update activity detection
