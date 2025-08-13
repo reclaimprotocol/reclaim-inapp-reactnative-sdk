@@ -1,3 +1,26 @@
+## 0.12.0
+
+* Add support to follow links when starting a session with startVerificationFromUrl
+* Add support for optional response matches
+* Move request matching to platform from webpage injections
+* Add regex match support for http provider's requests
+* Remove dependency of requestHash to prevent request matching to fail with accidental re-use of request hashes from devtools
+* Add retries when loading fonts
+* Update cryptography library dependencies
+* Add subscribe and mapChangesStream to ObservableNotifier for firing an event on subscribe to prevent listeners from missing latest event
+* Add 16kb memory page alignment support for android archive
+* Upgrade android agp to 8.7.3
+* Update java compatibility to version 11
+* Update libgnarkprover compiled binaries with go 1.25
+* Update libgnarkprover from github.com/reclaimprotocol/zk-symmetric-crypto revision af4bb82aba064350a96e87b9bfb5fc9777671459
+* Fixes edge cases where initialization would get stuck
+* Introduce AI flow: enables automated verification for providers with `verificationType` set to `AI`
+* AI flow automatically guides users through verification steps and handles data extraction
+* Add AI action controller to manage and coordinate AI-driven actions during the verification process
+* Add AI flow coordinator widget to manage and coordinate AI flow
+* Fix visibility of terms of service
+* Add text with hyperlink when an error occurs to help users learn more about potential failures
+
 ## 0.10.13
 
 * Add reasons on all android exception cases from verification error responses
