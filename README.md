@@ -124,7 +124,7 @@ To fix this, you need to use embedded cronet in your android app by adding the f
 dependencies {
     // ... other dependencies (not shown for brevity)
     // Use embedded cronet
-    implementation("org.chromium.net:cronet-embedded:113.5672.61")
+    implementation("org.chromium.net:cronet-embedded:119.6045.31")
 }
 ```
 
@@ -152,6 +152,7 @@ pod update ReclaimInAppSdk
 
 ## Migration
 
+- Migration steps for [0.12.0](https://github.com/reclaimprotocol/reclaim-inapp-reactnative-sdk/blob/main/documentation/migration.md#0120)
 - Migration steps for [0.10.11](https://github.com/reclaimprotocol/reclaim-inapp-reactnative-sdk/blob/main/documentation/migration.md#01011)
 - Migration steps for [0.9.2](https://github.com/reclaimprotocol/reclaim-inapp-reactnative-sdk/blob/main/documentation/migration.md#092)
 - Migration steps for [0.9.1](https://github.com/reclaimprotocol/reclaim-inapp-reactnative-sdk/blob/main/documentation/migration.md#091)
