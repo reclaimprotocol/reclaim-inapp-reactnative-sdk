@@ -152,6 +152,7 @@ pod update ReclaimInAppSdk
 
 ## Migration
 
+- Migration steps for [0.15.0](https://github.com/reclaimprotocol/reclaim-inapp-reactnative-sdk/blob/main/documentation/migration.md#0150)
 - Migration steps for [0.12.0](https://github.com/reclaimprotocol/reclaim-inapp-reactnative-sdk/blob/main/documentation/migration.md#0120)
 - Migration steps for [0.10.11](https://github.com/reclaimprotocol/reclaim-inapp-reactnative-sdk/blob/main/documentation/migration.md#01011)
 - Migration steps for [0.9.2](https://github.com/reclaimprotocol/reclaim-inapp-reactnative-sdk/blob/main/documentation/migration.md#092)
