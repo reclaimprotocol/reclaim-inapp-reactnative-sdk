@@ -1,3 +1,12 @@
+## 0.15.0
+
+* Add interception of document with `pre` text in html document or the html document on DOMContentLoaded event when `disableRequestReplay` is true
+* Fix an edge case where public data wasn't attached to proofs when updating public data after verification completes
+* Add improvements to AI
+* Fix reporting of no activity and verification requirement failure exceptions in session logs
+* Add improvements to login detection when using AI
+* Add support to follow redirects when parsing a url using `ClientSdkVerificationRequest.fromUrl`
+
 ## 0.12.0
 
 * Add support to follow links when starting a session with startVerificationFromUrl
