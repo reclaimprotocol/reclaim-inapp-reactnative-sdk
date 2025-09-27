@@ -1,3 +1,7 @@
+## 0.18.0
+
+* Add log level to Log entry that's sent to logging service
+
 ## 0.17.0
 
 * Add [WIP] dark theme support for app
