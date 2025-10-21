@@ -9,7 +9,7 @@ This guide explains how to install and set up the Reclaim InApp SDK for React Na
 
 ## Example
 
-- See the [Reclaim Example - React Native Expo](samples/example_expo/README.md) for a complete example of how to use the SDK in a React Native Expo application.
+- See the [Reclaim Example - React Native Expo](https://github.com/reclaimprotocol/reclaim-inapp-reactnative-sdk/tree/main/samples/example_expo) for a complete example of how to use the SDK in a React Native Expo application.
 
 ## Installation
 
