@@ -1,3 +1,15 @@
+## 0.24.0
+
+* Fix use of capability access token
+* Add OS & inapp sdk version to feature flag query
+* Add interception options from feature flags
+* Re-add rive compatibility for graphic in themes
+* Add i18n support and initial en/es l10n
+* Update theme to support hiding values shown for data shared
+* Update theme to customize text on Verifier App's success screen
+* Remove red color for status message on errors
+* Update message shown on ReclaimVerificationNoActivityDetectedException
+
 ## 0.18.0
 
 * Add log level to Log entry that's sent to logging service

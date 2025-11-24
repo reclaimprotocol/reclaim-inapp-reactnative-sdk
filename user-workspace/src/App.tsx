@@ -12,18 +12,17 @@ import {
   Pressable,
   Modal,
   TouchableOpacity,
+} from 'react-native';
+import type {
   KeyboardTypeOptions,
   InputModeOptions,
 } from 'react-native';
 import { ReclaimVerification } from '@reclaimprotocol/inapp-rn-sdk';
 import Snackbar from 'react-native-snackbar';
-import { REACT_APP_RECLAIM_APP_ID, REACT_APP_RECLAIM_APP_SECRET } from '@env';
-import React from 'react';
+// Duplicate ./.env.example.json to ./.env.json and enter your reclaim app id & secrets
+// Note: reclaim app id & secrets is not needed if you start verification at backend 
+import config from './.env.json';
 
-const config = {
-  REACT_APP_RECLAIM_APP_ID: REACT_APP_RECLAIM_APP_ID,
-  REACT_APP_RECLAIM_APP_SECRET: REACT_APP_RECLAIM_APP_SECRET,
-}
 const reclaimVerification = new ReclaimVerification();
 
 type VerificationMode = 'providerId' | 'jsonConfig' | 'url';

@@ -67,11 +67,10 @@ npx eas-cli build --profile development
 npx eas-cli build --profile development --local
 ```
 
-#### Fixing performance issues on IOS physical devices
+### IOS XCScheme Configuration
 
-Your app performance will be severely impacted when you run debug executable on a physical device. Fixing this requires a simple change in your Xcode project xcscheme.
+Update Environment Variables for XCScheme
 
-##### Update Environment Variables for XCScheme
 1. Open your iOS project (*.xcworkspace) in Xcode.
 2. Click on the project target.
 3. Click on the **Scheme** dropdown.
@@ -91,3 +90,37 @@ Your app performance will be severely impacted when you run debug executable on 
 9. Run the app on a physical device.
 
 Now your React Native Expo project is ready to use the Reclaim InApp SDK. You can follow the [usage documentation](https://github.com/reclaimprotocol/reclaim-inapp-reactnative-sdk/blob/main/README.md#usage) to learn how to integrate the SDK into your application.
+
+## Troubleshooting
+
+### Compatibility Notice: expo-dev-client on iOS
+
+Please be aware of a known incompatibility between ReclaimInAppSdk and the [`expo-dev-client`](https://www.npmjs.com/package/expo-dev-client) package on the iOS platform.
+
+When both packages are present in your iOS application, critical network requests from ReclaimInAppSdk may fail with a request timeout error (i.e `Http failed. Checking if we can retry..\nNSErrorClientException: The request timed out.`).
+
+Our team is investigating this issue to find a solution. In the meantime, we recommend temporarily removing expo-dev-client from your project when you need to test or use ReclaimInAppSdk functionality on iOS.
+
+### Cronet errors on android without play services
+
+On android devices which don't have play services, you may get following errors in Android logs: `java.lang.RuntimeException: All available Cronet providers are disabled. A provider should be enabled before it can be used.`, `Google-Play-Services-Cronet-Provider is unavailable.`. This is because the Reclaim InApp SDK depends on cronet for making http requests.
+
+To fix this, you need to use embedded cronet in your android app by adding the following dependency in your build.gradle dependencies block: 
+
+```gradle
+dependencies {
+    // ... other dependencies (not shown for brevity)
+    // Use embedded cronet
+    implementation("org.chromium.net:cronet-embedded:141.7340.3")
+}
+```
+
+### iOS build issues
+
+Incase you get errors which say `CocoaPods could not find compatible versions for pod "ReclaimInAppSdk"`, run the following in your project's `ios/` directory:
+
+```sh
+bundle exec pod update ReclaimInAppSdk
+# or
+pod update ReclaimInAppSdk
+```

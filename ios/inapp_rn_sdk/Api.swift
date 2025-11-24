@@ -220,6 +220,10 @@ import ReclaimInAppSdk
       options: options?.toSdkOptions()
     )
   }
+  
+  @objc public func setConsoleLogging(enabled: Bool) async throws {
+    return try await ReclaimVerification.setConsoleLogging(enabled: enabled)
+  }
 
   func startVerificationWithRequest(_ request: ReclaimVerification.Request)
     async throws -> [String: Any]
@@ -584,6 +588,7 @@ public class OverridenSessionManagement: NSObject {
     public func updateSession(
       sessionId: String,
       status: ReclaimInAppSdk.ReclaimOverrides.SessionManagement.SessionStatus,
+      metadata: [String : (any Sendable)?]?,
       completion: @escaping (Result<Bool, any Error>) -> Void
     ) {
       var statusString: String? = nil
@@ -606,6 +611,8 @@ public class OverridenSessionManagement: NSObject {
         statusString = "PROOF_SUBMISSION_FAILED"
       case .PROOF_MANUAL_VERIFICATION_SUBMITTED:
         statusString = "PROOF_MANUAL_VERIFICATION_SUBMITTED"
+      case .AI_PROOF_SUBMITTED:
+        statusString = "AI_PROOF_SUBMITTED"
       }
       let replyId = Api.setReplyCallback(completion)
       self._updateSession(sessionId, statusString!, replyId)
