@@ -11,11 +11,16 @@
 #endif
 
 @implementation InappRnSdk
-RCT_EXPORT_MODULE()
 
 - (std::shared_ptr<facebook::react::TurboModule>)getTurboModule:
-    (const facebook::react::ObjCTurboModule::InitParams &)params {
-  return std::make_shared<facebook::react::NativeInappRnSdkSpecJSI>(params);
+    (const facebook::react::ObjCTurboModule::InitParams &)params
+{
+    return std::make_shared<facebook::react::NativeInappRnSdkSpecJSI>(params);
+}
+
++ (NSString *)moduleName
+{
+  return @"InappRnSdk";
 }
 
 Api *api = [[Api alloc] init];
@@ -406,6 +411,20 @@ Api *api = [[Api alloc] init];
                            resolve(nil);
                          }
                        }];
+}
+
+- (void)setConsoleLogging:(JS::NativeInappRnSdk::SetConsoleLoggingOptions &)args
+                  resolve:(nonnull RCTPromiseResolveBlock)resolve
+                   reject:(nonnull RCTPromiseRejectBlock)reject {
+  [api setConsoleLoggingWithEnabled:args.enabled()
+                  completionHandler:^(NSError *_Nullable error) {
+                    if (error != nil) {
+                      reject(@"SET_CONSOLE_LOGGING",
+                             @"Error on setting console logging", error);
+                    } else {
+                      resolve(nil);
+                    }
+                  }];
 }
 
 @end

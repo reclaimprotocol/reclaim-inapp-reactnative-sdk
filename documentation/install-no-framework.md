@@ -100,11 +100,10 @@ cd ios/
 pod install
 ```
 
-#### Fixing performance issues on IOS physical devices
+#### IOS XCScheme Configuration
 
-Your app performance will be severely impacted when you run debug executable on a physical device. Fixing this requires a simple change in your Xcode project xcscheme.
+Update Environment Variables for XCScheme
 
-##### Update Environment Variables for XCScheme
 1. Open your iOS project (*.xcworkspace) in Xcode.
 2. Click on the project target.
 3. Click on the **Scheme** dropdown.
@@ -136,13 +135,13 @@ Now your React Native project is ready to use the Reclaim InApp SDK. You can fol
 
 ```ruby
 # Cocoapods is the recommended way to install the SDK.
-pod 'ReclaimInAppSdk', '~> 0.18.0'
+pod 'ReclaimInAppSdk', '~> 0.24.0'
 ```
 
 ##### From a specific tag
 
 ```ruby
-pod 'ReclaimInAppSdk', :git => 'https://github.com/reclaimprotocol/reclaim-inapp-ios-sdk.git', :tag => '0.18.0'
+pod 'ReclaimInAppSdk', :git => 'https://github.com/reclaimprotocol/reclaim-inapp-ios-sdk.git', :tag => '0.24.0'
 ```
 
 ##### From git HEAD
@@ -179,7 +178,7 @@ target 'InappRnSdkExample' do
   )
 
   # This is the line that you may need to add in your podfile.
-  pod 'ReclaimInAppSdk', '~> 0.18.0'
+  pod 'ReclaimInAppSdk', '~> 0.24.0'
 
   pre_install do |installer|
     system("cd ../../ && npx bob build --target codegen")

@@ -1,4 +1,3 @@
 .env
-ReclaimXCFrameworks/
-Gemfile.lock
-Podfile.lock
+.env.json
+Pods/

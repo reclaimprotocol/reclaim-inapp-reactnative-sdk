@@ -17,5 +17,8 @@ dependencyResolutionManagement {
         maven {
             url "$flutterStorageUrl/download.flutter.io"
         }
+        maven {
+      url "/Users/mushaheedsyed/Projects/reclaimprotocol.org/inapp/reclaim_inapp_sdk_wrapper/inapp-sdks/build/android-sdk/dist/library/0.21.1/repo"
+    }
     }
 }

@@ -7,6 +7,9 @@ buildscript {
     mavenCentral()
     maven { url "https://reclaim-inapp-sdk.s3.ap-south-1.amazonaws.com/android/repo" }
     maven { url "https://storage.googleapis.com/download.flutter.io" }
+    maven {
+      url "/Users/mushaheedsyed/Projects/reclaimprotocol.org/inapp/reclaim_inapp_sdk_wrapper/inapp-sdks/build/android-sdk/dist/library/0.21.1/repo"
+    }
   }
   dependencies {
     classpath('com.android.tools.build:gradle')

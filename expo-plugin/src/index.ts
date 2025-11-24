@@ -1,4 +1,4 @@
-import { type ConfigPlugin, createRunOncePlugin, withPlugins } from '@expo/config-plugins';
+import { type ConfigPlugin, withPlugins } from '@expo/config-plugins';
 import {
     withReclaimAndroidManifest,
     withReclaimProjectBuildGradle,

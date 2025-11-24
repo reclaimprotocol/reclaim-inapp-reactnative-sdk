@@ -1,22 +1,14 @@
 {
   "name": "@reclaimprotocol/inapp-rn-sdk",
-  "version": "0.18.0",
+  "version": "0.24.0",
   "description": "Reclaim Protocol's InApp React Native SDK for ZK proof generations for requests with an in-app experience of web verification",
-  "source": "./src/index.ts",
-  "main": "./lib/commonjs/index.js",
-  "module": "./lib/module/index.js",
-  "types": "./lib/typescript/module/src/index.d.ts",
+  "main": "./lib/module/index.js",
+  "types": "./lib/typescript/src/index.d.ts",
   "exports": {
     ".": {
-      "source": "./src/index.ts",
-      "import": {
-        "types": "./lib/typescript/module/src/index.d.ts",
-        "default": "./lib/module/index.js"
-      },
-      "require": {
-        "types": "./lib/typescript/commonjs/src/index.d.ts",
-        "default": "./lib/commonjs/index.js"
-      }
+      "source": "./src/index.tsx",
+      "types": "./lib/typescript/src/index.d.ts",
+      "default": "./lib/module/index.js"
     },
     "./app.plugin.js": "./app.plugin.js",
     "./package.json": "./package.json"
@@ -43,18 +35,16 @@
     "!**/.*"
   ],
   "scripts": {
-    "user-workspace": "yarn workspace @reclaimprotocol/inapp-rn-sdk-user-workspace",
-    "test": "jest",
-    "typecheck": "tsc",
-    "lint": "eslint \"**/*.{js,ts,tsx}\"",
-    "android:gen:specs": "cd user-workspace/android && ./gradlew :app:invokeLibraryCodegen",
-    "ios:gen:specs": "cd user-workspace/ios && bundle install && bundle exec pod install",
-    "gen:specs": "npx react-native codegen",
+    "user-workspace": "yarn workspace @reclaimprotocol/inapp-rn-sdk-example",
     "clean": "del-cli android/build user-workspace/android/build user-workspace/android/app/build user-workspace/ios/build lib",
     "prepare": "bob build && npm run build:expo:plugin",
-    "prepack": "bob build && npm run build:expo:plugin",
+    "typecheck": "tsc",
+    "lint": "eslint \"**/*.{js,ts,tsx}\"",
+    "release": "release-it --only-version",
     "build:expo:plugin": "tsc -p ./expo-plugin/tsconfig.json",
-    "release": "release-it"
+    "gen:ios": "(cd user-workspace/ios; bundle install; bundle exec pod install;)",
+    "gen:android": "(cd user-workspace/android; ./gradlew generateCodegenArtifactsFromSchema;)",
+    "test": "jest"
   },
   "keywords": [
     "react-native",
@@ -63,42 +53,40 @@
   ],
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/reclaimprotocol/reclaim-inapp-reactnative-sdk.git.git"
+    "url": "git+https://github.com/reclaimprotocol/reclaim-inapp-reactnative-sdk.git"
   },
   "author": "Reclaim Protocol  (https://reclaimprotocol.org)",
   "license": "MIT",
   "bugs": {
-    "url": "https://github.com/reclaimprotocol/reclaim-inapp-reactnative-sdk.git/issues"
+    "url": "https://github.com/reclaimprotocol/reclaim-inapp-reactnative-sdk/issues"
   },
-  "homepage": "https://github.com/reclaimprotocol/reclaim-inapp-reactnative-sdk.git#readme",
+  "homepage": "https://github.com/reclaimprotocol/reclaim-inapp-reactnative-sdk#readme",
   "publishConfig": {
     "registry": "https://registry.npmjs.org/"
   },
   "devDependencies": {
-    "@commitlint/config-conventional": "^17.0.2",
-    "@evilmartians/lefthook": "^1.5.0",
-    "@expo/config-plugins": "^9.0.14",
-    "@react-native-community/cli": "^17.0.1",
-    "@react-native/eslint-config": "^0.73.1",
-    "@release-it/conventional-changelog": "^9.0.2",
-    "@types/jest": "^29.5.5",
-    "@types/react": "^18.2.44",
-    "commitlint": "^17.0.2",
-    "del-cli": "^5.1.0",
-    "eslint": "^8.51.0",
-    "eslint-config-prettier": "^9.0.0",
-    "eslint-plugin-prettier": "^5.0.1",
+    "@eslint/compat": "^1.3.2",
+    "@eslint/eslintrc": "^3.3.1",
+    "@eslint/js": "^9.35.0",
+    "@expo/config-plugins": "^54.0.2",
+    "@react-native-community/cli": "20.0.1",
+    "@react-native/babel-preset": "0.81.1",
+    "@react-native/eslint-config": "^0.81.1",
+    "@release-it/conventional-changelog": "^10.0.1",
+    "@types/jest": "^29.5.14",
+    "@types/react": "^19.1.0",
+    "del-cli": "^6.0.0",
+    "eslint": "^9.35.0",
+    "eslint-config-prettier": "^10.1.8",
+    "eslint-plugin-prettier": "^5.5.4",
     "jest": "^29.7.0",
-    "prettier": "^3.0.3",
-    "react": "18.3.1",
-    "react-native": "0.77",
-    "react-native-builder-bob": "^0.37.0",
-    "release-it": "^17.10.0",
-    "turbo": "^1.10.7",
-    "typescript": "^5.2.2"
-  },
-  "resolutions": {
-    "@types/react": "^18.2.44"
+    "prettier": "^2.8.8",
+    "react": "19.1.0",
+    "react-native": "0.81.1",
+    "react-native-builder-bob": "^0.40.15",
+    "release-it": "^19.0.4",
+    "turbo": "^2.5.6",
+    "typescript": "^5.9.2"
   },
   "peerDependencies": {
     "react": "*",
@@ -107,19 +95,39 @@
   "workspaces": [
     "user-workspace"
   ],
-  "packageManager": "yarn@3.6.1",
-  "jest": {
-    "preset": "react-native",
-    "modulePathIgnorePatterns": [
-      "<rootDir>/user-workspace/node_modules",
-      "<rootDir>/samples/",
-      "<rootDir>/lib/"
+  "packageManager": "yarn@4.11.0",
+  "react-native-builder-bob": {
+    "source": "src",
+    "output": "lib",
+    "targets": [
+      [
+        "module",
+        {
+          "esm": true
+        }
+      ],
+      [
+        "typescript",
+        {
+          "project": "tsconfig.build.json"
+        }
+      ]
     ]
   },
-  "commitlint": {
-    "extends": [
-      "@commitlint/config-conventional"
-    ]
+  "codegenConfig": {
+    "name": "InappRnSdkSpec",
+    "type": "modules",
+    "jsSrcsDir": "src",
+    "android": {
+      "javaPackageName": "com.reclaimprotocol.inapprnsdk"
+    }
+  },
+  "prettier": {
+    "quoteProps": "consistent",
+    "singleQuote": true,
+    "tabWidth": 2,
+    "trailingComma": "es5",
+    "useTabs": false
   },
   "release-it": {
     "git": {
@@ -133,82 +141,28 @@
       "release": true
     },
     "plugins": {
-      "@release-it/conventional-changelog": {}
+      "@release-it/conventional-changelog": {
+        "preset": {
+          "name": "angular"
+        }
+      }
     }
   },
-  "eslintConfig": {
-    "root": true,
-    "extends": [
-      "@react-native",
-      "prettier"
-    ],
-    "rules": {
-      "react/react-in-jsx-scope": "off",
-      "prettier/prettier": [
-        "error",
-        {
-          "quoteProps": "consistent",
-          "singleQuote": true,
-          "tabWidth": 2,
-          "trailingComma": "es5",
-          "useTabs": false
-        }
-      ]
-    }
-  },
-  "eslintIgnore": [
-    "node_modules/",
-    "lib/"
-  ],
-  "prettier": {
-    "quoteProps": "consistent",
-    "singleQuote": true,
-    "tabWidth": 2,
-    "trailingComma": "es5",
-    "useTabs": false
-  },
-  "react-native-builder-bob": {
-    "source": "src",
-    "output": "lib",
-    "targets": [
-      "codegen",
-      [
-        "commonjs",
-        {
-          "esm": true
-        }
-      ],
-      [
-        "module",
-        {
-          "esm": true
-        }
-      ],
-      [
-        "typescript",
-        {
-          "project": "tsconfig.build.json",
-          "esm": true
-        }
-      ]
+  "jest": {
+    "preset": "react-native",
+    "modulePathIgnorePatterns": [
+      "<rootDir>/user-workspace/node_modules",
+      "<rootDir>/lib/"
     ]
   },
-  "codegenConfig": {
-    "name": "RNInappRnSdkSpec",
-    "type": "modules",
-    "jsSrcsDir": "src/specs",
-    "outputDir": {
-      "ios": "ios/generated",
-      "android": "android/generated"
-    },
-    "android": {
-      "javaPackageName": "com.reclaimprotocol.inapp_rn_sdk"
-    },
-    "includesGeneratedCode": true
-  },
   "create-react-native-library": {
-    "type": "turbo-module",
     "languages": "kotlin-objc",
-    "version": "0.48.1"
+    "type": "turbo-module",
+    "tools": [
+      "eslint",
+      "release-it",
+      "jest"
+    ],
+    "version": "0.55.0"
   }
 }
