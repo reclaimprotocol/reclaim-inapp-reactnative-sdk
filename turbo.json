@@ -1,10 +1,18 @@
 {
   "$schema": "https://turbo.build/schema.json",
-  "globalDependencies": [".nvmrc", ".yarnrc.yml"],
-  "globalEnv": ["NODE_ENV"],
+  "globalDependencies": [
+    ".nvmrc",
+    ".yarnrc.yml"
+  ],
+  "globalEnv": [
+    "NODE_ENV"
+  ],
   "tasks": {
     "build:android": {
-      "env": ["ANDROID_HOME", "ORG_GRADLE_PROJECT_newArchEnabled"],
+      "env": [
+        "ANDROID_HOME",
+        "ORG_GRADLE_PROJECT_newArchEnabled"
+      ],
       "inputs": [
         "package.json",
         "android",
@@ -15,7 +23,13 @@
         "example/android",
         "!example/android/.gradle",
         "!example/android/build",
-        "!example/android/app/build"
+        "!example/android/app/build",
+        "user-workspace/package.json",
+        "user-workspace/android",
+        "!user-workspace/android/.gradle",
+        "!user-workspace/android/build",
+        "!user-workspace/android/app/build",
+        "!samples"
       ],
       "outputs": []
     },
@@ -34,7 +48,12 @@
         "example/package.json",
         "example/ios",
         "!example/ios/build",
-        "!example/ios/Pods"
+        "!example/ios/Pods",
+        "user-workspace/package.json",
+        "user-workspace/ios",
+        "!user-workspace/ios/build",
+        "!user-workspace/ios/Pods",
+        "!samples"
       ],
       "outputs": []
     }
