@@ -13,13 +13,11 @@
 @implementation InappRnSdk
 
 - (std::shared_ptr<facebook::react::TurboModule>)getTurboModule:
-    (const facebook::react::ObjCTurboModule::InitParams &)params
-{
-    return std::make_shared<facebook::react::NativeInappRnSdkSpecJSI>(params);
+    (const facebook::react::ObjCTurboModule::InitParams &)params {
+  return std::make_shared<facebook::react::NativeInappRnSdkSpecJSI>(params);
 }
 
-+ (NSString *)moduleName
-{
++ (NSString *)moduleName {
   return @"InappRnSdk";
 }
 
@@ -137,22 +135,24 @@ Api *api = [[Api alloc] init];
                      }];
 }
 
-- (void)startVerificationFromJson:(nonnull NSString *)templateJsonString resolve:(nonnull RCTPromiseResolveBlock)resolve reject:(nonnull RCTPromiseRejectBlock)reject {
+- (void)startVerificationFromJson:(nonnull NSString *)templateJsonString
+                          resolve:(nonnull RCTPromiseResolveBlock)resolve
+                           reject:(nonnull RCTPromiseRejectBlock)reject {
   NSLog(@"[InappRnSdk] starting verification");
 
   NSLog(@"[InappRnSdk] starting verification now");
   [api startVerificationFromJsonWithTemplate:templateJsonString
-                     completionHandler:^(
-                         NSDictionary<NSString *, id> *_Nullable result,
-                         NSError *_Nullable error) {
-                       if (error != nil) {
-                         NSLog(@"[InappRnSdk] Api Error: %@", error);
-                         reject(@"VERIFICATION_ERROR", @"Verification Error",
-                                error);
-                       } else {
-                         resolve(result);
-                       }
-                     }];
+                           completionHandler:^(
+                               NSDictionary<NSString *, id> *_Nullable result,
+                               NSError *_Nullable error) {
+                             if (error != nil) {
+                               NSLog(@"[InappRnSdk] Api Error: %@", error);
+                               reject(@"VERIFICATION_ERROR",
+                                      @"Verification Error", error);
+                             } else {
+                               resolve(result);
+                             }
+                           }];
 }
 
 - (void)setOverrides:(JS::NativeInappRnSdk::Overrides &)overrides
@@ -180,14 +180,16 @@ Api *api = [[Api alloc] init];
               initWith_fetchProviderInformation:^(
                   NSString *_Nonnull appId, NSString *_Nonnull providerId,
                   NSString *_Nonnull sessionId, NSString *_Nonnull signature,
-                  NSString *_Nonnull timestamp, NSString *_Nonnull resolvedVersion, NSString *_Nonnull replyId) {
+                  NSString *_Nonnull timestamp,
+                  NSString *_Nonnull resolvedVersion,
+                  NSString *_Nonnull replyId) {
                 [self emitOnProviderInformationRequest:@{
                   @"appId" : appId,
                   @"providerId" : providerId,
                   @"sessionId" : sessionId,
                   @"signature" : signature,
                   @"timestamp" : timestamp,
-                  @"resolvedVersion": resolvedVersion,
+                  @"resolvedVersion" : resolvedVersion,
                   @"replyId" : replyId
                 }];
               }];
@@ -290,7 +292,7 @@ Api *api = [[Api alloc] init];
                                 @"providerId" : providerId,
                                 @"timestamp" : timestamp,
                                 @"signature" : signature,
-                                @"providerVersion": providerVersion,
+                                @"providerVersion" : providerVersion,
                                 @"replyId" : replyId
                               }];
                             }
@@ -425,6 +427,39 @@ Api *api = [[Api alloc] init];
                       resolve(nil);
                     }
                   }];
+}
+
+- (void)startEventSubscription:(nonnull NSString *)event {
+  if ([event isEqualToString:@"sessionIdentityUpdate"]) {
+    OverridenSessionIdentityUpdateHandler *_Nonnull handler =
+        [[OverridenSessionIdentityUpdateHandler alloc]
+            initWithHandler:^(NSString *_Nullable appId,
+                              NSString *_Nullable providerId,
+                              NSString *_Nullable sessionId) {
+              [self emitOnSessionIdentityUpdate:@{
+                @"appId" : appId,
+                @"providerId" : providerId,
+                @"sessionId" : sessionId
+              }];
+            }];
+
+    [api startSessionIdentityEventListenerWithListener:handler
+                                     completionHandler:^(
+                                         NSError *_Nullable error) {
+                                       if (error != nil) {
+                                         NSLog(@"[InappRnSdk] Api Error: %@",
+                                               error);
+                                       }
+                                     }];
+  } else {
+    NSLog(@"[InAppRnSdk] Unknown event subscription requested: %@", event);
+  }
+}
+
+- (void)removeEventSubscription:(nonnull NSString *)event {
+  if ([event isEqualToString:@"sessionIdentityUpdate"]) {
+    // do nothing for now, clearOverrides clear everything atm.
+  }
 }
 
 @end

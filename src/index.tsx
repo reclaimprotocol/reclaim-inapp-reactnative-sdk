@@ -68,6 +68,10 @@ export class ReclaimVerification {
       enabled: enabled == true,
     });
   }
+
+  public addEventListener<T extends keyof ReclaimVerification.EventListener.EventMap>(type: T, listener: ReclaimVerification.EventListener.EventListener<T>): ReclaimVerification.EventListener.CancelEventSubscription {
+    return this.platform.addEventListener(type, listener);
+  }
 }
 
 /**
@@ -229,6 +233,15 @@ export namespace ReclaimVerification {
     export type ReclaimAppInfo = NativeReclaimInappModuleTypes.ReclaimAppInfo;
   }
 
+  export namespace EventListener {
+    export type SessionIdentityUpdate = NativeReclaimInappModuleTypes.ReclaimSessionIdentityUpdate;
+    export interface EventMap {
+      "sessionIdentityUpdate": SessionIdentityUpdate,
+    };
+    export type EventListener<T extends keyof EventMap> = (event: EventMap[T]) => void | Promise<void>;
+    export type CancelEventSubscription = () => void;
+  }
+
   export type OverrideConfig = {
     provider?: Overrides.ProviderInformation;
     featureOptions?: Overrides.FeatureOptions;
@@ -381,6 +394,8 @@ export namespace ReclaimVerification {
     abstract setConsoleLogging(
       options?: ReclaimVerification.SetConsoleLoggingOptions | null
     ): Promise<void>;
+
+    abstract addEventListener<T extends keyof ReclaimVerification.EventListener.EventMap>(type: T, listener: ReclaimVerification.EventListener.EventListener<T>): ReclaimVerification.EventListener.CancelEventSubscription;
   }
 }
 
@@ -675,5 +690,43 @@ export class PlatformImpl extends ReclaimVerification.Platform {
         error as Error
       );
     }
+  }
+
+  static listenersCount: Record<keyof ReclaimVerification.EventListener.EventMap, number> = {
+    'sessionIdentityUpdate': 0,
+  }
+
+  override addEventListener<T extends keyof ReclaimVerification.EventListener.EventMap>(type: T, listener: ReclaimVerification.EventListener.EventListener<T>): ReclaimVerification.EventListener.CancelEventSubscription {
+    let subscription: EventSubscription;
+    switch (type) {
+      case 'sessionIdentityUpdate':
+        subscription = NativeReclaimInappModule.onSessionIdentityUpdate((param) => {
+          try {
+            listener(param);
+          } catch (_) {
+            // ignore listener errors
+          }
+        });
+        NativeReclaimInappModule.startEventSubscription(type);
+        PlatformImpl.listenersCount[type] = PlatformImpl.listenersCount[type] + 1;
+        break;
+      default:
+        throw new Error('Tried to subscribe to an unknown event');
+    }
+
+    const cancelSubscription = () => {
+      PlatformImpl.listenersCount[type] = PlatformImpl.listenersCount[type] - 1;
+      subscription.remove();
+      if (PlatformImpl.listenersCount[type] <= 0) {
+        PlatformImpl.listenersCount[type] = 0;
+        try {
+          NativeReclaimInappModule.removeEventSubscription(type);
+        } catch (error) {
+          // ignore subscription removal errors
+        }
+      }
+    }
+
+    return cancelSubscription;
   }
 }

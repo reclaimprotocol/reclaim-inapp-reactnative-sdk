@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import {
   Text,
   View,
@@ -32,6 +32,12 @@ export default function App() {
   const [inputText, setInputText] = useState('6d3f6753-7ee6-49ee-a545-62f1b1822ae5');
   const [result, setResult] = useState<ReclaimVerification.Response | null>(null);
   const [showDropdown, setShowDropdown] = useState(false);
+
+  useEffect(() => {
+    reclaimVerification.addEventListener('sessionIdentityUpdate', (event) => {
+      console.info({ type: 'ReclaimEvent', name: 'sessionIdentityUpdate', value: event });
+    });
+  }, []);
 
   const verificationOptions = [
     { label: 'Provider ID', value: 'providerId' },

@@ -221,6 +221,18 @@ import ReclaimInAppSdk
     )
   }
   
+  @objc public func startSessionIdentityEventListener(listener: OverridenSessionIdentityUpdateHandler) async throws {
+    return try await ReclaimVerification.setOverrides(
+      provider: nil,
+      featureOptions: nil,
+      logConsumer: nil,
+      sessionManagement: nil,
+      appInfo: nil,
+      sessionIdentityUpdateHandler: listener,
+      capabilityAccessToken: nil,
+    )
+  }
+  
   @objc public func setConsoleLogging(enabled: Bool) async throws {
     return try await ReclaimVerification.setConsoleLogging(enabled: enabled)
   }
@@ -628,6 +640,30 @@ public class OverridenSessionManagement: NSObject {
       self._logSession(appId, providerId, sessionId, logType)
     }
   }
+}
+
+public typealias OverridenOnSessionIdentityUpdateCallback = (
+  _ appId: String?,
+  _ providerId: String?,
+  _ sessionId: String?
+) -> Void
+
+@objc(OverridenSessionIdentityUpdateHandler)
+public class OverridenSessionIdentityUpdateHandler: NSObject, ReclaimOverrides
+  .SessionIdentityUpdateHandler {
+    @objc public let handler: OverridenOnSessionIdentityUpdateCallback
+    
+    @objc public init(handler: @escaping OverridenOnSessionIdentityUpdateCallback) {
+      self.handler = handler
+    }
+
+    public func onSessionIdentityUpdate(identity: ReclaimInAppSdk.ReclaimVerification.ReclaimSessionIdentity?) {
+      handler(
+        identity?.appId,
+        identity?.providerId,
+        identity?.sessionId
+      )
+    }
 }
 
 public typealias ReclaimVerificationOptionFetchAttestorAuthRequestHandler = (
