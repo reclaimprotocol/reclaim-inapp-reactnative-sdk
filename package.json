@@ -44,7 +44,8 @@
     "build:expo:plugin": "tsc -p ./expo-plugin/tsconfig.json",
     "gen:ios": "(cd user-workspace/ios; bundle install; bundle exec pod install;)",
     "gen:android": "(cd user-workspace/android; ./gradlew generateCodegenArtifactsFromSchema;)",
-    "prerelease": "npm version prerelease --preid dev",
+    "publish:prepare": "npm version prerelease --preid alpha",
+    "publish:pre": "yarn prepare; npm publish --tag alpha",
     "test": "jest"
   },
   "keywords": [
