@@ -1,6 +1,5 @@
 package com.reclaimprotocol.inapprnsdk
 
-import android.util.JsonReader
 import android.util.Log
 import com.facebook.react.bridge.Arguments
 import com.facebook.react.bridge.Promise
@@ -183,26 +182,33 @@ class InappRnSdkModule(private val reactContext: ReactApplicationContext) :
 
   override fun setVerificationOptions(args: ReadableMap?, promise: Promise?) {
     val inputOptions = getMap(args, "options")
-    var options:  ReclaimVerification.VerificationOptions? = null
+    var options: ReclaimVerification.VerificationOptions? = null
     if (inputOptions != null) {
-      val canUseAttestorAuthRequestProvider = getBoolean(inputOptions, "canUseAttestorAuthenticationRequest") == true;
-      val claimCreationType: ReclaimVerification.VerificationOptions.ClaimCreationType = when (getString(inputOptions, "claimCreationType")) {
-        "meChain" -> ReclaimVerification.VerificationOptions.ClaimCreationType.ME_CHAIN
-          else  -> ReclaimVerification.VerificationOptions.ClaimCreationType.STANDALONE
+      val canUseAttestorAuthRequestProvider =
+        getBoolean(inputOptions, "canUseAttestorAuthenticationRequest") == true
+      val claimCreationType: ReclaimVerification.VerificationOptions.ClaimCreationType =
+        when (getString(inputOptions, "claimCreationType")) {
+          "meChain" -> ReclaimVerification.VerificationOptions.ClaimCreationType.ME_CHAIN
+          else -> ReclaimVerification.VerificationOptions.ClaimCreationType.STANDALONE
 
-      }
+        }
       val canAutoSubmit = getBoolean(inputOptions, "canAutoSubmit") ?: true
       val isCloseButtonVisible = getBoolean(inputOptions, "isCloseButtonVisible") ?: true
       options = ReclaimVerification.VerificationOptions(
-        canDeleteCookiesBeforeVerificationStarts = getBoolean(inputOptions, "canDeleteCookiesBeforeVerificationStarts") ?: true,
+        canDeleteCookiesBeforeVerificationStarts = getBoolean(
+          inputOptions,
+          "canDeleteCookiesBeforeVerificationStarts"
+        ) ?: true,
         attestorAuthRequestProvider = if (canUseAttestorAuthRequestProvider) {
           object : ReclaimVerification.VerificationOptions.AttestorAuthRequestProvider {
             override fun fetchAttestorAuthenticationRequest(
-              reclaimHttpProvider: Map<Any?, Any?>,
-              callback: (Result<String>) -> Unit
+              reclaimHttpProvider: Map<Any?, Any?>, callback: (Result<String>) -> Unit
             ) {
               val args = Arguments.createMap()
-              args.putString("reclaimHttpProviderJsonString", JSONObject(reclaimHttpProvider).toString())
+              args.putString(
+                "reclaimHttpProviderJsonString",
+                JSONObject(reclaimHttpProvider).toString()
+              )
               val replyId = UUID.randomUUID().toString()
               args.putString("replyId", replyId)
               replyWithString[replyId] = callback
@@ -214,13 +220,11 @@ class InappRnSdkModule(private val reactContext: ReactApplicationContext) :
         },
         claimCreationType = claimCreationType,
         canAutoSubmit = canAutoSubmit,
-        isCloseButtonVisible = isCloseButtonVisible
-      )
+        isCloseButtonVisible = isCloseButtonVisible)
     }
     reactContext.runOnUiQueueThread {
       ReclaimVerification.setVerificationOptions(
-        context = reactContext.applicationContext,
-        options = options
+        context = reactContext.applicationContext, options = options
       ) { result ->
         result.onSuccess {
           promise?.resolve(null)
@@ -232,15 +236,13 @@ class InappRnSdkModule(private val reactContext: ReactApplicationContext) :
   }
 
   override fun setConsoleLogging(
-    args: ReadableMap?,
-    promise: Promise?
+    args: ReadableMap?, promise: Promise?
   ) {
     val enabled = if (args != null) (getBoolean(args, "enabled") == true) else false
 
     reactContext.runOnUiQueueThread {
       ReclaimVerification.setConsoleLogging(
-        context = reactContext.applicationContext,
-        enabled = enabled
+        context = reactContext.applicationContext, enabled = enabled
       ) { result ->
         result.onSuccess {
           promise?.resolve(null)
@@ -263,46 +265,49 @@ class InappRnSdkModule(private val reactContext: ReactApplicationContext) :
     reactContext.runOnUiQueueThread {
       ReclaimVerification.setOverrides(
         context = reactContext.applicationContext,
-        provider = if (provider == null) null else (
-          if (hasValue(provider, "jsonString"))
-            ReclaimOverrides.ProviderInformation.FromJsonString(
-              requireString(
-                provider, "jsonString"
-              )
-            )
-          else if (hasValue(provider, "url"))
-            ReclaimOverrides.ProviderInformation.FromUrl(
-              requireString(
-                provider, "url"
-              )
-            )
-          else if (getBoolean(provider, "canFetchProviderInformationFromHost") == true)
-            ReclaimOverrides.ProviderInformation.FromCallback(object : ReclaimOverrides.ProviderInformation.FromCallback.Handler {
-              override fun fetchProviderInformation(
-                appId: String,
-                providerId: String,
-                sessionId: String,
-                signature: String,
-                timestamp: String,
-                resolvedVersion: String,
-                callback: (Result<String>) -> Unit
-              ) {
-                val args = Arguments.createMap()
-                args.putString("appId", appId)
-                args.putString("providerId", providerId)
-                args.putString("sessionId", sessionId)
-                args.putString("signature", signature)
-                args.putString("timestamp", timestamp)
-                args.putString("resolvedVersion", resolvedVersion)
-                val replyId = UUID.randomUUID().toString()
-                args.putString("replyId", replyId)
-                replyWithString[replyId] = callback
-                emitOnProviderInformationRequest(args)
-              }
-            })
-          else
-            (throw IllegalStateException("Invalid provider information. canFetchProviderInformationFromHost was not true and jsonString, url were also not provided."))
-        ),
+        provider = if (provider == null) null else (if (hasValue(
+            provider,
+            "jsonString"
+          )
+        ) ReclaimOverrides.ProviderInformation.FromJsonString(
+          requireString(
+            provider, "jsonString"
+          )
+        )
+        else if (hasValue(provider, "url")) ReclaimOverrides.ProviderInformation.FromUrl(
+          requireString(
+            provider, "url"
+          )
+        )
+        else if (getBoolean(
+            provider,
+            "canFetchProviderInformationFromHost"
+          ) == true
+        ) ReclaimOverrides.ProviderInformation.FromCallback(object :
+          ReclaimOverrides.ProviderInformation.FromCallback.Handler {
+          override fun fetchProviderInformation(
+            appId: String,
+            providerId: String,
+            sessionId: String,
+            signature: String,
+            timestamp: String,
+            resolvedVersion: String,
+            callback: (Result<String>) -> Unit
+          ) {
+            val args = Arguments.createMap()
+            args.putString("appId", appId)
+            args.putString("providerId", providerId)
+            args.putString("sessionId", sessionId)
+            args.putString("signature", signature)
+            args.putString("timestamp", timestamp)
+            args.putString("resolvedVersion", resolvedVersion)
+            val replyId = UUID.randomUUID().toString()
+            args.putString("replyId", replyId)
+            replyWithString[replyId] = callback
+            emitOnProviderInformationRequest(args)
+          }
+        })
+        else (throw IllegalStateException("Invalid provider information. canFetchProviderInformationFromHost was not true and jsonString, url were also not provided."))),
         featureOptions = if (featureOptions == null) null else ReclaimOverrides.FeatureOptions(
           cookiePersist = getBoolean(featureOptions, "cookiePersist"),
           singleReclaimRequest = getBoolean(featureOptions, "singleReclaimRequest"),
@@ -349,24 +354,27 @@ class InappRnSdkModule(private val reactContext: ReactApplicationContext) :
             val replyId = UUID.randomUUID().toString()
             args.putString("replyId", replyId)
             replyWithString[replyId] = { it ->
-              callback(it.fold(
-                onSuccess = { value ->
-                  val value = JSONObject(value)
-                  Result.success(ReclaimOverrides.SessionManagement.InitResponse(
+              callback(it.fold(onSuccess = { value ->
+                val value = JSONObject(value)
+                Result.success(
+                  ReclaimOverrides.SessionManagement.InitResponse(
                     sessionId = value.getString("sessionId"),
                     resolvedProviderVersion = value.getString("resolvedProviderVersion")
-                  ))
-                },
-                onFailure = { error ->
-                  Result.failure(error)
-                }
-              ))
+                  )
+                )
+              }, onFailure = { error ->
+                Result.failure(error)
+              }))
             }
             emitOnSessionCreateRequest(args)
           }
 
           override fun logSession(
-            appId: String, providerId: String, sessionId: String, logType: String, metadata: Map<String, Any?>?
+            appId: String,
+            providerId: String,
+            sessionId: String,
+            logType: String,
+            metadata: Map<String, Any?>?
           ) {
             val args = Arguments.createMap()
             args.putString("appId", appId)
@@ -406,7 +414,7 @@ class InappRnSdkModule(private val reactContext: ReactApplicationContext) :
 
         }.onFailure { error ->
           try {
-            Log.d(NAME, "(setOverrides) Failure")
+            Log.d(NAME, "(setOverrides) Failure", error)
             onPlatformException(promise, error)
           } catch (e: Throwable) {
             Log.e(NAME, "(setOverrides) Error rejecting promise", e)
@@ -414,6 +422,47 @@ class InappRnSdkModule(private val reactContext: ReactApplicationContext) :
         }
       }
     }
+  }
+
+  override fun startEventSubscription(event: String?) {
+    when (event) {
+      "sessionIdentityUpdate" -> {
+        reactContext.runOnUiQueueThread {
+          ReclaimVerification.setOverrides(
+            context = reactContext.applicationContext,
+            provider = null,
+            featureOptions = null,
+            logConsumer = null,
+            sessionManagement = null,
+            appInfo = null,
+            capabilityAccessToken = null,
+            sessionIdentityUpdateHandler = object : ReclaimOverrides.SessionIdentityUpdateHandler {
+              override fun onSessionIdentityUpdate(identity: ReclaimVerification.ReclaimSessionIdentity) {
+                val map = Arguments.createMap()
+                map.putString("appId", identity.appId)
+                map.putString("providerId", identity.providerId)
+                map.putString("sessionId", identity.sessionId)
+                emitOnSessionIdentityUpdate(map)
+              }
+            },
+          ) { result ->
+            result.onSuccess {
+              Log.d(NAME, "(startEventSubscription:sessionIdentityUpdate) Success")
+            }.onFailure { error ->
+              Log.d(NAME, "(startEventSubscription:sessionIdentityUpdate) Failure", error)
+            }
+          }
+        }
+      }
+
+      else -> {
+        Log.w(NAME, "(startEventSubscription) Unknown event subscription requested: $event")
+      }
+    }
+  }
+
+  override fun removeEventSubscription(event: String?) {
+    // do nothing for now, clearOverrides clear everything atm.
   }
 
   private val replyHandlers: MutableMap<String, (Result<Boolean>) -> Unit> = mutableMapOf()
@@ -432,8 +481,7 @@ class InappRnSdkModule(private val reactContext: ReactApplicationContext) :
     }
   }
 
-  private val replyWithString: MutableMap<String, (Result<String>) -> Unit> =
-    mutableMapOf()
+  private val replyWithString: MutableMap<String, (Result<String>) -> Unit> = mutableMapOf()
 
   override fun replyWithString(replyId: String?, value: String?) {
     if (replyId == null) {
