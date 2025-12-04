@@ -1,3 +1,7 @@
+## 0.24.1
+
+* Add `addEventListener` for subscribing to `sessionIdentityUpdate` event.
+
 ## 0.24.0
 
 * Fix use of capability access token

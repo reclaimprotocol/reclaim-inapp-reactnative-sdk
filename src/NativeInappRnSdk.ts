@@ -384,6 +384,8 @@ export interface Spec extends TurboModule {
   setConsoleLogging(args: SetConsoleLoggingOptions): Promise<void>;
   reply(replyId: string, reply: boolean): void;
   replyWithString(replyId: string, value: string): void;
+  startEventSubscription(event: string): void;
+  removeEventSubscription(event: string): void;
   ping(): Promise<boolean>;
 
   readonly onLogs: CodegenTypes.EventEmitter<string>
