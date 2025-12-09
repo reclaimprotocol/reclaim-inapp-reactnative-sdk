@@ -122,6 +122,22 @@ Update Environment Variables for XCScheme
 8. Click on the **Close** button in the dialog and build the project.
 9. Run the app on a physical device.
 
+#### If you face performance issue when running on a physical iOS device when using XCode version 26 or above
+
+1. Open your project in Xcode.
+2. Click on the project target.
+3. Click on the **Scheme** dropdown.
+
+<img src="https://github.com/reclaimprotocol/reclaim-inapp-ios-sdk/raw/53a19f88c8d90df485a60dc20190f740cd9fd108/Screenshots/Install/10.png" alt="Edit current xcscheme in Xcode" width="500">
+
+4. Click on the **Edit Scheme** button.
+5. Click on the **Run** tab.
+6. Uncheck the **Debug executable** checkbox.
+
+<img src="https://github.com/reclaimprotocol/reclaim-inapp-ios-sdk/raw/53a19f88c8d90df485a60dc20190f740cd9fd108/Screenshots/Install/11.png" alt="Disable Debug executable in Xcode" width="500">
+
+7. Try running the project again on a physical iOS device
+
 Now your React Native project is ready to use the Reclaim InApp SDK. You can follow the [usage documentation](https://github.com/reclaimprotocol/reclaim-inapp-reactnative-sdk/blob/main/README.md#usage) to learn how to integrate the SDK into your application.
 
 ### Advanced iOS Setup
@@ -135,13 +151,13 @@ Now your React Native project is ready to use the Reclaim InApp SDK. You can fol
 
 ```ruby
 # Cocoapods is the recommended way to install the SDK.
-pod 'ReclaimInAppSdk', '~> 0.24.0'
+pod 'ReclaimInAppSdk', '~> 0.25.0'
 ```
 
 ##### From a specific tag
 
 ```ruby
-pod 'ReclaimInAppSdk', :git => 'https://github.com/reclaimprotocol/reclaim-inapp-ios-sdk.git', :tag => '0.24.0'
+pod 'ReclaimInAppSdk', :git => 'https://github.com/reclaimprotocol/reclaim-inapp-ios-sdk.git', :tag => '0.25.0'
 ```
 
 ##### From git HEAD
@@ -178,7 +194,7 @@ target 'InappRnSdkExample' do
   )
 
   # This is the line that you may need to add in your podfile.
-  pod 'ReclaimInAppSdk', '~> 0.24.0'
+  pod 'ReclaimInAppSdk', '~> 0.25.0'
 
   pre_install do |installer|
     system("cd ../../ && npx bob build --target codegen")

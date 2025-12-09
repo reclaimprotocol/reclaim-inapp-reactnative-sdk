@@ -75,5 +75,5 @@ dependencies {
   implementation "com.facebook.react:react-android"
   implementation "org.jetbrains.kotlin:kotlin-stdlib:$kotlin_version"
 
-  implementation "org.reclaimprotocol:inapp_sdk:0.24.0"
+  implementation "org.reclaimprotocol:inapp_sdk:0.25.0"
 }
