@@ -187,6 +187,33 @@ export interface FeatureOptions {
    * Message to display when the user is logging in.
    */
   loginPromptMessage?: string | null;
+
+  /**
+   * Whether to use TEE.
+   */
+  useTEE?: boolean | null;
+
+  /**
+   * Interceptor options.
+   */
+  interceptorOptions?: string | null;
+
+  claimCreationTimeoutDurationInMins: number | null;
+
+  sessionNoActivityTimeoutDurationInMins: number | null;
+
+  aiProviderNoActivityTimeoutDurationInSecs: number | null;
+
+  pageLoadedCompletedDebounceTimeoutMs: number | null;
+
+  potentialLoginTimeoutS: number | null;
+
+  screenshotCaptureIntervalSeconds: number | null;
+
+  /**
+   * Hosted TEE services Url that participate in Reclaim's TEE+MPC protocol
+   */
+  teeUrls: string | null
 }
 
 export interface LogConsumer {
@@ -340,6 +367,7 @@ export interface ProviderInformationRequest {
 
 export interface VerificationOptions {
   canDeleteCookiesBeforeVerificationStarts: boolean;
+
   canUseAttestorAuthenticationRequest: boolean;
 
   /**
@@ -356,6 +384,25 @@ export interface VerificationOptions {
    * Whether the close button is visible. Defaults to true.
    */
   isCloseButtonVisible: boolean;
+
+  /**
+   * A language code & Country code for localization that should be enforced in the verification flow.
+   */
+  locale?: string | null;
+
+  /**
+   * Enables use of Reclaim's TEE+MPC protocol for HTTP Request claim verification and
+   * attestation.
+   *
+   * When set to `true`, the verification will use Trusted Execution Environment
+   * (TEE) with Multi-Party Computation (MPC) for enhanced security.
+   *
+   * When set to `false`, the standard Reclaim's proxy attestor verification flow is used.
+   *
+   * When `null` (default), inappsdk decides whether to use TEE based on
+   * a feature flag.
+   */
+  useTeeOperator?: boolean | null;
 }
 
 export interface VerificationOptionsOptional {

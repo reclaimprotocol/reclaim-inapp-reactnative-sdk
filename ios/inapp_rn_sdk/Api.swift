@@ -164,7 +164,16 @@ import ReclaimInAppSdk
         attestorBrowserRpcUrl: featureOptions.attestorBrowserRpcUrl,
         isAIFlowEnabled: featureOptions.isAIFlowEnabled?.boolValue,
         manualReviewMessage: featureOptions.manualReviewMessage,
-        loginPromptMessage: featureOptions.loginPromptMessage
+        loginPromptMessage: featureOptions.loginPromptMessage,
+        useTEE: featureOptions.useTEE?.boolValue,
+        interceptorOptions: featureOptions.interceptorOptions,
+        claimCreationTimeoutDurationInMins: featureOptions.claimCreationTimeoutDurationInMins?.int64Value,
+        sessionNoActivityTimeoutDurationInMins: featureOptions.sessionNoActivityTimeoutDurationInMins?.int64Value,
+        aiProviderNoActivityTimeoutDurationInSecs: featureOptions.aiProviderNoActivityTimeoutDurationInSecs?.int64Value,
+        pageLoadedCompletedDebounceTimeoutMs: featureOptions.pageLoadedCompletedDebounceTimeoutMs?.int64Value,
+        potentialLoginTimeoutS: featureOptions.potentialLoginTimeoutS?.int64Value,
+        screenshotCaptureIntervalSeconds: featureOptions.screenshotCaptureIntervalSeconds?.int64Value,
+        teeUrls: featureOptions.teeUrls
       )
     } else {
       featureOptionsOverrides = nil
@@ -417,6 +426,22 @@ public class OverridenProviderInformation: NSObject {
   @objc public var isAIFlowEnabled: NSNumber?
   @objc public var manualReviewMessage: String?
   @objc public var loginPromptMessage: String?
+  // bool
+  @objc public var useTEE: NSNumber?
+  @objc public var interceptorOptions: String?
+  // int64 (long)
+  @objc public var claimCreationTimeoutDurationInMins: NSNumber?
+  // int64 (long)
+  @objc public var sessionNoActivityTimeoutDurationInMins: NSNumber?
+  // int64 (long)
+  @objc public var aiProviderNoActivityTimeoutDurationInSecs: NSNumber?
+  // int64 (long)
+  @objc public var pageLoadedCompletedDebounceTimeoutMs: NSNumber?
+  // int64 (long)
+  @objc public var potentialLoginTimeoutS: NSNumber?
+  // int64 (long)
+  @objc public var screenshotCaptureIntervalSeconds: NSNumber?
+  @objc public var teeUrls: String?
 
   @objc public init(
     cookiePersist: NSNumber? = nil,
@@ -426,7 +451,16 @@ public class OverridenProviderInformation: NSObject {
     attestorBrowserRpcUrl: String? = nil,
     isAIFlowEnabled: NSNumber? = nil,
     manualReviewMessage: String? = nil,
-    loginPromptMessage: String? = nil
+    loginPromptMessage: String? = nil,
+    useTEE: NSNumber? = nil,
+    interceptorOptions: String? = nil,
+    claimCreationTimeoutDurationInMins: NSNumber? = nil,
+    sessionNoActivityTimeoutDurationInMins: NSNumber? = nil,
+    aiProviderNoActivityTimeoutDurationInSecs: NSNumber? = nil,
+    pageLoadedCompletedDebounceTimeoutMs: NSNumber? = nil,
+    potentialLoginTimeoutS: NSNumber? = nil,
+    screenshotCaptureIntervalSeconds: NSNumber? = nil,
+    teeUrls: String? = nil
   ) {
     self.cookiePersist = cookiePersist
     self.singleReclaimRequest = singleReclaimRequest
@@ -438,6 +472,15 @@ public class OverridenProviderInformation: NSObject {
     self.isAIFlowEnabled = isAIFlowEnabled
     self.manualReviewMessage = manualReviewMessage
     self.loginPromptMessage = loginPromptMessage
+    self.useTEE = useTEE
+    self.interceptorOptions = interceptorOptions
+    self.claimCreationTimeoutDurationInMins = claimCreationTimeoutDurationInMins
+    self.sessionNoActivityTimeoutDurationInMins = sessionNoActivityTimeoutDurationInMins
+    self.aiProviderNoActivityTimeoutDurationInSecs = aiProviderNoActivityTimeoutDurationInSecs
+    self.pageLoadedCompletedDebounceTimeoutMs = pageLoadedCompletedDebounceTimeoutMs
+    self.potentialLoginTimeoutS = potentialLoginTimeoutS
+    self.screenshotCaptureIntervalSeconds = screenshotCaptureIntervalSeconds
+    self.teeUrls = teeUrls
   }
 }
 
@@ -679,6 +722,9 @@ public class ReclaimApiVerificationOptions: NSObject {
   public let claimCreationType: String?
   public let canAutoSubmit: Bool
   public let isCloseButtonVisible: Bool
+  public let locale: String?
+  // bool
+  public let useTeeOperator: NSNumber?
 
   @objc public init(
     canDeleteCookiesBeforeVerificationStarts: Bool,
@@ -686,7 +732,9 @@ public class ReclaimApiVerificationOptions: NSObject {
       ReclaimVerificationOptionFetchAttestorAuthRequestHandler?,
     claimCreationType: String?,
     canAutoSubmit: Bool,
-    isCloseButtonVisible: Bool
+    isCloseButtonVisible: Bool,
+    locale: String? = nil,
+    useTeeOperator: NSNumber? = nil
   ) {
     self.canDeleteCookiesBeforeVerificationStarts =
       canDeleteCookiesBeforeVerificationStarts
@@ -700,6 +748,8 @@ public class ReclaimApiVerificationOptions: NSObject {
     self.claimCreationType = claimCreationType
     self.canAutoSubmit = canAutoSubmit
     self.isCloseButtonVisible = isCloseButtonVisible
+    self.locale = locale
+    self.useTeeOperator = useTeeOperator
   }
 
   func claimCreationTypeApi()
@@ -718,7 +768,9 @@ public class ReclaimApiVerificationOptions: NSObject {
       attestorAuthRequestProvider: attestorAuthRequestProvider,
       claimCreationType: claimCreationTypeApi(),
       canAutoSubmit: canAutoSubmit,
-      isCloseButtonVisible: isCloseButtonVisible
+      isCloseButtonVisible: isCloseButtonVisible,
+      locale: locale,
+      useTeeOperator: useTeeOperator?.boolValue
     )
   }
 
