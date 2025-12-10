@@ -190,37 +190,39 @@ class InappRnSdkModule(private val reactContext: ReactApplicationContext) :
         when (getString(inputOptions, "claimCreationType")) {
           "meChain" -> ReclaimVerification.VerificationOptions.ClaimCreationType.ME_CHAIN
           else -> ReclaimVerification.VerificationOptions.ClaimCreationType.STANDALONE
-
         }
       val canAutoSubmit = getBoolean(inputOptions, "canAutoSubmit") ?: true
       val isCloseButtonVisible = getBoolean(inputOptions, "isCloseButtonVisible") ?: true
-      options = ReclaimVerification.VerificationOptions(
-        canDeleteCookiesBeforeVerificationStarts = getBoolean(
-          inputOptions,
-          "canDeleteCookiesBeforeVerificationStarts"
-        ) ?: true,
-        attestorAuthRequestProvider = if (canUseAttestorAuthRequestProvider) {
-          object : ReclaimVerification.VerificationOptions.AttestorAuthRequestProvider {
-            override fun fetchAttestorAuthenticationRequest(
-              reclaimHttpProvider: Map<Any?, Any?>, callback: (Result<String>) -> Unit
-            ) {
-              val args = Arguments.createMap()
-              args.putString(
-                "reclaimHttpProviderJsonString",
-                JSONObject(reclaimHttpProvider).toString()
-              )
-              val replyId = UUID.randomUUID().toString()
-              args.putString("replyId", replyId)
-              replyWithString[replyId] = callback
-              emitOnReclaimAttestorAuthRequest(args)
+      val locale = getString(inputOptions, "locale")
+      val useTeeOperator = getBoolean(inputOptions, "useTeeOperator")
+      options =
+        ReclaimVerification.VerificationOptions(
+          canDeleteCookiesBeforeVerificationStarts = getBoolean(
+            inputOptions, "canDeleteCookiesBeforeVerificationStarts"
+          ) ?: true,
+          attestorAuthRequestProvider = if (canUseAttestorAuthRequestProvider) {
+            object : ReclaimVerification.VerificationOptions.AttestorAuthRequestProvider {
+              override fun fetchAttestorAuthenticationRequest(
+                reclaimHttpProvider: Map<Any?, Any?>, callback: (Result<String>) -> Unit
+              ) {
+                val args = Arguments.createMap()
+                args.putString(
+                  "reclaimHttpProviderJsonString", JSONObject(reclaimHttpProvider).toString()
+                )
+                val replyId = UUID.randomUUID().toString()
+                args.putString("replyId", replyId)
+                replyWithString[replyId] = callback
+                emitOnReclaimAttestorAuthRequest(args)
+              }
             }
-          }
-        } else {
-          null
-        },
-        claimCreationType = claimCreationType,
-        canAutoSubmit = canAutoSubmit,
-        isCloseButtonVisible = isCloseButtonVisible)
+          } else {
+            null
+          },
+          claimCreationType = claimCreationType,
+          canAutoSubmit = canAutoSubmit,
+          isCloseButtonVisible = isCloseButtonVisible,
+          locale = locale,
+          useTeeOperator = useTeeOperator)
     }
     reactContext.runOnUiQueueThread {
       ReclaimVerification.setVerificationOptions(
@@ -266,8 +268,7 @@ class InappRnSdkModule(private val reactContext: ReactApplicationContext) :
       ReclaimVerification.setOverrides(
         context = reactContext.applicationContext,
         provider = if (provider == null) null else (if (hasValue(
-            provider,
-            "jsonString"
+            provider, "jsonString"
           )
         ) ReclaimOverrides.ProviderInformation.FromJsonString(
           requireString(
@@ -280,8 +281,7 @@ class InappRnSdkModule(private val reactContext: ReactApplicationContext) :
           )
         )
         else if (getBoolean(
-            provider,
-            "canFetchProviderInformationFromHost"
+            provider, "canFetchProviderInformationFromHost"
           ) == true
         ) ReclaimOverrides.ProviderInformation.FromCallback(object :
           ReclaimOverrides.ProviderInformation.FromCallback.Handler {
@@ -320,7 +320,31 @@ class InappRnSdkModule(private val reactContext: ReactApplicationContext) :
           attestorBrowserRpcUrl = getString(featureOptions, "attestorBrowserRpcUrl"),
           isAIFlowEnabled = getBoolean(featureOptions, "isAIFlowEnabled"),
           manualReviewMessage = getString(featureOptions, "manualReviewMessage"),
-          loginPromptMessage = getString(featureOptions, "loginPromptMessage")
+          loginPromptMessage = getString(featureOptions, "loginPromptMessage"),
+          useTEE = getBoolean(featureOptions, "useTEE"),
+          interceptorOptions = getString(featureOptions, "interceptorOptions"),
+          claimCreationTimeoutDurationInMins = getNumber(
+            featureOptions,
+            "claimCreationTimeoutDurationInMins"
+          )?.toLong(),
+          sessionNoActivityTimeoutDurationInMins = getNumber(
+            featureOptions,
+            "sessionNoActivityTimeoutDurationInMins"
+          )?.toLong(),
+          aiProviderNoActivityTimeoutDurationInSecs = getNumber(
+            featureOptions,
+            "aiProviderNoActivityTimeoutDurationInSecs"
+          )?.toLong(),
+          pageLoadedCompletedDebounceTimeoutMs = getNumber(
+            featureOptions,
+            "pageLoadedCompletedDebounceTimeoutMs"
+          )?.toLong(),
+          potentialLoginTimeoutS = getNumber(featureOptions, "potentialLoginTimeoutS")?.toLong(),
+          screenshotCaptureIntervalSeconds = getNumber(
+            featureOptions,
+            "screenshotCaptureIntervalSeconds"
+          )?.toLong(),
+          teeUrls = getString(featureOptions, "teeUrls")
         ),
         logConsumer = if (logConsumer == null) null else ReclaimOverrides.LogConsumer(
           logHandler = if (getBoolean(logConsumer, "enableLogHandler") != true) null else object :
@@ -409,7 +433,7 @@ class InappRnSdkModule(private val reactContext: ReactApplicationContext) :
             Log.d(NAME, "(setOverrides) Success")
             promise?.resolve(null)
           } catch (e: Throwable) {
-            Log.e(NAME, "(setOverrides) Error resolving promise")
+            Log.e(NAME, "(setOverrides) Error resolving promise", e)
           }
 
         }.onFailure { error ->

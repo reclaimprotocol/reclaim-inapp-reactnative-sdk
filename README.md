@@ -124,7 +124,7 @@ To fix this, you need to use embedded cronet in your android app by adding the f
 dependencies {
     // ... other dependencies (not shown for brevity)
     // Use embedded cronet
-    implementation("org.chromium.net:cronet-embedded:119.6045.31")
+    implementation("org.chromium.net:cronet-embedded:141.7340.3")
 }
 ```
 

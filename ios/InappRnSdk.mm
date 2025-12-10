@@ -212,7 +212,16 @@ Api *api = [[Api alloc] init];
                                          attestorBrowserRpcUrl:nil
                                                isAIFlowEnabled:nil
                                            manualReviewMessage:nil
-                                            loginPromptMessage:nil];
+                                            loginPromptMessage:nil
+                                                        useTEE:nil
+                                            interceptorOptions:nil
+                            claimCreationTimeoutDurationInMins:nil
+                        sessionNoActivityTimeoutDurationInMins:nil
+                     aiProviderNoActivityTimeoutDurationInSecs:nil
+                          pageLoadedCompletedDebounceTimeoutMs:nil
+                                        potentialLoginTimeoutS:nil
+                              screenshotCaptureIntervalSeconds:nil
+                                                       teeUrls:nil];
 
     if (featureOptions.cookiePersist().has_value()) {
       overridenFeatureOptions.cookiePersist =
@@ -246,6 +255,61 @@ Api *api = [[Api alloc] init];
     if (featureOptions.isAIFlowEnabled().has_value()) {
       overridenFeatureOptions.isAIFlowEnabled =
           [NSNumber numberWithBool:featureOptions.isAIFlowEnabled().value()];
+    }
+    if (featureOptions.manualReviewMessage() != nil &&
+        featureOptions.manualReviewMessage().length > 0) {
+      overridenFeatureOptions.manualReviewMessage =
+          featureOptions.manualReviewMessage();
+    }
+    if (featureOptions.loginPromptMessage() != nil &&
+        featureOptions.loginPromptMessage().length > 0) {
+      overridenFeatureOptions.loginPromptMessage =
+          featureOptions.loginPromptMessage();
+    }
+    if (featureOptions.useTEE().has_value()) {
+      overridenFeatureOptions.useTEE =
+          [NSNumber numberWithBool:featureOptions.useTEE().value()];
+    }
+    if (featureOptions.interceptorOptions() != nil &&
+        featureOptions.interceptorOptions().length > 0) {
+      overridenFeatureOptions.interceptorOptions =
+          featureOptions.interceptorOptions();
+    }
+    if (featureOptions.claimCreationTimeoutDurationInMins().has_value()) {
+      overridenFeatureOptions.claimCreationTimeoutDurationInMins = [NSNumber
+          numberWithBool:featureOptions.claimCreationTimeoutDurationInMins()
+                             .value()];
+    }
+    if (featureOptions.sessionNoActivityTimeoutDurationInMins().has_value()) {
+      overridenFeatureOptions.sessionNoActivityTimeoutDurationInMins = [NSNumber
+          numberWithBool:featureOptions.sessionNoActivityTimeoutDurationInMins()
+                             .value()];
+    }
+    if (featureOptions.aiProviderNoActivityTimeoutDurationInSecs()
+            .has_value()) {
+      overridenFeatureOptions.aiProviderNoActivityTimeoutDurationInSecs =
+          [NSNumber
+              numberWithBool:featureOptions
+                                 .aiProviderNoActivityTimeoutDurationInSecs()
+                                 .value()];
+    }
+    if (featureOptions.pageLoadedCompletedDebounceTimeoutMs().has_value()) {
+      overridenFeatureOptions.pageLoadedCompletedDebounceTimeoutMs = [NSNumber
+          numberWithBool:featureOptions.pageLoadedCompletedDebounceTimeoutMs()
+                             .value()];
+    }
+    if (featureOptions.potentialLoginTimeoutS().has_value()) {
+      overridenFeatureOptions.potentialLoginTimeoutS = [NSNumber
+          numberWithBool:featureOptions.potentialLoginTimeoutS().value()];
+    }
+    if (featureOptions.screenshotCaptureIntervalSeconds().has_value()) {
+      overridenFeatureOptions.screenshotCaptureIntervalSeconds = [NSNumber
+          numberWithBool:featureOptions.screenshotCaptureIntervalSeconds()
+                             .value()];
+    }
+    if (featureOptions.teeUrls() != nil &&
+        featureOptions.teeUrls().length > 0) {
+      overridenFeatureOptions.teeUrls = featureOptions.teeUrls();
     }
   }
 
@@ -371,6 +435,13 @@ Api *api = [[Api alloc] init];
     JS::NativeInappRnSdk::VerificationOptions inputOptions =
         args.options().value();
 
+    NSNumber *_Nullable useTeeOperator = nil;
+
+    if (inputOptions.useTeeOperator().has_value()) {
+      useTeeOperator =
+          [NSNumber numberWithBool:inputOptions.useTeeOperator().value()];
+    }
+
     if (inputOptions.canUseAttestorAuthenticationRequest()) {
       options = [[ReclaimApiVerificationOptions alloc]
           initWithCanDeleteCookiesBeforeVerificationStarts:
@@ -389,7 +460,9 @@ Api *api = [[Api alloc] init];
                                              canAutoSubmit:inputOptions
                                                                .canAutoSubmit()
                                       isCloseButtonVisible:
-                                          inputOptions.isCloseButtonVisible()];
+                                          inputOptions.isCloseButtonVisible()
+                                                    locale:inputOptions.locale()
+                                            useTeeOperator:useTeeOperator];
     } else {
       options = [[ReclaimApiVerificationOptions alloc]
           initWithCanDeleteCookiesBeforeVerificationStarts:
@@ -400,7 +473,9 @@ Api *api = [[Api alloc] init];
                                              canAutoSubmit:inputOptions
                                                                .canAutoSubmit()
                                       isCloseButtonVisible:
-                                          inputOptions.isCloseButtonVisible()];
+                                          inputOptions.isCloseButtonVisible()
+                                                    locale:inputOptions.locale()
+                                            useTeeOperator:useTeeOperator];
     }
   }
   [api setVerificationOptionsWithOptions:options

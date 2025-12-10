@@ -164,11 +164,22 @@ export namespace ReclaimVerification {
   }
 
   export interface VerificationOptions {
+    /**
+     * Whether to delete cookies before user journey starts in the client web view.
+     * Defaults to true.
+     */
     canDeleteCookiesBeforeVerificationStarts: boolean;
+
+    /**
+     * A callback to host that returns an authentication request when a Reclaim HTTP provider is provided.
+     * Used for verifying authentication to attestor.
+     */
     fetchAttestorAuthenticationRequest: (
       reclaimHttpProviderJsonString: string
     ) => Promise<string>;
+
     claimCreationType?: 'standalone' | 'meChain'; // Optional
+
     /**
      * Whether to automatically submit the proof after generation. Defaults to true.
      */
@@ -178,6 +189,25 @@ export namespace ReclaimVerification {
      * Whether the close button is visible. Defaults to true.
      */
     isCloseButtonVisible?: boolean; // Optional
+
+    /**
+     * A language code & Country code for localization that should be enforced in the verification flow.
+     */
+    locale?: string | null;
+
+    /**
+     * Enables use of Reclaim's TEE+MPC protocol for HTTP Request claim verification and
+     * attestation.
+     *
+     * When set to `true`, the verification will use Trusted Execution Environment
+     * (TEE) with Multi-Party Computation (MPC) for enhanced security.
+     *
+     * When set to `false`, the standard Reclaim's proxy attestor verification flow is used.
+     *
+     * When `null` (default), inappsdk decides whether to use TEE based on
+     * a feature flag.
+     */
+    useTeeOperator?: boolean | null;
   }
 
   export type SetConsoleLoggingOptions =
@@ -647,6 +677,8 @@ export class PlatformImpl extends ReclaimVerification.Platform {
         claimCreationType: options.claimCreationType ?? 'standalone',
         canAutoSubmit: options.canAutoSubmit ?? true,
         isCloseButtonVisible: options.isCloseButtonVisible ?? true,
+        locale: options.locale ?? null,
+        useTeeOperator: options.useTeeOperator ?? null,
       };
       if (canUseAttestorAuthenticationRequest) {
         this.disposeAttestorAuthRequestListener();

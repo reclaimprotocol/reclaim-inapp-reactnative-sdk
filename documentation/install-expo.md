@@ -89,6 +89,22 @@ Update Environment Variables for XCScheme
 8. Click on the **Close** button in the dialog and build the project.
 9. Run the app on a physical device.
 
+#### If you face performance issue when running on a physical iOS device when using XCode version 26 or above
+
+1. Open your project in Xcode.
+2. Click on the project target.
+3. Click on the **Scheme** dropdown.
+
+<img src="https://github.com/reclaimprotocol/reclaim-inapp-ios-sdk/raw/53a19f88c8d90df485a60dc20190f740cd9fd108/Screenshots/Install/10.png" alt="Edit current xcscheme in Xcode" width="500">
+
+4. Click on the **Edit Scheme** button.
+5. Click on the **Run** tab.
+6. Uncheck the **Debug executable** checkbox.
+
+<img src="https://github.com/reclaimprotocol/reclaim-inapp-ios-sdk/raw/53a19f88c8d90df485a60dc20190f740cd9fd108/Screenshots/Install/11.png" alt="Disable Debug executable in Xcode" width="500">
+
+7. Try running the project again on a physical iOS device
+
 Now your React Native Expo project is ready to use the Reclaim InApp SDK. You can follow the [usage documentation](https://github.com/reclaimprotocol/reclaim-inapp-reactnative-sdk/blob/main/README.md#usage) to learn how to integrate the SDK into your application.
 
 ## Troubleshooting
