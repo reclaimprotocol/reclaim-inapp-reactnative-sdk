@@ -126,13 +126,14 @@ import ReclaimInAppSdk
   ) async throws -> [String: Any] {
     return try await startVerificationWithRequest(.url(url))
   }
-  
+
   @objc public func startVerificationFromJson(
     template: String
   ) async throws -> [String: Any] {
-    return try await startVerificationWithRequest(.json(JSONUtility.fromString(template) as? [AnyHashable?: Sendable?] ?? [:]))
+    return try await startVerificationWithRequest(
+      .json(JSONUtility.fromString(template) as? [AnyHashable?: Sendable?] ?? [:]))
   }
-  
+
   @objc public func setOverrides(
     provider: OverridenProviderInformation?,
     featureOptions: OverridenFeatureOptions?,
@@ -167,12 +168,17 @@ import ReclaimInAppSdk
         loginPromptMessage: featureOptions.loginPromptMessage,
         useTEE: featureOptions.useTEE?.boolValue,
         interceptorOptions: featureOptions.interceptorOptions,
-        claimCreationTimeoutDurationInMins: featureOptions.claimCreationTimeoutDurationInMins?.int64Value,
-        sessionNoActivityTimeoutDurationInMins: featureOptions.sessionNoActivityTimeoutDurationInMins?.int64Value,
-        aiProviderNoActivityTimeoutDurationInSecs: featureOptions.aiProviderNoActivityTimeoutDurationInSecs?.int64Value,
-        pageLoadedCompletedDebounceTimeoutMs: featureOptions.pageLoadedCompletedDebounceTimeoutMs?.int64Value,
+        claimCreationTimeoutDurationInMins: featureOptions.claimCreationTimeoutDurationInMins?
+          .int64Value,
+        sessionNoActivityTimeoutDurationInMins: featureOptions
+          .sessionNoActivityTimeoutDurationInMins?.int64Value,
+        aiProviderNoActivityTimeoutDurationInSecs: featureOptions
+          .aiProviderNoActivityTimeoutDurationInSecs?.int64Value,
+        pageLoadedCompletedDebounceTimeoutMs: featureOptions.pageLoadedCompletedDebounceTimeoutMs?
+          .int64Value,
         potentialLoginTimeoutS: featureOptions.potentialLoginTimeoutS?.int64Value,
-        screenshotCaptureIntervalSeconds: featureOptions.screenshotCaptureIntervalSeconds?.int64Value,
+        screenshotCaptureIntervalSeconds: featureOptions.screenshotCaptureIntervalSeconds?
+          .int64Value,
         teeUrls: featureOptions.teeUrls
       )
     } else {
@@ -229,8 +235,10 @@ import ReclaimInAppSdk
       options: options?.toSdkOptions()
     )
   }
-  
-  @objc public func startSessionIdentityEventListener(listener: OverridenSessionIdentityUpdateHandler) async throws {
+
+  @objc public func startSessionIdentityEventListener(
+    listener: OverridenSessionIdentityUpdateHandler
+  ) async throws {
     return try await ReclaimVerification.setOverrides(
       provider: nil,
       featureOptions: nil,
@@ -238,10 +246,10 @@ import ReclaimInAppSdk
       sessionManagement: nil,
       appInfo: nil,
       sessionIdentityUpdateHandler: listener,
-      capabilityAccessToken: nil,
+      capabilityAccessToken: nil
     )
   }
-  
+
   @objc public func setConsoleLogging(enabled: Bool) async throws {
     return try await ReclaimVerification.setConsoleLogging(enabled: enabled)
   }
@@ -643,7 +651,7 @@ public class OverridenSessionManagement: NSObject {
     public func updateSession(
       sessionId: String,
       status: ReclaimInAppSdk.ReclaimOverrides.SessionManagement.SessionStatus,
-      metadata: [String : (any Sendable)?]?,
+      metadata: [String: (any Sendable)?]?,
       completion: @escaping (Result<Bool, any Error>) -> Void
     ) {
       var statusString: String? = nil
@@ -693,20 +701,23 @@ public typealias OverridenOnSessionIdentityUpdateCallback = (
 
 @objc(OverridenSessionIdentityUpdateHandler)
 public class OverridenSessionIdentityUpdateHandler: NSObject, ReclaimOverrides
-  .SessionIdentityUpdateHandler {
-    @objc public let handler: OverridenOnSessionIdentityUpdateCallback
-    
-    @objc public init(handler: @escaping OverridenOnSessionIdentityUpdateCallback) {
-      self.handler = handler
-    }
+    .SessionIdentityUpdateHandler
+{
+  @objc public let handler: OverridenOnSessionIdentityUpdateCallback
 
-    public func onSessionIdentityUpdate(identity: ReclaimInAppSdk.ReclaimVerification.ReclaimSessionIdentity?) {
-      handler(
-        identity?.appId,
-        identity?.providerId,
-        identity?.sessionId
-      )
-    }
+  @objc public init(handler: @escaping OverridenOnSessionIdentityUpdateCallback) {
+    self.handler = handler
+  }
+
+  public func onSessionIdentityUpdate(
+    identity: ReclaimInAppSdk.ReclaimVerification.ReclaimSessionIdentity?
+  ) {
+    handler(
+      identity?.appId,
+      identity?.providerId,
+      identity?.sessionId
+    )
+  }
 }
 
 public typealias ReclaimVerificationOptionFetchAttestorAuthRequestHandler = (
