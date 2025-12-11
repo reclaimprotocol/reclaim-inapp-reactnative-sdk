@@ -1,3 +1,8 @@
+## 0.25.1
+
+* Make all fields in FeatureOverrides optional
+* Fix `createSession` overrides
+
 ## 0.25.0
 
 * Add options locale, and useTeeOperator when using `setVerificationOptions` method.

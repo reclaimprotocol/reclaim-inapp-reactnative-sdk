@@ -611,31 +611,29 @@ public class OverridenSessionManagement: NSObject {
       ) -> Void
     ) {
       let replyId = Api.setReplyWithStringCallback({ value in
-        func process(value: String) {
-          let data = JSONUtility.fromString(value)
-          if let data = data as? [AnyHashable?: Any?] {
-            completion(
-              .success(
-                ReclaimOverrides.SessionManagement.InitResponse(
-                  sessionId: data["sessionId"] as? String ?? "",
-                  resolvedProviderVersion: data["resolvedProviderVersion"]
-                    as? String ?? ""
-                )
+        let data = JSONUtility.fromString(value)
+        if let data = data as? [AnyHashable?: Any?] {
+          completion(
+            .success(
+              ReclaimOverrides.SessionManagement.InitResponse(
+                sessionId: data["sessionId"] as? String ?? "",
+                resolvedProviderVersion: data["resolvedProviderVersion"]
+                  as? String ?? ""
               )
             )
-          } else {
-            print(
-              "Error parsing session init response as Map. Type was: \(type(of: data)), data was: \(String(describing: data))"
-            )
-            completion(
-              .success(
-                ReclaimOverrides.SessionManagement.InitResponse(
-                  sessionId: "-",
-                  resolvedProviderVersion: ""
-                )
+          )
+        } else {
+          print(
+            "Error parsing session init response as Map. Type was: \(type(of: data)), data was: \(String(describing: data))"
+          )
+          completion(
+            .success(
+              ReclaimOverrides.SessionManagement.InitResponse(
+                sessionId: "-",
+                resolvedProviderVersion: ""
               )
             )
-          }
+          )
         }
       })
       self._createSession(
