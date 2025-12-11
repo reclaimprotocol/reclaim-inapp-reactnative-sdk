@@ -198,22 +198,22 @@ export interface FeatureOptions {
    */
   interceptorOptions?: string | null;
 
-  claimCreationTimeoutDurationInMins: number | null;
+  claimCreationTimeoutDurationInMins?: number | null;
 
-  sessionNoActivityTimeoutDurationInMins: number | null;
+  sessionNoActivityTimeoutDurationInMins?: number | null;
 
-  aiProviderNoActivityTimeoutDurationInSecs: number | null;
+  aiProviderNoActivityTimeoutDurationInSecs?: number | null;
 
-  pageLoadedCompletedDebounceTimeoutMs: number | null;
+  pageLoadedCompletedDebounceTimeoutMs?: number | null;
 
-  potentialLoginTimeoutS: number | null;
+  potentialLoginTimeoutS?: number | null;
 
-  screenshotCaptureIntervalSeconds: number | null;
+  screenshotCaptureIntervalSeconds?: number | null;
 
   /**
    * Hosted TEE services Url that participate in Reclaim's TEE+MPC protocol
    */
-  teeUrls: string | null
+  teeUrls?: string | null
 }
 
 export interface LogConsumer {
