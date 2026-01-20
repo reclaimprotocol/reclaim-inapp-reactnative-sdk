@@ -1,3 +1,14 @@
+## 0.29.0
+
+* Add `ReclaimVerification.parseLog` to parse log entries
+* Compile android library and verifier module with kotlin version 2.0.21
+* Add proof submission events
+* Update default TEEK & TEET URLs
+* Add IS_RECLAIM_INAPPSDK in log events
+* Add isInAppSdk in metadata when SessionManager.onProofSubmitted is called
+* Update use of operator package
+* Initialize algorithms after first page loading starts
+
 ## 0.25.1
 
 * Make all fields in FeatureOverrides optional

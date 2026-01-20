@@ -425,6 +425,7 @@ class InappRnSdkModule(private val reactContext: ReactApplicationContext) :
           appName = requireString(appInfo, "appName"),
           appImageUrl = requireString(appInfo, "appImageUrl"),
           isRecurring = getBoolean(appInfo, "isRecurring") ?: false,
+          theme = getString(appInfo, "theme")
         ),
         capabilityAccessToken = capabilityAccessToken
       ) { result ->

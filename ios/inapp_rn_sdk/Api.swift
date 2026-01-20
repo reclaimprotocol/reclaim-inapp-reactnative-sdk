@@ -208,7 +208,8 @@ import ReclaimInAppSdk
       appInfoOverrides = .init(
         appName: appInfo.appName,
         appImageUrl: appInfo.appImageUrl,
-        isRecurring: appInfo.isRecurring?.boolValue ?? false
+        isRecurring: appInfo.isRecurring?.boolValue ?? false,
+        theme: appInfo.theme
       )
     } else {
       appInfoOverrides = nil
@@ -496,15 +497,18 @@ public class OverridenProviderInformation: NSObject {
   @objc public let appName: String
   @objc public let appImageUrl: String
   @objc public let isRecurring: NSNumber?
+  @objc public let theme: String?
 
   @objc public init(
     appName: String,
     appImageUrl: String,
-    isRecurring: NSNumber?
+    isRecurring: NSNumber?,
+    theme: String?
   ) {
     self.appName = appName
     self.appImageUrl = appImageUrl
     self.isRecurring = isRecurring
+    self.theme = theme
   }
 }
 
