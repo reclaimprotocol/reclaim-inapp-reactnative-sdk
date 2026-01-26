@@ -254,6 +254,12 @@ export interface ReclaimAppInfo {
    * Optional, defaults to false.
    */
   isRecurring?: boolean;
+
+  /**
+   * The theme of the application.
+   * Optional, defaults to null.
+   */
+  theme?: string | null | undefined;
 }
 
 export interface SessionManagement {

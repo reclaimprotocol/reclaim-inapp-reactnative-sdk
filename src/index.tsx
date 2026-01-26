@@ -61,6 +61,10 @@ export class ReclaimVerification {
     return this.platform.setVerificationOptions(options);
   }
 
+  public parseLog(log: string): ReclaimVerification.LogEntry {
+    return this.platform.parseLog(log);
+  }
+
   public setConsoleLogging(
     enabled: boolean
   ) {
@@ -168,13 +172,13 @@ export namespace ReclaimVerification {
      * Whether to delete cookies before user journey starts in the client web view.
      * Defaults to true.
      */
-    canDeleteCookiesBeforeVerificationStarts: boolean;
+    canDeleteCookiesBeforeVerificationStarts?: boolean;
 
     /**
      * A callback to host that returns an authentication request when a Reclaim HTTP provider is provided.
      * Used for verifying authentication to attestor.
      */
-    fetchAttestorAuthenticationRequest: (
+    fetchAttestorAuthenticationRequest?: (
       reclaimHttpProviderJsonString: string
     ) => Promise<string>;
 
@@ -227,7 +231,7 @@ export namespace ReclaimVerification {
        * Handler for consuming logs exported from the SDK.
        * Defaults to false.
        */
-      onLogs?: (logJsonString: String, cancel: () => void) => void;
+      onLogs?: (logJsonString: string, cancel: () => void) => void;
 
       /**
        * When enabled, logs are sent to reclaim that can be used to help you.
@@ -280,6 +284,183 @@ export namespace ReclaimVerification {
     appInfo?: Overrides.ReclaimAppInfo;
     capabilityAccessToken?: string | null;
   };
+
+  export enum LogLevel {
+    // Failures & Errors
+    SEVERE = 'SEVERE',
+    WARNING = 'WARNING',
+    INFO = 'INFO',
+    // Configurations
+    CONFIG = 'CONFIG',
+    // Verbose debugging logs
+    FINE = 'FINE',
+    // PII Logging
+    FINER = 'FINER',
+    // PII & Extremely Verbose debugging logs
+    FINEST = 'FINEST',
+  }
+
+  /// Enum representing different types of logging events in the Reclaim SDK.
+  export enum LogEventType {
+    /// The verification flow has been initiated by the user.
+    VERIFICATION_FLOW_STARTED,
+
+    /// Checking if the current environment is a Reclaim verifier.
+    IS_RECLAIM_VERIFIER,
+
+    /// Checking if the current environment is a Reclaim inapp SDK.
+    IS_RECLAIM_INAPPSDK,
+
+    /// An update for inapp SDK is available. Use is still allowed.
+    UPDATE_AVAILABLE,
+
+    /// An update for inapp SDK is available and the current version cannot be used anymore.
+    SDK_OUTDATED,
+
+    /// An exception indicating that the platform is not supported for Reclaim verification.
+    RECLAIM_VERIFICATION_PLATFORM_NOT_SUPPORTED_EXCEPTION,
+
+    /// An exception for an invalid Reclaim request.
+    INVALID_REQUEST_RECLAIM_EXCEPTION,
+
+    /// The Reclaim verification process was dismissed by the user.
+    RECLAIM_VERIFICATION_DISMISSED,
+
+    /// An exception indicating the verification process was cancelled for the user.
+    RECLAIM_VERIFICATION_CANCELLED_EXCEPTION,
+
+    /// An exception during the loading of a verification provider.
+    RECLAIM_VERIFICATION_PROVIDER_LOAD_EXCEPTION,
+
+    /// An exception when initializing a Reclaim session.
+    RECLAIM_INIT_SESSION_EXCEPTION,
+
+    /// An exception for an expired Reclaim session.
+    RECLAIM_EXPIRED_SESSION_EXCEPTION,
+
+    /// The Reclaim verification process was skipped.
+    RECLAIM_VERIFICATION_SKIPPED,
+
+    /// An exception related to attestor authentication.
+    RECLAIM_ATTESTOR_AUTH_EXCEPTION,
+
+    /// Sending request to load initial url
+    LOADING_INITIAL_URL,
+
+    /// The first web page for verification is ready.
+    WEB_PAGE_READY,
+
+    /// Page loading started
+    PAGE_LOADING_STARTED,
+
+    /// Page loading stopped
+    PAGE_LOADING_STOPPED,
+
+    /// An exception when no user activity is detected during verification.
+    RECLAIM_VERIFICATION_NO_ACTIVITY_DETECTED_EXCEPTION,
+
+    /// A network request has been intercepted.
+    REQUEST_INTERCEPTED,
+
+    /// A network request has been matched against the provider's requirements.
+    REQUEST_MATCHED,
+
+    /// The provider script has requested a claim.
+    PROVIDER_SCRIPT_REQUESTED_CLAIM,
+
+    /// The claim is being prepared.
+    PREPARING_CLAIM,
+
+    /// The claim parameters are being validated.
+    VALIDATING_CLAIM_PARAMETERS,
+
+    /// An XPath match requirement for claim validation has failed.
+    X_PATH_MATCH_REQUIREMENT_FAILED,
+
+    /// A JSONPath match requirement for claim validation has failed.
+    JSON_PATH_MATCH_REQUIREMENT_FAILED,
+
+    /// A regex match requirement for claim validation has failed.
+    REGEX_MATCH_REQUIREMENT_FAILED,
+
+    ///
+    NO_PARAMETERS_FOUND,
+
+    /// An exception for failed claim parameter validation.
+    CLAIM_PARAMETER_VALIDATION_FAILED_EXCEPTION,
+
+    /// A warning that no response matched the provider's requirements.
+    NO_RESPONSE_MATCH_WARNING,
+
+    /// The process of creating a claim is starting.
+    STARTING_CLAIM_CREATION,
+
+    /// The claim creation process has officially started.
+    CLAIM_CREATION_STARTED,
+
+    /// The attestor is not responding.
+    ATTESTOR_NOT_RESPONDING,
+
+    /// An exception indicating the claim creation was cancelled.
+    CLAIM_CREATION_CANCELLED_EXCEPTION,
+
+    /// A proof has been successfully generated.
+    PROOF_GENERATED,
+
+    /// An exception for a failed proof generation.
+    PROOF_GENERATION_FAILED_EXCEPTION,
+
+    /// An exception indicating that the claim creation process has timed out.
+    CLAIM_CREATION_TIMED_OUT_EXCEPTION,
+
+    /// A result has been received.
+    RESULT_RECEIVED,
+
+    /// The generated proof is being submitted.
+    SUBMITTING_PROOF,
+
+    /// The proof has been successfully submitted.
+    PROOF_SUBMITTED,
+
+    /// The proof submission has failed.
+    PROOF_SUBMISSION_FAILED,
+  }
+
+  export type LogEntry = {
+    logLine: string;
+    /**
+     * Timestamp in nanoseconds since unix epoch
+     */
+    ts: string;
+    /**
+     * Same as `ts` but as JavaScript Date
+     */
+    datetime: Date;
+    /**
+     * Logger name
+     */
+    type: string;
+    /**
+     * Session id
+     */
+    sessionId: string | '' | 'unknown';
+    /**
+     * Provider id
+     */
+    providerId: string;
+    /**
+     * App id
+     */
+    appId: string;
+    /**
+     * Log level
+     */
+    logLevel: keyof typeof LogLevel;
+    /**
+     * Log event
+     */
+    eventType?: keyof typeof LogEventType | '';
+  }
 
   export enum ExceptionType {
     Cancelled = 'Cancelled',
@@ -420,6 +601,8 @@ export namespace ReclaimVerification {
     abstract setVerificationOptions(
       options?: ReclaimVerification.VerificationOptions | null
     ): Promise<void>;
+
+    abstract parseLog(log: string): ReclaimVerification.LogEntry;
 
     abstract setConsoleLogging(
       options?: ReclaimVerification.SetConsoleLoggingOptions | null
@@ -667,11 +850,10 @@ export class PlatformImpl extends ReclaimVerification.Platform {
   ): Promise<void> {
     let args: NativeReclaimInappModuleTypes.VerificationOptions | null = null;
     if (options) {
-      let canUseAttestorAuthenticationRequest =
-        options.fetchAttestorAuthenticationRequest != null;
+      let canUseAttestorAuthenticationRequest = !!options.fetchAttestorAuthenticationRequest;
       args = {
         canDeleteCookiesBeforeVerificationStarts:
-          options.canDeleteCookiesBeforeVerificationStarts,
+          options.canDeleteCookiesBeforeVerificationStarts ?? true,
         canUseAttestorAuthenticationRequest:
           canUseAttestorAuthenticationRequest,
         claimCreationType: options.claimCreationType ?? 'standalone',
@@ -685,7 +867,7 @@ export class PlatformImpl extends ReclaimVerification.Platform {
         let attestorAuthRequestSubscription =
           NativeReclaimInappModule.onReclaimAttestorAuthRequest(
             async (event) => {
-              let result = await options.fetchAttestorAuthenticationRequest(
+              let result = await options.fetchAttestorAuthenticationRequest!(
                 event.reclaimHttpProviderJsonString
               );
               NativeReclaimInappModule.replyWithString(event.replyId, result);
@@ -707,6 +889,37 @@ export class PlatformImpl extends ReclaimVerification.Platform {
         error as Error
       );
     }
+  }
+
+  /**
+   * Converts a nanosecond timestamp string back to a JavaScript Date object.
+   * @param {string} timeStampStr - The timestamp string (ms * 1,000,000)
+   * @returns {Date}
+   */
+  fromTimeStampToDate(timeStampStr: string): Date {
+    try {
+      // 1. Use BigInt to handle the large integer value without precision loss
+      const nanoseconds = BigInt(timeStampStr);
+
+      // 2. Divide by 1,000,000 to convert back to milliseconds
+      // Note: We use '1000000n' to denote a BigInt literal
+      const milliseconds = Number(nanoseconds / 1000000n);
+
+      // 3. Create and return the Date object
+      return new Date(milliseconds);
+    } catch (e) {
+      return new Date();
+    }
+  }
+
+  override parseLog(
+    log: string
+  ): ReclaimVerification.LogEntry {
+    let data = JSON.parse(log) as ReclaimVerification.LogEntry;
+    if (data.ts) {
+      data.datetime = this.fromTimeStampToDate(data.ts);
+    }
+    return data;
   }
 
   override async setConsoleLogging(

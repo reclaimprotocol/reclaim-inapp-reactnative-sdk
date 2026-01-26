@@ -29,13 +29,32 @@ type VerificationMode = 'providerId' | 'jsonConfig' | 'url';
 
 export default function App() {
   const [verificationMethod, setVerificationMethod] = useState<VerificationMode>('providerId');
+  const [selectedTeeOptionValue, setSelectedTeeOptionValue] = useState<boolean | null>(null);
   const [inputText, setInputText] = useState('6d3f6753-7ee6-49ee-a545-62f1b1822ae5');
   const [result, setResult] = useState<ReclaimVerification.Response | null>(null);
   const [showDropdown, setShowDropdown] = useState(false);
+  const [showTeeDropdown, setShowTeeDropdown] = useState(false);
 
   useEffect(() => {
     reclaimVerification.addEventListener('sessionIdentityUpdate', (event) => {
       console.info({ type: 'ReclaimEvent', name: 'sessionIdentityUpdate', value: event });
+    });
+
+    reclaimVerification.setOverrides({
+      logConsumer: {
+        onLogs: (log, _) => {
+          // You can directly send and handle logs on your server
+          // or you can parse logs and view them here
+          const entry = reclaimVerification.parseLog(log);
+          if (entry.eventType) {
+            // Logs that have eventType are important milestones or errors in the user's verification journey
+            console.info(`[EVENT] `, entry)
+          } else {
+            console.info(entry);
+          }
+        },
+      },
+      capabilityAccessToken: config.REACT_APP_RECLAIM_CAPABILITY_ACCESS_TOKEN,
     });
   }, []);
 
@@ -45,7 +64,15 @@ export default function App() {
     { label: 'URL', value: 'url' },
   ];
 
+  const teeOptions = [
+    { label: 'Auto', value: null },
+    { label: 'Enabled', value: true },
+    { label: 'Disabled', value: false },
+  ];
+
   const selectedOption = verificationOptions.find(option => option.value === verificationMethod);
+
+  const selectedTeeOption = teeOptions.find(option => option.value === selectedTeeOptionValue);
 
   const getInputPlaceholder = () => {
     switch (verificationMethod) {
@@ -78,6 +105,10 @@ export default function App() {
         break;
     }
     try {
+      await reclaimVerification.setVerificationOptions({
+        useTeeOperator: selectedTeeOptionValue,
+      });
+
       let verificationResult: ReclaimVerification.Response;
       switch (verificationMethod) {
         case 'providerId':
@@ -314,6 +345,101 @@ export default function App() {
           multiline={verificationMethod === 'jsonConfig'}
           numberOfLines={verificationMethod === 'jsonConfig' ? 4 : 1}
         />
+
+        {/* Verification Method Dropdown */}
+        <View style={{ paddingHorizontal: 20, marginBottom: 20 }}>
+          <Text style={{ fontSize: 16, fontWeight: '600', marginBottom: 8, color: '#000000' }}>
+            TEE Mode
+          </Text>
+          <Pressable
+            onPress={() => setShowTeeDropdown(true)}
+            style={{
+              borderWidth: 1,
+              borderColor: '#cccccc',
+              borderRadius: 8,
+              backgroundColor: '#ffffff',
+              padding: 15,
+              flexDirection: 'row',
+              justifyContent: 'space-between',
+              alignItems: 'center',
+            }}
+          >
+            <Text style={{ fontSize: 16, color: '#000000' }}>
+              {selectedTeeOption?.label || 'Select TEE mode'}
+            </Text>
+            <Text style={{ fontSize: 16, color: '#666666' }}>▼</Text>
+          </Pressable>
+
+          <Modal
+            visible={showTeeDropdown}
+            transparent={true}
+            animationType="fade"
+            onRequestClose={() => setShowTeeDropdown(false)}
+          >
+            <TouchableOpacity
+              style={{
+                flex: 1,
+                backgroundColor: 'rgba(0, 0, 0, 0.5)',
+                justifyContent: 'center',
+                alignItems: 'center',
+              }}
+              activeOpacity={1}
+              onPress={() => setShowTeeDropdown(false)}
+            >
+              <View
+                style={{
+                  backgroundColor: '#ffffff',
+                  borderRadius: 12,
+                  padding: 20,
+                  width: '80%',
+                  maxWidth: 300,
+                }}
+              >
+                <Text style={{ fontSize: 18, fontWeight: 'bold', marginBottom: 15, textAlign: 'center' }}>
+                  Select TEE Mode
+                </Text>
+                {teeOptions.map((option) => (
+                  <TouchableOpacity
+                    key={`${option.value}`}
+                    style={{
+                      paddingVertical: 12,
+                      paddingHorizontal: 16,
+                      borderBottomWidth: 1,
+                      borderBottomColor: '#f0f0f0',
+                      backgroundColor: selectedTeeOptionValue === option.value ? '#f0f8ff' : 'transparent',
+                    }}
+                    onPress={() => {
+                      setSelectedTeeOptionValue(option.value);
+                      setInputText('');
+                      setShowDropdown(false);
+                    }}
+                  >
+                    <Text
+                      style={{
+                        fontSize: 16,
+                        color: selectedTeeOptionValue === option.value ? '#007AFF' : '#000000',
+                        fontWeight: selectedTeeOptionValue === option.value ? '600' : '400',
+                      }}
+                    >
+                      {option.label}
+                    </Text>
+                  </TouchableOpacity>
+                ))}
+                <TouchableOpacity
+                  style={{
+                    marginTop: 10,
+                    paddingVertical: 12,
+                    paddingHorizontal: 16,
+                    alignItems: 'center',
+                  }}
+                  onPress={() => setShowTeeDropdown(false)}
+                >
+                  <Text style={{ fontSize: 16, color: '#666666' }}>Cancel</Text>
+                </TouchableOpacity>
+              </View>
+            </TouchableOpacity>
+          </Modal>
+        </View>
 
         <Button
           title="Start Verification"

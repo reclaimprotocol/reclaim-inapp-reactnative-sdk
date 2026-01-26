@@ -389,10 +389,15 @@ Api *api = [[Api alloc] init];
     if (appInfo.isRecurring().has_value()) {
       isRecurring = [NSNumber numberWithBool:appInfo.isRecurring().value()];
     }
+    NSString *_Nullable theme = nil;
+    if (appInfo.theme() != nil) {
+      theme = appInfo.theme();
+    }
     overridenAppInfo =
         [[OverridenReclaimAppInfo alloc] initWithAppName:appInfo.appName()
                                              appImageUrl:appInfo.appImageUrl()
-                                             isRecurring:isRecurring];
+                                             isRecurring:isRecurring
+                                                   theme:theme];
   }
 
   NSString *_Nullable capabilityAccessToken = nil;
