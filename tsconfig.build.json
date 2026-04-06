@@ -4,6 +4,10 @@
     "example",
     "lib",
     "user-workspace",
-    "samples"
+    "samples",
+    "expo-plugin",
+    "**/__tests__/*",
+    "**/__mocks__/*",
+    "**/__fixtures__/*"
   ]
 }
