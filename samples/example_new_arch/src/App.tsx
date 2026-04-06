@@ -30,7 +30,7 @@ type VerificationMode = 'providerId' | 'jsonConfig' | 'url';
 
 export default function App() {
   const [verificationMethod, setVerificationMethod] = useState<VerificationMode>('providerId');
-  const [inputText, setInputText] = useState('6d3f6753-7ee6-49ee-a545-62f1b1822ae5');
+  const [inputText, setInputText] = useState('example');
   const [result, setResult] = useState<ReclaimVerification.Response | null>(null);
   const [showDropdown, setShowDropdown] = useState(false);
 

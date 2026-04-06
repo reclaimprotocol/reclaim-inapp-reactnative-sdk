@@ -21,7 +21,7 @@ const config = {
 const reclaimVerification = new ReclaimVerification();
 
 export default function App() {
-  const [providerId, setProviderId] = useState('6d3f6753-7ee6-49ee-a545-62f1b1822ae5');
+  const [providerId, setProviderId] = useState('example');
   const [result, setResult] = useState<any>(null);
   const setOverrides = async () => {
     try {
@@ -36,7 +36,7 @@ export default function App() {
             // Or with a constant json string
             return JSON.stringify({
               "id": "669eca16d7e0758c94dfc03f",
-              // originally from "6d3f6753-7ee6-49ee-a545-62f1b1822ae5",
+              // originally from "example",
               "httpProviderId": providerId,
               "name": "GitHub UserName",
               "description": "Prove your GitHub User Name",

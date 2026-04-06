@@ -221,7 +221,10 @@ Api *api = [[Api alloc] init];
                           pageLoadedCompletedDebounceTimeoutMs:nil
                                         potentialLoginTimeoutS:nil
                               screenshotCaptureIntervalSeconds:nil
-                                                       teeUrls:nil];
+                                                       teeUrls:nil
+                                              privacyPolicyUrl:nil
+                                             termsOfServiceUrl:nil
+                                   potentialFailureReasonsUrl:nil];
 
     if (featureOptions.cookiePersist().has_value()) {
       overridenFeatureOptions.cookiePersist =
@@ -310,6 +313,18 @@ Api *api = [[Api alloc] init];
     if (featureOptions.teeUrls() != nil &&
         featureOptions.teeUrls().length > 0) {
       overridenFeatureOptions.teeUrls = featureOptions.teeUrls();
+    }
+    if (featureOptions.privacyPolicyUrl() != nil &&
+        featureOptions.privacyPolicyUrl().length > 0) {
+      overridenFeatureOptions.privacyPolicyUrl = featureOptions.privacyPolicyUrl();
+    }
+    if (featureOptions.termsOfServiceUrl() != nil &&
+        featureOptions.termsOfServiceUrl().length > 0) {
+      overridenFeatureOptions.termsOfServiceUrl = featureOptions.termsOfServiceUrl();
+    }
+    if (featureOptions.potentialFailureReasonsUrl() != nil &&
+        featureOptions.potentialFailureReasonsUrl().length > 0) {
+      overridenFeatureOptions.potentialFailureReasonsUrl = featureOptions.potentialFailureReasonsUrl();
     }
   }
 

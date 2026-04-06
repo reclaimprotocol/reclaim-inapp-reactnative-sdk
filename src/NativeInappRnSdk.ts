@@ -213,7 +213,22 @@ export interface FeatureOptions {
   /**
    * Hosted TEE services Url that participate in Reclaim's TEE+MPC protocol
    */
-  teeUrls?: string | null
+  teeUrls?: string | null;
+
+  /**
+   * Privacy policy url
+   */
+  privacyPolicyUrl?: string | null;
+
+  /**
+   * Terms of service url
+   */
+  termsOfServiceUrl?: string | null;
+
+  /**
+   * Potential failure reasons url
+   */
+  potentialFailureReasonsUrl?: string | null;
 }
 
 export interface LogConsumer {

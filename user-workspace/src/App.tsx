@@ -29,8 +29,8 @@ type VerificationMode = 'providerId' | 'jsonConfig' | 'url';
 
 export default function App() {
   const [verificationMethod, setVerificationMethod] = useState<VerificationMode>('providerId');
-  const [selectedTeeOptionValue, setSelectedTeeOptionValue] = useState<boolean | null>(null);
-  const [inputText, setInputText] = useState('6d3f6753-7ee6-49ee-a545-62f1b1822ae5');
+  const [selectedTeeOptionValue, setSelectedTeeOptionValue] = useState<boolean | null>(true);
+  const [inputText, setInputText] = useState('example');
   const [result, setResult] = useState<ReclaimVerification.Response | null>(null);
   const [showDropdown, setShowDropdown] = useState(false);
   const [showTeeDropdown, setShowTeeDropdown] = useState(false);
