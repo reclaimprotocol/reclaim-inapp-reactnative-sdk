@@ -29,7 +29,7 @@ type VerificationMode = 'providerId' | 'jsonConfig' | 'url';
 
 export default function App() {
     const [verificationMethod, setVerificationMethod] = useState<VerificationMode>('providerId');
-    const [inputText, setInputText] = useState('6d3f6753-7ee6-49ee-a545-62f1b1822ae5');
+    const [inputText, setInputText] = useState('example');
     const [result, setResult] = useState<ReclaimVerification.Response | null>(null);
     const [showDropdown, setShowDropdown] = useState(false);
 
@@ -138,6 +138,9 @@ export default function App() {
                     // potentialLoginTimeoutS: null,
                     // screenshotCaptureIntervalSeconds: null,
                     // teeUrls: null
+                    // privacyPolicyUrl: 'https://reclaimprotocol.org/privacy-policy',
+                    // termsOfServiceUrl: 'https://reclaimprotocol.org/terms-of-service',
+                    // potentialFailureReasonsUrl: 'https://reclaimprotocol.org/potential-failure-reasons',
                 },
                 capabilityAccessToken: config.REACT_APP_RECLAIM_CAPABILITY_ACCESS_TOKEN,
             });

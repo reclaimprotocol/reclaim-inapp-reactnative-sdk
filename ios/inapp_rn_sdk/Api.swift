@@ -179,7 +179,10 @@ import ReclaimInAppSdk
         potentialLoginTimeoutS: featureOptions.potentialLoginTimeoutS?.int64Value,
         screenshotCaptureIntervalSeconds: featureOptions.screenshotCaptureIntervalSeconds?
           .int64Value,
-        teeUrls: featureOptions.teeUrls
+        teeUrls: featureOptions.teeUrls,
+        privacyPolicyUrl: featureOptions.privacyPolicyUrl,
+        termsOfServiceUrl: featureOptions.termsOfServiceUrl,
+        potentialFailureReasonsUrl: featureOptions.potentialFailureReasonsUrl
       )
     } else {
       featureOptionsOverrides = nil
@@ -451,6 +454,9 @@ public class OverridenProviderInformation: NSObject {
   // int64 (long)
   @objc public var screenshotCaptureIntervalSeconds: NSNumber?
   @objc public var teeUrls: String?
+  @objc public var privacyPolicyUrl: String?
+  @objc public var termsOfServiceUrl: String?
+  @objc public var potentialFailureReasonsUrl: String?
 
   @objc public init(
     cookiePersist: NSNumber? = nil,
@@ -469,7 +475,10 @@ public class OverridenProviderInformation: NSObject {
     pageLoadedCompletedDebounceTimeoutMs: NSNumber? = nil,
     potentialLoginTimeoutS: NSNumber? = nil,
     screenshotCaptureIntervalSeconds: NSNumber? = nil,
-    teeUrls: String? = nil
+    teeUrls: String? = nil,
+    privacyPolicyUrl: String? = nil,
+    termsOfServiceUrl: String? = nil,
+    potentialFailureReasonsUrl: String? = nil
   ) {
     self.cookiePersist = cookiePersist
     self.singleReclaimRequest = singleReclaimRequest
@@ -490,6 +499,9 @@ public class OverridenProviderInformation: NSObject {
     self.potentialLoginTimeoutS = potentialLoginTimeoutS
     self.screenshotCaptureIntervalSeconds = screenshotCaptureIntervalSeconds
     self.teeUrls = teeUrls
+    self.privacyPolicyUrl = privacyPolicyUrl
+    self.termsOfServiceUrl = termsOfServiceUrl
+    self.potentialFailureReasonsUrl = potentialFailureReasonsUrl
   }
 }
 

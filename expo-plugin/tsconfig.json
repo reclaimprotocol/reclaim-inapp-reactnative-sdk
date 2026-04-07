@@ -3,7 +3,8 @@
     "outDir": "build",
     "rootDir": "src",
     "declaration": true,
-    "skipLibCheck": true
+    "skipLibCheck": true,
+    "types": ["node"]
   },
   "include": [
     "src"

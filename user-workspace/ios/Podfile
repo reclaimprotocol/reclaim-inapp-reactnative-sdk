@@ -26,12 +26,27 @@ target 'InappRnSdkExample' do
   )
 
   post_install do |installer|
-    # https://github.com/facebook/react-native/blob/main/packages/react-native/scripts/react_native_pods.rb#L197-L202
     react_native_post_install(
       installer,
       config[:reactNativePath],
       :mac_catalyst_enabled => false,
       # :ccache_enabled => true
     )
+    
+    # Fix for "call to consteval function... is not a constant expression"
+    installer.pods_project.targets.each do |target|
+      if target.name == 'fmt'
+        fmt_base_h = File.join(installer.sandbox.root, 'fmt', 'include', 'fmt', 'base.h')
+        if File.exist?(fmt_base_h)
+          content = File.read(fmt_base_h)
+          if content.include?('FMT_USE_CONSTEVAL 1')
+            puts "Patching fmt/base.h to disable consteval..."
+            patched_content = content.gsub('FMT_USE_CONSTEVAL 1', 'FMT_USE_CONSTEVAL 0')
+            File.chmod(0644, fmt_base_h)
+            File.write(fmt_base_h, patched_content)
+          end
+        end
+      end
+    end
   end
 end

@@ -344,7 +344,10 @@ class InappRnSdkModule(private val reactContext: ReactApplicationContext) :
             featureOptions,
             "screenshotCaptureIntervalSeconds"
           )?.toLong(),
-          teeUrls = getString(featureOptions, "teeUrls")
+          teeUrls = getString(featureOptions, "teeUrls"),
+          privacyPolicyUrl = getString(featureOptions, "privacyPolicyUrl"),
+          termsOfServiceUrl = getString(featureOptions, "termsOfServiceUrl"),
+          potentialFailureReasonsUrl = getString(featureOptions, "potentialFailureReasonsUrl")
         ),
         logConsumer = if (logConsumer == null) null else ReclaimOverrides.LogConsumer(
           logHandler = if (getBoolean(logConsumer, "enableLogHandler") != true) null else object :

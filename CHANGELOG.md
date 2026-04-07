@@ -1,3 +1,26 @@
+## 0.34.0
+
+* Update [internal] analytics
+* Improve performance and memory usage
+* Update [internal] dependencies
+* Update [internal] tests
+* Update webview provider
+* Fix an issue where some websites where not trusted to run in webview
+* Add oprf-mpc support
+* Avoid circuit initialization when using oprf-mpc
+* Update operator SDK library
+* Update login detection
+* Add native network support for IOS
+* Update login indicator event names
+* Add privacy policy, terms of service and potential failure reasons from feature flags
+* Sanitize diagnostic log buffer before upload — redact cookies, auth headers, tokens, JWTs, keys, secrets, proofs, request/response bodies, payloads, and emails (F-021)
+* Fix upload bug where log entries were computed before size trimming
+* Zero log buffer contents after successful upload (F-054)
+* Add session token authentication for AI service endpoints (F-002)
+* Add sessionToken to ClientSdkVerificationRequest
+* Make sessionToken private in AiServiceClient
+* Fix [INTERNAL] TEE service connection check log
+
 ## 0.29.0
 
 * Add `ReclaimVerification.parseLog` to parse log entries
