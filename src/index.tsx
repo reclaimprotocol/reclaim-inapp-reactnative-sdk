@@ -13,6 +13,11 @@ export class ReclaimVerification {
   public platform: ReclaimVerification.Platform;
 
   private static defaultPlatform: ReclaimVerification.Platform | null = null;
+  private static isStrictConfigCheckEnabled: boolean = false;
+  private static lastOverrides: ReclaimVerification.OverrideConfig | null =
+    null;
+  private static lastVerificationOptions: ReclaimVerification.VerificationOptions | null =
+    null;
 
   public constructor(platform?: ReclaimVerification.Platform) {
     if (platform) {
@@ -25,21 +30,36 @@ export class ReclaimVerification {
     }
   }
 
+  /**
+   * Enables or disables strict configuration checks. When enabled,
+   * [startVerification], [startVerificationFromUrl], and [startVerificationFromJson]
+   * will throw if any field of [OverrideConfig] was not provided via [setOverrides],
+   * or if any option of [VerificationOptions] was not provided via [setVerificationOptions].
+   *
+   * Disabled by default.
+   */
+  public setStrictConfigCheck(enabled: boolean) {
+    ReclaimVerification.isStrictConfigCheckEnabled = enabled === true;
+  }
+
   public async startVerification(
     request: ReclaimVerification.Request
   ): Promise<ReclaimVerification.Response> {
+    ReclaimVerification.assertStrictConfig();
     return this.platform.startVerification(request);
   }
 
   public async startVerificationFromUrl(
     requestUrl: string
   ): Promise<ReclaimVerification.Response> {
+    ReclaimVerification.assertStrictConfig();
     return this.platform.startVerificationFromUrl(requestUrl);
   }
 
   public async startVerificationFromJson(
     template: Record<string, any>
   ): Promise<ReclaimVerification.Response> {
+    ReclaimVerification.assertStrictConfig();
     return this.platform.startVerificationFromJson(template);
   }
 
@@ -48,16 +68,19 @@ export class ReclaimVerification {
   }
 
   public setOverrides(overrides: ReclaimVerification.OverrideConfig) {
+    ReclaimVerification.lastOverrides = overrides;
     return this.platform.setOverrides(overrides);
   }
 
   public clearAllOverrides() {
+    ReclaimVerification.lastOverrides = null;
     return this.platform.clearAllOverrides();
   }
 
   public setVerificationOptions(
     options?: ReclaimVerification.VerificationOptions | null
   ) {
+    ReclaimVerification.lastVerificationOptions = options ?? null;
     return this.platform.setVerificationOptions(options);
   }
 
@@ -65,16 +88,60 @@ export class ReclaimVerification {
     return this.platform.parseLog(log);
   }
 
-  public setConsoleLogging(
-    enabled: boolean
-  ) {
+  public setConsoleLogging(enabled: boolean) {
     return this.platform.setConsoleLogging({
       enabled: enabled == true,
     });
   }
 
-  public addEventListener<T extends keyof ReclaimVerification.EventListener.EventMap>(type: T, listener: ReclaimVerification.EventListener.EventListener<T>): ReclaimVerification.EventListener.CancelEventSubscription {
+  public addEventListener<
+    T extends keyof ReclaimVerification.EventListener.EventMap,
+  >(
+    type: T,
+    listener: ReclaimVerification.EventListener.EventListener<T>
+  ): ReclaimVerification.EventListener.CancelEventSubscription {
     return this.platform.addEventListener(type, listener);
+  }
+
+  private static assertStrictConfig() {
+    if (!ReclaimVerification.isStrictConfigCheckEnabled) return;
+
+    const overrides = ReclaimVerification.lastOverrides;
+    const overrideKeys: (keyof ReclaimVerification.OverrideConfig)[] = [
+      'provider',
+      'featureOptions',
+      'logConsumer',
+      'sessionManagement',
+      'appInfo',
+      'capabilityAccessToken',
+    ];
+    const missingOverrides = overrides
+      ? overrideKeys.filter((k) => overrides[k] === undefined)
+      : overrideKeys;
+    if (missingOverrides.length > 0) {
+      throw new Error(
+        `[ReclaimVerification] Strict config check failed: setOverrides was ${overrides ? 'called without' : 'not called with'} the following fields: ${missingOverrides.join(', ')}. Provide values for every field or disable strict mode via setStrictConfigCheck(false).`
+      );
+    }
+
+    const options = ReclaimVerification.lastVerificationOptions;
+    const optionKeys: (keyof ReclaimVerification.VerificationOptions)[] = [
+      'canDeleteCookiesBeforeVerificationStarts',
+      'fetchAttestorAuthenticationRequest',
+      'claimCreationType',
+      'canAutoSubmit',
+      'isCloseButtonVisible',
+      'locale',
+      'useTeeOperator',
+    ];
+    const missingOptions = options
+      ? optionKeys.filter((k) => options[k] === undefined)
+      : optionKeys;
+    if (missingOptions.length > 0) {
+      throw new Error(
+        `[ReclaimVerification] Strict config check failed: setVerificationOptions was ${options ? 'called without' : 'not called with'} the following options: ${missingOptions.join(', ')}. Provide values for every option or disable strict mode via setStrictConfigCheck(false).`
+      );
+    }
   }
 }
 
@@ -95,9 +162,13 @@ export namespace ReclaimVerification {
    *
    * You can create a request using the [ReclaimVerification.Request] constructor or the [ReclaimVerification.Request.fromManifestMetaData] factory method.
    */
-  export type Request = NativeReclaimInappModuleTypes.Request & { providerVersion?: ProviderVersion };
+  export type Request = NativeReclaimInappModuleTypes.Request & {
+    providerVersion?: ProviderVersion;
+  };
 
-  export class ProviderVersion implements NativeReclaimInappModuleTypes.ProviderVersion {
+  export class ProviderVersion
+    implements NativeReclaimInappModuleTypes.ProviderVersion
+  {
     resolvedVersion: string;
     versionExpression: string;
 
@@ -106,8 +177,14 @@ export namespace ReclaimVerification {
       this.versionExpression = versionExpression;
     }
 
-    static resolved(exactVersion: string, versionExpression?: string): ProviderVersion {
-      return new ProviderVersion(exactVersion, versionExpression ?? exactVersion);
+    static resolved(
+      exactVersion: string,
+      versionExpression?: string
+    ): ProviderVersion {
+      return new ProviderVersion(
+        exactVersion,
+        versionExpression ?? exactVersion
+      );
     }
 
     static from(versionExpression: string = ''): ProviderVersion {
@@ -260,19 +337,22 @@ export namespace ReclaimVerification {
     }
 
     export interface SessionInitResponse {
-      sessionId: string,
-      resolvedProviderVersion: string
+      sessionId: string;
+      resolvedProviderVersion: string;
     }
 
     export type ReclaimAppInfo = NativeReclaimInappModuleTypes.ReclaimAppInfo;
   }
 
   export namespace EventListener {
-    export type SessionIdentityUpdate = NativeReclaimInappModuleTypes.ReclaimSessionIdentityUpdate;
+    export type SessionIdentityUpdate =
+      NativeReclaimInappModuleTypes.ReclaimSessionIdentityUpdate;
     export interface EventMap {
-      "sessionIdentityUpdate": SessionIdentityUpdate,
-    };
-    export type EventListener<T extends keyof EventMap> = (event: EventMap[T]) => void | Promise<void>;
+      sessionIdentityUpdate: SessionIdentityUpdate;
+    }
+    export type EventListener<T extends keyof EventMap> = (
+      event: EventMap[T]
+    ) => void | Promise<void>;
     export type CancelEventSubscription = () => void;
   }
 
@@ -460,7 +540,7 @@ export namespace ReclaimVerification {
      * Log event
      */
     eventType?: keyof typeof LogEventType | '';
-  }
+  };
 
   export enum ExceptionType {
     Cancelled = 'Cancelled',
@@ -608,7 +688,12 @@ export namespace ReclaimVerification {
       options?: ReclaimVerification.SetConsoleLoggingOptions | null
     ): Promise<void>;
 
-    abstract addEventListener<T extends keyof ReclaimVerification.EventListener.EventMap>(type: T, listener: ReclaimVerification.EventListener.EventListener<T>): ReclaimVerification.EventListener.CancelEventSubscription;
+    abstract addEventListener<
+      T extends keyof ReclaimVerification.EventListener.EventMap,
+    >(
+      type: T,
+      listener: ReclaimVerification.EventListener.EventListener<T>
+    ): ReclaimVerification.EventListener.CancelEventSubscription;
   }
 }
 
@@ -661,10 +746,13 @@ export class PlatformImpl extends ReclaimVerification.Platform {
     }
   }
 
-  override async startVerificationFromJson(template: Record<string, any>): Promise<ReclaimVerification.Response> {
+  override async startVerificationFromJson(
+    template: Record<string, any>
+  ): Promise<ReclaimVerification.Response> {
     try {
-      const response =
-        await NativeReclaimInappModule.startVerificationFromJson(JSON.stringify(template));
+      const response = await NativeReclaimInappModule.startVerificationFromJson(
+        JSON.stringify(template)
+      );
       return {
         ...response,
         proofs: ReclaimVerification.ReclaimResult.asProofs(response.proofs),
@@ -723,10 +811,10 @@ export class PlatformImpl extends ReclaimVerification.Platform {
     let providerOverride = !provider
       ? null
       : {
-        url: provider?.url,
-        jsonString: provider?.jsonString,
-        canFetchProviderInformationFromHost: !!providerCallback,
-      };
+          url: provider?.url,
+          jsonString: provider?.jsonString,
+          canFetchProviderInformationFromHost: !!providerCallback,
+        };
     if (providerCallback) {
       this.disposeProviderRequestListener();
       let providerRequestSubscription =
@@ -749,10 +837,10 @@ export class PlatformImpl extends ReclaimVerification.Platform {
     let logConsumerRequest = !logConsumer
       ? undefined
       : {
-        enableLogHandler: !!onLogsListener,
-        canSdkCollectTelemetry: logConsumer?.canSdkCollectTelemetry,
-        canSdkPrintLogs: logConsumer?.canSdkPrintLogs,
-      };
+          enableLogHandler: !!onLogsListener,
+          canSdkCollectTelemetry: logConsumer?.canSdkCollectTelemetry,
+          canSdkPrintLogs: logConsumer?.canSdkPrintLogs,
+        };
     if (onLogsListener) {
       this.disposeLogListener();
       const cancel = () => {
@@ -767,9 +855,9 @@ export class PlatformImpl extends ReclaimVerification.Platform {
     let sessionManagementRequest = !sessionManagement
       ? undefined
       : {
-        // A handler is provided, so we don't let SDK manage sessions
-        enableSdkSessionManagement: false,
-      };
+          // A handler is provided, so we don't let SDK manage sessions
+          enableSdkSessionManagement: false,
+        };
     if (sessionManagement) {
       this.disposeSessionManagement();
       let sessionCreateSubscription =
@@ -777,7 +865,10 @@ export class PlatformImpl extends ReclaimVerification.Platform {
           const replyId = event.replyId;
           try {
             let result = await sessionManagement.onSessionCreateRequest(event);
-            NativeReclaimInappModule.replyWithString(replyId, JSON.stringify(result));
+            NativeReclaimInappModule.replyWithString(
+              replyId,
+              JSON.stringify(result)
+            );
           } catch (error) {
             console.error(error);
             // Send an empty string to indicate failure
@@ -850,7 +941,8 @@ export class PlatformImpl extends ReclaimVerification.Platform {
   ): Promise<void> {
     let args: NativeReclaimInappModuleTypes.VerificationOptions | null = null;
     if (options) {
-      let canUseAttestorAuthenticationRequest = !!options.fetchAttestorAuthenticationRequest;
+      let canUseAttestorAuthenticationRequest =
+        !!options.fetchAttestorAuthenticationRequest;
       args = {
         canDeleteCookiesBeforeVerificationStarts:
           options.canDeleteCookiesBeforeVerificationStarts ?? true,
@@ -912,9 +1004,7 @@ export class PlatformImpl extends ReclaimVerification.Platform {
     }
   }
 
-  override parseLog(
-    log: string
-  ): ReclaimVerification.LogEntry {
+  override parseLog(log: string): ReclaimVerification.LogEntry {
     let data = JSON.parse(log) as ReclaimVerification.LogEntry;
     if (data.ts) {
       data.datetime = this.fromTimeStampToDate(data.ts);
@@ -937,23 +1027,34 @@ export class PlatformImpl extends ReclaimVerification.Platform {
     }
   }
 
-  static listenersCount: Record<keyof ReclaimVerification.EventListener.EventMap, number> = {
-    'sessionIdentityUpdate': 0,
-  }
+  static listenersCount: Record<
+    keyof ReclaimVerification.EventListener.EventMap,
+    number
+  > = {
+    sessionIdentityUpdate: 0,
+  };
 
-  override addEventListener<T extends keyof ReclaimVerification.EventListener.EventMap>(type: T, listener: ReclaimVerification.EventListener.EventListener<T>): ReclaimVerification.EventListener.CancelEventSubscription {
+  override addEventListener<
+    T extends keyof ReclaimVerification.EventListener.EventMap,
+  >(
+    type: T,
+    listener: ReclaimVerification.EventListener.EventListener<T>
+  ): ReclaimVerification.EventListener.CancelEventSubscription {
     let subscription: EventSubscription;
     switch (type) {
       case 'sessionIdentityUpdate':
-        subscription = NativeReclaimInappModule.onSessionIdentityUpdate((param) => {
-          try {
-            listener(param);
-          } catch (_) {
-            // ignore listener errors
+        subscription = NativeReclaimInappModule.onSessionIdentityUpdate(
+          (param) => {
+            try {
+              listener(param);
+            } catch (_) {
+              // ignore listener errors
+            }
           }
-        });
+        );
         NativeReclaimInappModule.startEventSubscription(type);
-        PlatformImpl.listenersCount[type] = PlatformImpl.listenersCount[type] + 1;
+        PlatformImpl.listenersCount[type] =
+          PlatformImpl.listenersCount[type] + 1;
         break;
       default:
         throw new Error('Tried to subscribe to an unknown event');
@@ -970,7 +1071,7 @@ export class PlatformImpl extends ReclaimVerification.Platform {
           // ignore subscription removal errors
         }
       }
-    }
+    };
 
     return cancelSubscription;
   }

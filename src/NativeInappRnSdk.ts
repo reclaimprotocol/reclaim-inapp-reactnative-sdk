@@ -25,23 +25,23 @@ export interface SessionInformation {
   signature: string;
 }
 /**
-   * Represents a request for a verification attempt.
-   *
-   * You can create a request using the [ReclaimVerification.Request] constructor or the [ReclaimVerification.Request.fromManifestMetaData] factory method.
-   */
+ * Represents a request for a verification attempt.
+ *
+ * You can create a request using the [ReclaimVerification.Request] constructor or the [ReclaimVerification.Request.fromManifestMetaData] factory method.
+ */
 export interface Request {
   /**
    * The Reclaim application ID for the verification process.
    * If not provided, the appId will be fetched from:
    * - the `AndroidManifest.xml` metadata along with secret on android:
-   * 
+   *
    * ```xml
    * <meta-data android:name="org.reclaimprotocol.inapp_sdk.APP_ID"
    *            android:value="YOUR_RECLAIM_APP_ID" />
    * ```
-   * 
+   *
    * - the `ReclaimInAppSDKParam.ReclaimAppId` in Info.plist along with secret on iOS:
-   * 
+   *
    * ```xml
    * <key>ReclaimInAppSDKParam</key>
    * <dict>
@@ -58,14 +58,14 @@ export interface Request {
    * The Reclaim application secret for the verification process.
    * If not provided, the secret will be fetched from:
    * - the `AndroidManifest.xml` metadata along with appId on android:
-   * 
+   *
    * ```xml
    * <meta-data android:name="org.reclaimprotocol.inapp_sdk.APP_SECRET"
    *            android:value="YOUR_RECLAIM_APP_SECRET" />
    * ```
-   * 
+   *
    * - the `ReclaimInAppSDKParam.ReclaimAppSecret` in Info.plist along with appId on iOS:
-   * 
+   *
    * ```xml
    * <key>ReclaimInAppSDKParam</key>
    * <dict>
@@ -136,8 +136,8 @@ export interface ProviderInformation {
 }
 
 /**
-* Interface representing Feature Options.
-*/
+ * Interface representing Feature Options.
+ */
 export interface FeatureOptions {
   /**
    * Whether to persist a cookie.
@@ -172,7 +172,7 @@ export interface FeatureOptions {
   /**
    * Whether AI flow is enabled.
    * Optional, defaults to null.
-   * 
+   *
    * @deprecated Removed.
    */
   isAIFlowEnabled?: boolean | null;
@@ -281,7 +281,7 @@ export interface SessionManagement {
   /**
    * Whether to enable SDK session management.
    * Optional, defaults to true.
-   * 
+   *
    * When false, a handler must be provided. We'll not let SDK manage sessions in this case.
    */
   enableSdkSessionManagement?: boolean;
@@ -348,7 +348,7 @@ export interface SessionCreateRequestEvent {
 export interface SessionUpdateRequestEvent {
   /**
    * The session ID for the verification attempt
-  */
+   */
   sessionId: string;
   /**
    * The status type of this session event
@@ -365,11 +365,11 @@ export interface SessionUpdateRequestEvent {
 }
 
 export interface Overrides {
-  provider?: ProviderInformation | null,
-  featureOptions?: FeatureOptions | null,
-  logConsumer?: LogConsumer | null,
-  sessionManagement?: SessionManagement | null,
-  appInfo?: ReclaimAppInfo | null,
+  provider?: ProviderInformation | null;
+  featureOptions?: FeatureOptions | null;
+  logConsumer?: LogConsumer | null;
+  sessionManagement?: SessionManagement | null;
+  appInfo?: ReclaimAppInfo | null;
   capabilityAccessToken?: string | null;
 }
 
@@ -431,7 +431,7 @@ export interface VerificationOptionsOptional {
 }
 
 export interface SetConsoleLoggingOptions {
-  enabled: boolean
+  enabled: boolean;
 }
 
 export interface ReclaimAttestorAuthRequest {
@@ -456,14 +456,14 @@ export interface Spec extends TurboModule {
   removeEventSubscription(event: string): void;
   ping(): Promise<boolean>;
 
-  readonly onLogs: CodegenTypes.EventEmitter<string>
-  readonly onSessionLogs: CodegenTypes.EventEmitter<SessionLogEvent>
-  readonly onSessionCreateRequest: CodegenTypes.EventEmitter<SessionCreateRequestEvent>
-  readonly onSessionUpdateRequest: CodegenTypes.EventEmitter<SessionUpdateRequestEvent>
-  readonly onProviderInformationRequest: CodegenTypes.EventEmitter<ProviderInformationRequest>
-  readonly onReclaimAttestorAuthRequest: CodegenTypes.EventEmitter<ReclaimAttestorAuthRequest>
+  readonly onLogs: CodegenTypes.EventEmitter<string>;
+  readonly onSessionLogs: CodegenTypes.EventEmitter<SessionLogEvent>;
+  readonly onSessionCreateRequest: CodegenTypes.EventEmitter<SessionCreateRequestEvent>;
+  readonly onSessionUpdateRequest: CodegenTypes.EventEmitter<SessionUpdateRequestEvent>;
+  readonly onProviderInformationRequest: CodegenTypes.EventEmitter<ProviderInformationRequest>;
+  readonly onReclaimAttestorAuthRequest: CodegenTypes.EventEmitter<ReclaimAttestorAuthRequest>;
   // unimplemented
-  readonly onSessionIdentityUpdate: CodegenTypes.EventEmitter<ReclaimSessionIdentityUpdate>
+  readonly onSessionIdentityUpdate: CodegenTypes.EventEmitter<ReclaimSessionIdentityUpdate>;
 }
 
 export default TurboModuleRegistry.getEnforcing<Spec>('InappRnSdk');
