@@ -1,3 +1,10 @@
+## 0.36.0
+
+* Add witnesses list with tee attestation (alpha) for tee mode proofs
+* Fix PII in some logs
+* Update webview interaction
+* Update native library
+
 ## 0.34.0
 
 * Update [internal] analytics

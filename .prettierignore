@@ -1,0 +1,13 @@
+node_modules/
+lib/
+.yarn/
+.turbo/
+android/build/
+ios/build/
+ios/generated/
+android/generated/
+user-workspace/
+samples/
+expo-plugin/
+nitrogen/
+*.tgz
