@@ -1,3 +1,7 @@
+## 0.37.0
+
+* Add new option `canAutoCloseOnError` to `ReclaimVerificationOptions` to control auto-close on error
+
 ## 0.36.0
 
 * Add witnesses list with tee attestation (alpha) for tee mode proofs
