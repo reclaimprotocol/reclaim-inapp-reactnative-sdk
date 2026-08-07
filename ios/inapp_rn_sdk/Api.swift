@@ -690,6 +690,10 @@ public class OverridenSessionManagement: NSObject {
         statusString = "PROOF_MANUAL_VERIFICATION_SUBMITTED"
       case .AI_PROOF_SUBMITTED:
         statusString = "AI_PROOF_SUBMITTED"
+      case .USER_INTERACTED:
+        statusString = "USER_INTERACTED"
+      case .USER_TYPED:
+        statusString = "USER_TYPED"
       }
       let replyId = Api.setReplyCallback(completion)
       self._updateSession(sessionId, statusString!, replyId)

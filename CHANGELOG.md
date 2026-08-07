@@ -1,3 +1,14 @@
+## 0.39.0
+
+* Add routerUrl in TeeUrls with updated reclaim protocol operator library
+* Add fallback to HAWKEYE when injection type is CDP or something unknown
+* Add attestor authentication support for tee mode
+* Add USER_INTERACTED and USER_TYPED in Session status
+* Add authRequest in options of request when executing a request
+* Fix iOS TestFlight/App Store crash (`dlsym ... symbol not found` for `reclaim_get_version` and other native symbols) by shipping the native library as its own dynamic framework via Dart native assets (`DynamicLoadingBundled`) instead of statically linking it into the app executable
+* iOS no longer requires consumers to set `STRIP_STYLE=non-global` on their Xcode targets — the native library is now stripped and codesigned independently of the consuming app's build settings
+* Removed the iOS force-link shim (`reclaim_binding`/`EnforceBinding.swift`), no longer needed now that the native library isn't statically merged into the app
+
 ## 0.36.0
 
 * Add witnesses list with tee attestation (alpha) for tee mode proofs

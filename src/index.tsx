@@ -504,6 +504,12 @@ export namespace ReclaimVerification {
 
     /// The proof submission has failed.
     PROOF_SUBMISSION_FAILED,
+
+    /// Did user ever interact with page after provider started
+    USER_INTERACTED,
+    
+    /// Did user ever type on page after provider started
+    USER_TYPED
   }
 
   export type LogEntry = {
