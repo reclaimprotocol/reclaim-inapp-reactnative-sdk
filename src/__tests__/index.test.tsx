@@ -1,4 +1,5 @@
 import { ReclaimVerification } from '../index';
+import NativeReclaimInappModule from '../NativeInappRnSdk';
 
 jest.mock('../NativeInappRnSdk', () => {
   const noopSubscription = () => ({ remove: jest.fn() });
@@ -128,6 +129,32 @@ const fullVerificationOptions: ReclaimVerification.VerificationOptions = {
   locale: null,
   useTeeOperator: null,
 };
+
+describe('ReclaimVerification logging overrides', () => {
+  beforeEach(() => {
+    jest.clearAllMocks();
+  });
+
+  it('forwards logLevel and canLogMetadata to the native module', async () => {
+    const reclaim = new ReclaimVerification();
+
+    await reclaim.setOverrides({
+      logConsumer: {
+        logLevel: 'WARNING',
+        canLogMetadata: true,
+      },
+    });
+
+    expect(NativeReclaimInappModule.setOverrides).toHaveBeenCalledWith(
+      expect.objectContaining({
+        logConsumer: expect.objectContaining({
+          logLevel: 'WARNING',
+          canLogMetadata: true,
+        }),
+      })
+    );
+  });
+});
 
 describe('ReclaimVerification strict config check', () => {
   let platform: MockPlatform;

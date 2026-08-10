@@ -48,7 +48,7 @@ Control SDK logging behavior:
 logConsumer: {
   // Disable/enable telemetry collection
   canSdkCollectTelemetry: false,
-  
+
   // Disable/enable SDK console logging
   canSdkPrintLogs: false,
   
@@ -56,6 +56,14 @@ logConsumer: {
   onLogs: (logJsonString, _) => {
     console.log(logJsonString);
   }
+
+  // When provided, can be used to change logLevel.
+  // Available levels are: ALL, FINEST, FINER, FINE,
+  // CONFIG, INFO, WARNING, SEVERE, SHOUT, OFF
+  logLevel: null,
+
+  // Whether metadata should also be logged along with logs
+  canLogMetadata: null,
 }
 ```
 
@@ -144,7 +152,9 @@ reclaimVerification.setOverrides({
     canSdkPrintLogs: false,
     onLogs: (logJsonString, _) => {
       console.log({ "reclaim.logs": logJsonString });
-    }
+    },
+    logLevel: 'INFO',
+    canLogMetadata: true
   },
   appInfo: {
     appName: "Custom App Name",

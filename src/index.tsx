@@ -303,6 +303,19 @@ export namespace ReclaimVerification {
       ) => Promise<string>;
     }
     export type FeatureOptions = NativeReclaimInappModuleTypes.FeatureOptions;
+
+    export type LogLevels =
+      | 'ALL'
+      | 'FINEST'
+      | 'FINER'
+      | 'FINE'
+      | 'CONFIG'
+      | 'INFO'
+      | 'WARNING'
+      | 'SEVERE'
+      | 'SHOUT'
+      | 'OFF';
+
     export interface LogConsumer {
       /**
        * Handler for consuming logs exported from the SDK.
@@ -320,6 +333,19 @@ export namespace ReclaimVerification {
        * Defaults to enabled when not in release mode.
        */
       canSdkPrintLogs?: boolean;
+
+      /**
+       * When provided, can be used to change logLevel.
+       * Available levels are: ALL, FINEST, FINER, FINE,
+       * CONFIG, INFO, WARNING, SEVERE, SHOUT, OFF.
+       */
+      logLevel?: LogLevels | null;
+
+      /**
+       * Whether metadata should also be logged along with logs.
+       * Defaults to false.
+       */
+      canLogMetadata?: boolean;
     }
     export interface SessionManagement {
       onLog: (event: NativeReclaimInappModuleTypes.SessionLogEvent) => void;
@@ -504,6 +530,53 @@ export namespace ReclaimVerification {
 
     /// The proof submission has failed.
     PROOF_SUBMISSION_FAILED,
+
+    /// A case where log event could not be determined
+    UNKNOWN,
+
+    /// Providers required for this session where fetched
+    FETCHED_PROVIDERS,
+
+    /// Some Reclaim exception occurred
+    RECLAIM_EXCEPTION,
+
+    /// A proof for submitted for manual review
+    PROOF_MANUAL_VERIFICATION_SUBMITTED,
+
+    /// The page does not contain anything that requires user to login
+    AUTH_GATE_NOT_DETECTED,
+
+    /// The page contains MFA or requires user to login
+    AUTH_REQUIRED,
+
+    /// @deprecated
+    /// Happens before PROOF_GENERATION_FAILED
+    ERROR,
+
+    // Copy of Session Status
+    USER_STARTED_VERIFICATION,
+
+    USER_INIT_VERIFICATION,
+
+    /// User interacted with the web page for the first time
+    USER_INTERACTED,
+
+    /// User typed on the web page for the first time
+    USER_TYPED,
+
+    /// First proof generation started
+    PROOF_GENERATION_STARTED,
+
+    PROOF_GENERATION_RETRY,
+
+    /// All expected proofs generated
+    PROOF_GENERATION_SUCCESS,
+
+    /// Any proof generation failed (retry can happen in some cases)
+    PROOF_GENERATION_FAILED,
+
+    /// AI Submitted a proofs
+    AI_PROOF_SUBMITTED,
   }
 
   export type LogEntry = {
@@ -540,6 +613,10 @@ export namespace ReclaimVerification {
      * Log event
      */
     eventType?: keyof typeof LogEventType | '';
+    /**
+     * Data related to this event
+     */
+    metadta: Record<string, any> | string | null;
   };
 
   export enum ExceptionType {
@@ -840,6 +917,8 @@ export class PlatformImpl extends ReclaimVerification.Platform {
           enableLogHandler: !!onLogsListener,
           canSdkCollectTelemetry: logConsumer?.canSdkCollectTelemetry,
           canSdkPrintLogs: logConsumer?.canSdkPrintLogs,
+          logLevel: logConsumer?.logLevel,
+          canLogMetadata: logConsumer?.canLogMetadata,
         };
     if (onLogsListener) {
       this.disposeLogListener();
