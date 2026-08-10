@@ -53,8 +53,12 @@ export default function App() {
             console.info(entry);
           }
         },
+        canLogMetadata: true,
+        canSdkPrintLogs: true,
       },
       capabilityAccessToken: config.REACT_APP_RECLAIM_CAPABILITY_ACCESS_TOKEN,
+    }).catch(e => {
+      console.warn({ e });
     });
   }, []);
 

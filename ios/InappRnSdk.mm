@@ -342,6 +342,13 @@ Api *api = [[Api alloc] init];
                                                      .canSdkPrintLogs()
                                                      .value()];
     }
+    NSNumber *_Nullable canLogMetadata = nil;
+    if (overrides.logConsumer().value().canLogMetadata().has_value()) {
+      canLogMetadata = [NSNumber numberWithBool:overrides.logConsumer()
+                                                     .value()
+                                                     .canLogMetadata()
+                                                     .value()];
+    }
     OverridenLogHandler *_Nullable logHandler;
     if (overrides.logConsumer().value().enableLogHandler()) {
       logHandler = [[OverridenLogHandler alloc]
@@ -352,7 +359,9 @@ Api *api = [[Api alloc] init];
     overridenLogConsumer =
         [[OverridenLogConsumer alloc] initWithLogHandler:logHandler
                                   canSdkCollectTelemetry:canSDKCollectTelemetry
-                                         canSdkPrintLogs:canSdkPrintLogs];
+                                         canSdkPrintLogs:canSdkPrintLogs
+                                         logLevel:overrides.logConsumer().value().logLevel()
+                                         canLogMetadata:canLogMetadata];
   }
 
   OverridenSessionManagement *_Nullable sessionManagement;

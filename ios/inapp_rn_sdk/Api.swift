@@ -193,7 +193,9 @@ import ReclaimInAppSdk
       logConsumerOverrides = .init(
         logHandler: logConsumer.logHandler,
         canSdkCollectTelemetry: logConsumer.canSdkCollectTelemetry,
-        canSdkPrintLogs: logConsumer.canSdkPrintLogs?.boolValue
+        canSdkPrintLogs: logConsumer.canSdkPrintLogs?.boolValue,
+        logLevel: logConsumer.logLevel,
+        canLogMetadata: logConsumer.canLogMetadata?.boolValue
       )
     } else {
       logConsumerOverrides = nil
@@ -539,15 +541,30 @@ public class OverridenProviderInformation: NSObject {
    * Type: Bool.
    */
   @objc public let canSdkPrintLogs: NSNumber?
+  /**
+   * When provided, changes the minimum log level.
+   * Type: String.
+   */
+  @objc public let logLevel: String?
+  /**
+   * Whether metadata should also be included in logs.
+   * Defaults to false.
+   * Type: Bool.
+   */
+  @objc public let canLogMetadata: NSNumber?
 
   @objc public init(
     logHandler: OverridenLogHandler? = nil,
     canSdkCollectTelemetry: Bool = true,
-    canSdkPrintLogs: NSNumber? = nil
+    canSdkPrintLogs: NSNumber? = nil,
+    logLevel: String? = nil,
+    canLogMetadata: NSNumber? = nil
   ) {
     self.logHandler = logHandler
     self.canSdkCollectTelemetry = canSdkCollectTelemetry
     self.canSdkPrintLogs = canSdkPrintLogs
+    self.logLevel = logLevel
+    self.canLogMetadata = canLogMetadata
   }
 }
 

@@ -357,7 +357,9 @@ class InappRnSdkModule(private val reactContext: ReactApplicationContext) :
             }
           },
           canSdkCollectTelemetry = getBoolean(logConsumer, "canSdkCollectTelemetry") ?: true,
-          canSdkPrintLogs = getBoolean(logConsumer, "canSdkPrintLogs")
+          canSdkPrintLogs = getBoolean(logConsumer, "canSdkPrintLogs"),
+          logLevel = getString(logConsumer, "logLevel"),
+          canLogMetadata = getBoolean(logConsumer, "canLogMetadata")
         ),
         sessionManagement = if (sessionManagement == null || getBoolean(
             sessionManagement, "enableSdkSessionManagement"

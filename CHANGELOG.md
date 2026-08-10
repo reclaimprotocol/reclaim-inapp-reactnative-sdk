@@ -1,3 +1,11 @@
+## 0.40.0
+
+* Add API to enable metadata logging
+* Add logging of session events
+* Add API to change level
+* Fix sanitization of url logs
+* Add missing overrides for logLevel and metadata logging
+
 ## 0.39.0
 
 * Add routerUrl in TeeUrls with updated reclaim protocol operator library

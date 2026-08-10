@@ -248,6 +248,19 @@ export interface LogConsumer {
    * Defaults to enabled when not in release mode.
    */
   canSdkPrintLogs?: boolean;
+
+  /**
+   * When provided, can be used to change logLevel.
+   * Available levels are: ALL, FINEST, FINER, FINE,
+   * CONFIG, INFO, WARNING, SEVERE, SHOUT, OFF.
+   */
+  logLevel?: string | null;
+
+  /**
+   * Whether metadata should also be logged along with logs.
+   * Defaults to false.
+   */
+  canLogMetadata?: boolean;
 }
 
 /**
