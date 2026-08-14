@@ -1,7 +1,7 @@
 import { type ConfigPlugin, withAndroidManifest } from '@expo/config-plugins';
 
-export const withReclaimAndroidManifest: ConfigPlugin = (config) => {
-    return withAndroidManifest(config, (config) => {
+export const withReclaimAndroidManifest: ConfigPlugin = (configPlugin) => {
+    return withAndroidManifest(configPlugin, (config) => {
         let androidManifest = config.modResults.manifest;
         const cannotInstallMessage = 'cannot install reclaim inapp android sdk';
 
@@ -25,7 +25,7 @@ export const withReclaimAndroidManifest: ConfigPlugin = (config) => {
 
         application.activity = application.activity!.filter(
             (act) =>
-                act.$['android:name'] !=
+                act.$['android:name'] !==
                 'org.reclaimprotocol.inapp_sdk.ReclaimActivity'
         );
 

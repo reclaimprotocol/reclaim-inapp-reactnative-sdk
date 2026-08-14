@@ -24,6 +24,20 @@ export default defineConfig([
     },
   },
   {
-    ignores: ['node_modules/', 'lib/'],
+    // Generated output and vendored dependencies. Native build directories hold
+    // bundled third-party browser scripts that otherwise trip `no-undef`, and
+    // they only exist after a local build - so linting them makes results differ
+    // between a developer machine and a fresh CI checkout.
+    ignores: [
+      '**/node_modules/',
+      'lib/',
+      'coverage/',
+      '.yarn/',
+      '**/build/',
+      '**/Pods/',
+      '**/vendor/',
+      '**/samples/',
+      '**/user-workspace/',
+    ],
   },
 ]);
