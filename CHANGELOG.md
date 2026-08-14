@@ -1,3 +1,9 @@
+## 0.42.1
+
+* Upgrade flutter dependencies
+* Fix fallback for CDP
+* Update tee operator library
+
 ## 0.40.0
 
 * Add API to enable metadata logging
