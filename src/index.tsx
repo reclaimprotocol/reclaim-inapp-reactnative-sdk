@@ -90,7 +90,7 @@ export class ReclaimVerification {
 
   public setConsoleLogging(enabled: boolean) {
     return this.platform.setConsoleLogging({
-      enabled: enabled == true,
+      enabled: enabled === true,
     });
   }
 
@@ -855,7 +855,7 @@ export class PlatformImpl extends ReclaimVerification.Platform {
   private previousSessionManagementCancelCallback: null | (() => void) = null;
   disposeSessionManagement() {
     let callback = this.previousSessionManagementCancelCallback;
-    if (callback != null && callback != undefined) {
+    if (callback !== null && callback !== undefined) {
       callback();
     }
     this.previousSessionManagementCancelCallback = null;
@@ -870,7 +870,7 @@ export class PlatformImpl extends ReclaimVerification.Platform {
   private previousProviderRequestCancelCallback: null | (() => void) = null;
   private disposeProviderRequestListener() {
     let callback = this.previousProviderRequestCancelCallback;
-    if (callback != null && callback != undefined) {
+    if (callback !== null && callback !== undefined) {
       callback();
     }
     this.previousProviderRequestCancelCallback = null;
@@ -1009,7 +1009,7 @@ export class PlatformImpl extends ReclaimVerification.Platform {
   private previousAttestorAuthRequestCancelCallback: null | (() => void) = null;
   disposeAttestorAuthRequestListener() {
     let callback = this.previousAttestorAuthRequestCancelCallback;
-    if (callback != null && callback != undefined) {
+    if (callback !== null && callback !== undefined) {
       callback();
     }
     this.previousAttestorAuthRequestCancelCallback = null;
@@ -1078,7 +1078,7 @@ export class PlatformImpl extends ReclaimVerification.Platform {
 
       // 3. Create and return the Date object
       return new Date(milliseconds);
-    } catch (e) {
+    } catch {
       return new Date();
     }
   }
@@ -1096,7 +1096,7 @@ export class PlatformImpl extends ReclaimVerification.Platform {
   ): Promise<void> {
     try {
       return await NativeReclaimInappModule.setConsoleLogging({
-        enabled: options?.enabled == true,
+        enabled: options?.enabled === true,
       });
     } catch (error) {
       throw new ReclaimVerification.ReclaimPlatformException(
@@ -1126,7 +1126,7 @@ export class PlatformImpl extends ReclaimVerification.Platform {
           (param) => {
             try {
               listener(param);
-            } catch (_) {
+            } catch {
               // ignore listener errors
             }
           }
@@ -1146,7 +1146,7 @@ export class PlatformImpl extends ReclaimVerification.Platform {
         PlatformImpl.listenersCount[type] = 0;
         try {
           NativeReclaimInappModule.removeEventSubscription(type);
-        } catch (error) {
+        } catch {
           // ignore subscription removal errors
         }
       }

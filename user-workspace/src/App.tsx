@@ -450,7 +450,7 @@ export default function App() {
           onPress={handleStartVerification}
         />
 
-        <Text style={styles.button} ></Text>
+        <Text style={styles.button}  />
 
         <Button
           title="Ping"

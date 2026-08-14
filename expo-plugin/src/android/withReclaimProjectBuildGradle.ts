@@ -3,8 +3,8 @@ import {
     withProjectBuildGradle,
 } from '@expo/config-plugins';
 
-export const withReclaimProjectBuildGradle: ConfigPlugin = (config) => {
-    return withProjectBuildGradle(config, async (config) => {
+export const withReclaimProjectBuildGradle: ConfigPlugin = (configPlugin) => {
+    return withProjectBuildGradle(configPlugin, async (config) => {
         const flutterStorageUrl = process.env.EXPO_PUBLIC_FLUTTER_STORAGE_BASE_URL || "https://storage.googleapis.com"
         const reclaimStorageUrl = process.env.EXPO_PUBLIC_RECLAIM_STORAGE_BASE_URL || "https://reclaim-inapp-sdk.s3.ap-south-1.amazonaws.com/android/repo"
 
