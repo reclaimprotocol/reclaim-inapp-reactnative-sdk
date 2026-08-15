@@ -616,7 +616,7 @@ export namespace ReclaimVerification {
     /**
      * Data related to this event
      */
-    metadta: Record<string, any> | string | null;
+    metadata: Record<string, any> | string | null;
   };
 
   export enum ExceptionType {
