@@ -1,4 +1,4 @@
-## 0.42.1+1
+## 0.42.2
 
 * Fix LogEntry.metadata's spelling
 
