@@ -1,3 +1,7 @@
+## 0.42.2
+
+* Fix LogEntry.metadata's spelling
+
 ## 0.42.1
 
 * Upgrade flutter dependencies
