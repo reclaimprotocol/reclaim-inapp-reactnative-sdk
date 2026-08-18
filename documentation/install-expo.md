@@ -127,9 +127,36 @@ To fix this, you need to use embedded cronet in your android app by adding the f
 dependencies {
     // ... other dependencies (not shown for brevity)
     // Use embedded cronet
-    implementation("org.chromium.net:cronet-embedded:141.7340.3")
+    implementation("org.chromium.net:cronet-embedded:143.7445.0")
 }
 ```
+
+Use **143.7445.0 or newer**. Do not downgrade this to a 141.x release: in 141 the `cronet-embedded`, `cronet-shared`, and `cronet-common` artifacts all declare the same `org.chromium.net` manifest namespace, which fails the build on AGP 9 (see the next section). 143.7445.0 gives each artifact its own namespace.
+
+### Duplicate namespace 'org.chromium.net' on AGP 9
+
+On AGP 9 you may see `:app:processDebugMainManifest` fail with:
+
+```
+Namespace 'org.chromium.net' is used in multiple modules and/or libraries:
+org.chromium.net:cronet-api:141.7340.3, org.chromium.net:cronet-shared:141.7340.3.
+Please ensure that all modules and libraries have a unique namespace.
+```
+
+Cronet 141 split `cronet-shared` out of `cronet-api` but shipped both AARs with the same `org.chromium.net` manifest namespace. AGP derives a library's namespace from that attribute, so two libraries end up claiming one namespace and the manifest merger's uniqueness check rejects it. Cronet fixed this in 143.7445.0.
+
+The SDK constrains Cronet to 143.7445.0 from version 0.43.0 onward, so upgrading `@reclaimprotocol/inapp-rn-sdk` is the preferred fix. If you are pinned to an older version, add the same constraint in your app's `build.gradle`:
+
+```gradle
+dependencies {
+    constraints {
+        implementation("org.chromium.net:cronet-api:143.7445.0")
+        implementation("org.chromium.net:cronet-shared:143.7445.0")
+    }
+}
+```
+
+Prefer this over `android.uniquePackageNames=false` in `gradle.properties`. That flag only downgrades the check to a warning, and AGP 10.0 stops honouring it.
 
 ### iOS build issues
 

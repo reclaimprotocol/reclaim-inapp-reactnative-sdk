@@ -1,3 +1,19 @@
+## 0.43.0
+
+* Downgrade secure storage and permission handler to support older versions of android compile sdk requirement
+* Build Android AARs against compileSdk 36 instead of 37, so published artifacts declare
+  `minCompileSdk=36`. Compiling against API 37 requires AGP 9.1.1+, which no stable React
+  Native release supports, making 0.42.0/0.42.1 unusable in React Native host apps.
+* Pin `flutter_secure_storage` to <11 and `permission_handler` to <13; their latest majors
+  build at compileSdk 37 and were forcing the AAR metadata above 36.
+* Fail the Android build if any published AAR declares a `minCompileSdk` above the configured
+  `COMPILE_SDK`.
+* Constrain `org.chromium.net:cronet-api` and `cronet-shared` to 143.7445.0. Cronet 141 split
+  `cronet-shared` out of `cronet-api` but shipped both AARs with the same `org.chromium.net`
+  manifest namespace, so AGP 9 hosts failed `:app:processDebugMainManifest` with "Namespace
+  'org.chromium.net' is used in multiple modules and/or libraries". 143 gives each artifact its
+  own namespace, so consumers do not need `android.uniquePackageNames=false`.
+
 ## 0.42.2
 
 * Fix LogEntry.metadata's spelling
