@@ -102,6 +102,9 @@
     "react": "*",
     "react-native": "*"
   },
+  "resolutions": {
+    "undici@npm:6.23.0": "npm:6.29.1"
+  },
   "workspaces": [
     "user-workspace"
   ],
